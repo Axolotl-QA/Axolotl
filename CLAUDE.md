@@ -1,6 +1,8 @@
 # CLAUDE.md
 
-This file is the secret sauce for working effectively in this codebase. It captures tribal knowledge—the nuanced, non-obvious patterns that make the difference between a quick fix and hours of back-and-forth & human intervention.
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+It captures tribal knowledge—the nuanced, non-obvious patterns that make the difference between a quick fix and hours of back-and-forth & human intervention.
 
 **When to add to this file:**
 - User had to intervene, correct, or hand-hold
@@ -13,6 +15,29 @@ This file is the secret sauce for working effectively in this codebase. It captu
 **Proactively suggest additions** when any of the above happen—don't wait to be asked.
 
 **What NOT to add:** Stuff you can figure out from reading a few files, obvious patterns, or standard practices. This file should be high-signal, not comprehensive.
+
+## Build & Development Commands
+
+```bash
+npm run install:all    # Install dependencies (main + webview-ui)
+npm run dev            # Development mode (protos + watch)
+npm run compile        # Type-check + lint + build
+npm run protos         # Regenerate proto files after .proto changes
+
+# Testing
+npm run test           # Run all tests
+npm run test:unit      # Unit tests only
+npm run test:unit -- --grep "pattern"  # Run specific test
+UPDATE_SNAPSHOTS=true npm run test:unit  # Update snapshots
+npm run test:integration  # Integration tests (launches VS Code)
+npm run test:e2e       # E2E tests with Playwright
+
+npm run lint           # Lint check
+npm run package        # Package for production
+npm run dev:webview    # Webview UI hot reload dev server
+```
+
+**Debug:** Press F5 in VS Code to launch Extension Development Host.
 
 ## Miscellaneous
 - This is a VS Code extension—check `package.json` for available scripts before trying to verify builds (e.g., `npm run compile`, not `npm run build`).

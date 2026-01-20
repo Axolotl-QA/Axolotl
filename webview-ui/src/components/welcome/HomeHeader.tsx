@@ -1,7 +1,6 @@
 import { EmptyRequest } from "@shared/proto/cline/common"
 import { InfoIcon } from "lucide-react"
-import ClineLogoSanta from "@/assets/ClineLogoSanta"
-import ClineLogoVariable from "@/assets/ClineLogoVariable"
+import SentinelLogo from "@/assets/SentinelLogo"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { useExtensionState } from "@/context/ExtensionStateContext"
 import { UiServiceClient } from "@/services/grpc-client"
@@ -20,10 +19,6 @@ const HomeHeader = ({ shouldShowQuickWins = false }: HomeHeaderProps) => {
 			console.error("Error opening walkthrough:", error)
 		}
 	}
-
-	// Check if it's December for festive logo
-	const isDecember = new Date().getMonth() === 11 // 11 = December (0-indexed)
-	const LogoComponent = isDecember ? ClineLogoSanta : ClineLogoVariable
 
 	return (
 		<div className="flex flex-col items-center mb-5">
@@ -49,7 +44,7 @@ const HomeHeader = ({ shouldShowQuickWins = false }: HomeHeaderProps) => {
 				`}
 			</style>
 			<div className="my-7 logo-animate">
-				<LogoComponent className="size-20" environment={environment} />
+				<SentinelLogo className="size-20" environment={environment} />
 			</div>
 			<div className="text-center flex items-center justify-center px-4">
 				<h1 className="m-0 font-bold">What can I do for you?</h1>

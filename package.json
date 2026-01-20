@@ -1,6 +1,6 @@
 {
 	"name": "claude-dev",
-	"displayName": "Cline",
+	"displayName": "Sentinel",
 	"description": "Autonomous coding agent right in your IDE, capable of creating/editing files, running commands, using the browser, and more with your permission every step of the way.",
 	"version": "3.50.0",
 	"icon": "assets/icons/icon.png",
@@ -8,7 +8,7 @@
 		"vscode": "^1.84.0"
 	},
 	"author": {
-		"name": "Cline Bot Inc."
+		"name": "Sentinel"
 	},
 	"license": "Apache-2.0",
 	"publisher": "saoudrizwan",
@@ -57,22 +57,22 @@
 		},
 		"walkthroughs": [
 			{
-				"id": "ClineWalkthrough",
-				"title": "Meet Cline, your new coding partner",
-				"description": "Cline codes like a developer because it thinks like one. Here are 5 ways to put it to work:",
+				"id": "SentinelWalkthrough",
+				"title": "Meet Sentinel, your new qa partner",
+				"description": "Sentinel codes like a qa because it thinks like one. Here are 5 ways to put it to work:",
 				"steps": [
 					{
 						"id": "welcome",
 						"title": "Start with a Goal, Not Just a Prompt",
-						"description": "Tell Cline what you want to achieve. It plans, asks, and then codes, like a true partner.",
+						"description": "Tell Sentinel what you want to achieve. It plans, asks, and then codes, like a true partner.",
 						"media": {
 							"markdown": "walkthrough/step1.md"
 						}
 					},
 					{
 						"id": "learn",
-						"title": "Let Cline Learn Your Codebase",
-						"description": "Point Cline to your project. It builds understanding to make smart, context-aware changes.",
+						"title": "Let Sentinel Learn Your Codebase",
+						"description": "Point Sentinel to your project. It builds understanding to make smart, context-aware changes.",
 						"media": {
 							"markdown": "walkthrough/step2.md"
 						}
@@ -80,7 +80,7 @@
 					{
 						"id": "advanced-features",
 						"title": "Always Use the Best AI Models",
-						"description": "Cline empowers you with State-of-the-Art AI, connecting to top models (Anthropic, Gemini, OpenAI & more).",
+						"description": "Sentinel empowers you with State-of-the-Art AI, connecting to top models (Anthropic, Gemini, OpenAI & more).",
 						"media": {
 							"markdown": "walkthrough/step3.md"
 						}
@@ -96,7 +96,7 @@
 					{
 						"id": "getting-started",
 						"title": "You're Always in Control",
-						"description": "Review Cline's plans and diffs. Approve changes before they happen. No surprises.",
+						"description": "Review Sentinel's plans and diffs. Approve changes before they happen. No surprises.",
 						"media": {
 							"markdown": "walkthrough/step5.md"
 						},
@@ -111,7 +111,7 @@
 			"activitybar": [
 				{
 					"id": "claude-dev-ActivityBar",
-					"title": "Cline",
+					"title": "Sentinel",
 					"icon": "assets/icons/icon.svg"
 				}
 			]
@@ -155,72 +155,72 @@
 			{
 				"command": "cline.dev.createTestTasks",
 				"title": "Create Test Tasks",
-				"category": "Cline",
+				"category": "Sentinel",
 				"when": "cline.isDevMode"
 			},
 			{
 				"command": "cline.dev.expireMcpOAuthTokens",
 				"title": "Expire MCP OAuth Tokens (for testing)",
-				"category": "Cline",
+				"category": "Sentinel",
 				"when": "cline.isDevMode"
 			},
 			{
 				"command": "cline.addToChat",
-				"title": "Add to Cline",
-				"category": "Cline"
+				"title": "Add to Sentinel",
+				"category": "Sentinel"
 			},
 			{
 				"command": "cline.addTerminalOutputToChat",
-				"title": "Add to Cline",
-				"category": "Cline"
+				"title": "Add to Sentinel",
+				"category": "Sentinel"
 			},
 			{
 				"command": "cline.focusChatInput",
 				"title": "Jump to Chat Input",
-				"category": "Cline"
+				"category": "Sentinel"
 			},
 			{
 				"command": "cline.generateGitCommitMessage",
-				"title": "Generate Commit Message with Cline",
-				"category": "Cline",
+				"title": "Generate Commit Message with Sentinel",
+				"category": "Sentinel",
 				"icon": "$(cline-icon)"
 			},
 			{
 				"command": "cline.abortGitCommitMessage",
-				"title": "Generate Commit Message with Cline - Stop",
-				"category": "Cline",
+				"title": "Generate Commit Message with Sentinel - Stop",
+				"category": "Sentinel",
 				"icon": "$(debug-stop)"
 			},
 			{
 				"command": "cline.explainCode",
-				"title": "Explain with Cline",
-				"category": "Cline"
+				"title": "Explain with Sentinel",
+				"category": "Sentinel"
 			},
 			{
 				"command": "cline.improveCode",
-				"title": "Improve with Cline",
-				"category": "Cline"
+				"title": "Improve with Sentinel",
+				"category": "Sentinel"
 			},
 			{
 				"command": "cline.openWalkthrough",
 				"title": "Open Walkthrough",
-				"category": "Cline"
+				"category": "Sentinel"
 			},
 			{
 				"command": "cline.reconstructTaskHistory",
 				"title": "Reconstruct Task History",
-				"category": "Cline"
+				"category": "Sentinel"
 			},
 			{
 				"command": "cline.reviewComment.reply",
 				"title": "Reply",
-				"category": "Cline",
+				"category": "Sentinel",
 				"enablement": "!commentIsEmpty"
 			},
 			{
 				"command": "cline.reviewComment.addToChat",
-				"title": "Add to Cline Chat",
-				"category": "Cline",
+				"title": "Add to Sentinel Chat",
+				"category": "Sentinel",
 				"icon": "$(link-external)"
 			}
 		],
@@ -334,7 +334,7 @@
 			]
 		},
 		"configuration": {
-			"title": "Cline",
+			"title": "Sentinel",
 			"properties": {}
 		}
 	},
