@@ -49,6 +49,7 @@ export const toolParamNames = [
 	"from_ref",
 	"to_ref",
 	"skill_name",
+	"report_json",
 ] as const
 
 export type ToolParamName = (typeof toolParamNames)[number]

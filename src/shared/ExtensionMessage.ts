@@ -184,6 +184,7 @@ export type ClineSay =
 	| "checkpoint_created"
 	| "load_mcp_documentation"
 	| "generate_explanation"
+	| "sentinel_qa_report"
 	| "info" // Added for general informational messages like retry status
 	| "task_progress"
 	| "hook_status"
@@ -260,6 +261,38 @@ export interface ClineSayGenerateExplanation {
 	fromRef: string
 	toRef: string
 	status: "generating" | "complete" | "error"
+	error?: string
+}
+
+export interface SentinelQAReportTest {
+	id: string
+	name: string
+	category: "functional" | "edge_case" | "integration" | "ui_ux"
+	status: "passed" | "failed" | "skipped"
+	evidence?: {
+		logs?: string[]
+		screenshots?: string[]
+		notes?: string
+	}
+	failure_reason?: string
+}
+
+export interface SentinelQAReport {
+	summary: {
+		total_tests: number
+		passed: number
+		failed: number
+		skipped: number
+		verdict: "MERGEABLE" | "NOT_MERGEABLE" | "MERGEABLE_WITH_RISKS"
+	}
+	tests: SentinelQAReportTest[]
+	risks: string[]
+	recommendations: string[]
+}
+
+export interface ClineSaySentinelQAReport {
+	status: "generating" | "complete" | "error"
+	report?: SentinelQAReport
 	error?: string
 }
 

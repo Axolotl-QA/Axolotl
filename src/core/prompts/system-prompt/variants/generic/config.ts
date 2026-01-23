@@ -65,6 +65,7 @@ export const config = createVariant(ModelFamily.GENERIC)
 		ClineDefaultTool.TODO,
 		ClineDefaultTool.GENERATE_EXPLANATION,
 		ClineDefaultTool.USE_SKILL,
+		ClineDefaultTool.SENTINEL_QA_REPORT,
 	)
 	.placeholders({
 		MODEL_FAMILY: "generic",

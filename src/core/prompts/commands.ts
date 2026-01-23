@@ -235,6 +235,123 @@ cline "<prompt>"
 </explicit_instructions>\n
 `
 
+export const sentinelQAToolResponse = () =>
+	`<explicit_instructions type="sentinel_qa">
+The user has requested a Sentinel QA test session. You will act as an automated QA engineer to verify that the specified code meets the provided requirements (PRD/spec).
+
+# SENTINEL QA WORKFLOW
+
+You must follow these phases in order:
+
+## Phase 1: Analysis & Test Planning
+
+1. **Read Target Files**: Read all files specified by the user (via @ mentions or paths)
+2. **Understand Requirements**: Analyze the PRD/spec provided by the user
+3. **Identify Test Scenarios**: Create a structured test plan covering:
+   - **Functional tests**: Does the main feature work as specified?
+   - **Edge cases**: Error handling, boundary conditions, invalid inputs
+   - **Integration tests**: Component interactions, API calls
+   - **UI/UX verification**: If applicable, visual and interaction checks
+
+Output a test plan in this format:
+\`\`\`
+TEST PLAN:
+1. [test_id] [category] - [description]
+   Expected: [what should happen]
+2. ...
+\`\`\`
+
+## Phase 2: Log Injection (if needed)
+
+To capture evidence during test execution, inject temporary logging statements into the code.
+
+**Log Marker Format**: \`// SENTINEL_TEST_LOG: <test_id>\`
+**Console Log Format**: \`console.log('SENTINEL_TEST_LOG: <test_id> - <description>', <relevant_data>);\`
+
+Example:
+\`\`\`javascript
+// SENTINEL_TEST_LOG: login_success
+console.log('SENTINEL_TEST_LOG: login_success - User authenticated', { userId, timestamp });
+\`\`\`
+
+**Important**:
+- Only inject logs at critical verification points
+- Track all injected logs for cleanup later
+- Use the write_to_file or replace_in_file tool for injection
+
+## Phase 3: Build & Run
+
+1. **Install dependencies**: Run \`npm install\` (or equivalent for the project type)
+2. **Start dev server**: Run \`npm run dev\` (or equivalent)
+3. **Wait for ready**: Check if the server is running and accessible
+4. **Verify health**: Confirm the app is responding (e.g., check localhost URL)
+
+If build or server fails, **stop immediately** and report the failure.
+
+## Phase 4: E2E Testing with Browser
+
+Use the browser_action tool to test the application:
+
+1. **Launch browser**: Navigate to the app URL
+2. **Execute test scenarios**: For each test in your plan:
+   - Perform UI interactions (click, type, scroll)
+   - Capture screenshots at key points
+   - Monitor console logs for SENTINEL_TEST_LOG markers
+3. **Record evidence**: Collect logs, screenshots, and observations
+
+## Phase 5: Cleanup & Report
+
+1. **Remove injected logs**: Use replace_in_file to remove all SENTINEL_TEST_LOG markers
+2. **Close browser**: End the browser session
+3. **Generate report**: Use the sentinel_qa_report tool with this structure:
+
+\`\`\`json
+{
+  "summary": {
+    "total_tests": <number>,
+    "passed": <number>,
+    "failed": <number>,
+    "skipped": <number>,
+    "verdict": "MERGEABLE" | "NOT_MERGEABLE" | "MERGEABLE_WITH_RISKS"
+  },
+  "tests": [
+    {
+      "id": "<test_id>",
+      "name": "<human readable name>",
+      "category": "functional" | "edge_case" | "integration" | "ui_ux",
+      "status": "passed" | "failed" | "skipped",
+      "evidence": {
+        "logs": ["<captured log lines>"],
+        "screenshots": ["<screenshot descriptions>"],
+        "notes": "<additional observations>"
+      },
+      "failure_reason": "<if failed, explain why>"
+    }
+  ],
+  "risks": ["<identified risks or concerns>"],
+  "recommendations": ["<suggested improvements>"]
+}
+\`\`\`
+
+## Verdict Guidelines
+
+- **MERGEABLE**: All critical tests pass, no significant risks
+- **NOT_MERGEABLE**: Critical functionality broken, build fails, or major bugs found
+- **MERGEABLE_WITH_RISKS**: Main flow works but edge cases fail or minor issues found
+
+## Important Rules
+
+- ALWAYS read and understand the code BEFORE writing tests
+- ALWAYS clean up injected logs after testing
+- Take screenshots at EVERY critical verification point
+- If build fails, report immediately - do not continue testing
+- Evidence-driven: Base your verdict ONLY on observed behavior and logs
+- Do not assume functionality works - VERIFY with actual tests
+
+Below is the user's input with their target files and PRD/requirements.
+</explicit_instructions>\n
+`
+
 export const explainChangesToolResponse = () =>
 	`<explicit_instructions type="explain_changes">
 The user has asked you to explain code changes. You have access to a tool called **generate_explanation** that opens a multi-file diff view with AI-generated inline comments explaining code changes between two git references.

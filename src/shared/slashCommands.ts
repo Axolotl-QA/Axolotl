@@ -51,4 +51,9 @@ export const VSCODE_ONLY_COMMANDS: SlashCommand[] = [
 		description: "Explain code changes between git refs (PRs, commits, branches, etc.)",
 		section: "default",
 	},
+	{
+		name: "sentinel-qa",
+		description: "Run automated QA testing on selected files with PRD/spec",
+		section: "default",
+	},
 ]

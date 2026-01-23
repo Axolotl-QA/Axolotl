@@ -6,6 +6,7 @@ import {
 	ClineMessage,
 	ClinePlanModeResponse,
 	ClineSayGenerateExplanation,
+	ClineSaySentinelQAReport,
 	ClineSayTool,
 	COMPLETION_RESULT_CHANGES_FLAG,
 } from "@shared/ExtensionMessage"
@@ -1101,6 +1102,109 @@ export const ChatRowContent = memo(
 												<code className="bg-quote rounded-sm py-0.5 px-1.5">
 													{explanationInfo.toRef || "working directory"}
 												</code>
+											</div>
+										)}
+									</div>
+								)}
+							</div>
+						)
+					}
+					case "sentinel_qa_report": {
+						let reportInfo: ClineSaySentinelQAReport = {
+							status: "generating",
+						}
+						try {
+							if (message.text) {
+								reportInfo = JSON.parse(message.text)
+							}
+						} catch {
+							// Use defaults if parsing fails
+						}
+						// Check if generation was interrupted
+						const wasCancelled =
+							reportInfo.status === "generating" &&
+							(!isLast ||
+								lastModifiedMessage?.ask === "resume_task" ||
+								lastModifiedMessage?.ask === "resume_completed_task")
+						const isGenerating = reportInfo.status === "generating" && !wasCancelled
+						const isError = reportInfo.status === "error"
+						const report = reportInfo.report
+
+						// Determine verdict color
+						const getVerdictColor = (verdict?: string) => {
+							switch (verdict) {
+								case "MERGEABLE":
+									return "text-success"
+								case "NOT_MERGEABLE":
+									return "text-error"
+								case "MERGEABLE_WITH_RISKS":
+									return "text-warning"
+								default:
+									return ""
+							}
+						}
+
+						return (
+							<div className="bg-code flex flex-col border border-editor-group-border rounded-sm py-2.5 px-3">
+								<div className="flex items-center">
+									{isGenerating ? (
+										<ProgressIndicator />
+									) : isError ? (
+										<CircleXIcon className="size-2 mr-2 text-error" />
+									) : wasCancelled ? (
+										<CircleSlashIcon className="size-2 mr-2" />
+									) : report?.summary.verdict === "MERGEABLE" ? (
+										<CheckIcon className="size-2 mr-2 text-success" />
+									) : report?.summary.verdict === "NOT_MERGEABLE" ? (
+										<CircleXIcon className="size-2 mr-2 text-error" />
+									) : (
+										<TriangleAlertIcon className="size-2 mr-2 text-warning" />
+									)}
+									<span className="font-semibold">
+										{isGenerating
+											? "Running Sentinel QA tests..."
+											: isError
+												? "QA test failed"
+												: wasCancelled
+													? "QA test cancelled"
+													: "Sentinel QA Report"}
+									</span>
+								</div>
+								{isError && reportInfo.error && (
+									<div className="opacity-80 ml-6 mt-1.5 text-error break-words">{reportInfo.error}</div>
+								)}
+								{!isError && !isGenerating && !wasCancelled && report && (
+									<div className="ml-6 mt-2">
+										{/* Summary */}
+										<div className="flex items-center gap-4 text-sm">
+											<span className="text-success">Passed: {report.summary.passed}</span>
+											<span className="text-error">Failed: {report.summary.failed}</span>
+											<span className="opacity-70">Skipped: {report.summary.skipped}</span>
+										</div>
+										{/* Verdict */}
+										<div className={`mt-2 font-semibold ${getVerdictColor(report.summary.verdict)}`}>
+											Verdict: {report.summary.verdict.replace(/_/g, " ")}
+										</div>
+										{/* Risks */}
+										{report.risks && report.risks.length > 0 && (
+											<div className="mt-2">
+												<div className="text-xs opacity-70 mb-1">Risks:</div>
+												<ul className="list-disc list-inside text-sm opacity-80">
+													{report.risks.map((risk, i) => (
+														<li key={i}>{risk}</li>
+													))}
+												</ul>
+											</div>
+										)}
+										{/* Recommendations */}
+										{report.recommendations && report.recommendations.length > 0 && (
+											<div className="mt-2">
+												<div className="text-xs opacity-70 mb-1">Recommendations:</div>
+												<ul className="list-disc list-inside text-sm opacity-80">
+													{report.recommendations.map((rec, i) => (
+														<li key={i}>{rec}</li>
+													))}
+												</ul>
 											</div>
 										)}
 									</div>

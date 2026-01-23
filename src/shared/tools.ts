@@ -32,6 +32,7 @@ export enum ClineDefaultTool {
 	APPLY_PATCH = "apply_patch",
 	GENERATE_EXPLANATION = "generate_explanation",
 	USE_SKILL = "use_skill",
+	SENTINEL_QA_REPORT = "sentinel_qa_report",
 }
 
 // Array of all tool names for compatibility
