@@ -1,3 +1,5 @@
+import { ApiProvider } from "./api"
+
 export interface BrowserSettings {
 	// Viewport size settings
 	viewport: {
@@ -11,6 +13,10 @@ export interface BrowserSettings {
 	chromeExecutablePath?: string
 	disableToolUse?: boolean
 	customArgs?: string
+	// Vision model for browser screenshots (used when primary model doesn't support images)
+	visionModelProvider?: ApiProvider // e.g., "anthropic", "openai"
+	visionModelId?: string // e.g., "claude-sonnet-4-20250514", "gpt-4o"
+	visionModelApiKey?: string // API key for the vision model
 }
 
 export const DEFAULT_BROWSER_SETTINGS: BrowserSettings = {
@@ -24,6 +30,11 @@ export const DEFAULT_BROWSER_SETTINGS: BrowserSettings = {
 	// chromeType: "chromium",
 	disableToolUse: false,
 	customArgs: "",
+	// Default vision model for browser screenshots when primary model doesn't support images
+	// This enables browser_action tool even for text-only models like MiniMax
+	// The system will automatically use the API key from the main configuration
+	visionModelProvider: "anthropic",
+	visionModelId: "claude-sonnet-4-20250514",
 }
 
 export const BROWSER_VIEWPORT_PRESETS = {

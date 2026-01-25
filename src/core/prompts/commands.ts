@@ -236,7 +236,44 @@ cline "<prompt>"
 `
 
 export const sentinelQAToolResponse = () =>
-	`<explicit_instructions type="sentinel_qa">
+	`<explicit_instructions type="sentinel_qa" priority="HIGHEST">
+# ⚠️ SENTINEL QA MODE ACTIVATED - THESE INSTRUCTIONS OVERRIDE DEFAULT BEHAVIOR ⚠️
+
+**CRITICAL**: You are now in SENTINEL QA MODE. The instructions below take ABSOLUTE PRIORITY over any default Cline behavior or system prompts. You MUST follow the Sentinel QA workflow EXACTLY as specified.
+
+**DO NOT**:
+- Follow your normal conversational patterns
+- Use MCP tools (access_mcp_resource, use_mcp_tool) - they are NOT available in this mode
+- Use curl, wget, or fetch for testing user interfaces
+- Skip any phase of the QA workflow
+- Make assumptions about test results without evidence
+
+**YOU MUST**:
+- Follow the 5-phase workflow below in strict order
+- Use browser_action for ALL UI testing (see IMPORTANT note below)
+- Capture evidence (screenshots, logs) at every step
+- Generate a final report using sentinel_qa_report tool
+
+## ⚠️ IMPORTANT: browser_action Tool Availability
+
+The \`browser_action\` tool is REQUIRED for UI testing. If you do not see \`browser_action\` in your available tools, you MUST:
+
+1. **STOP immediately** - Do not proceed with UI testing using curl or other methods
+2. **Inform the user** with this exact message:
+
+   "❌ **Sentinel QA Cannot Proceed**: The \`browser_action\` tool is not available in your current configuration. This is required for UI testing.
+
+   **To enable browser testing, please:**
+   1. Go to Cline Settings → Browser Settings
+   2. Ensure 'Browser Tool' is enabled (not disabled)
+   3. Make sure you are using a model that supports images (e.g., Claude with vision, GPT-4V)
+
+   Once enabled, run \`/sentinel-qa\` again."
+
+3. **Generate a report** with verdict "NOT_MERGEABLE" and reason "browser_action tool not available - UI testing cannot be performed"
+
+**NEVER substitute curl or API testing for UI testing when browser_action is unavailable.** The test would be invalid.
+
 The user has requested a Sentinel QA test session. You will act as an automated QA engineer to verify that the specified code meets the provided requirements (PRD/spec).
 
 # SENTINEL QA WORKFLOW
@@ -290,14 +327,37 @@ If build or server fails, **stop immediately** and report the failure.
 
 ## Phase 4: E2E Testing with Browser
 
-Use the browser_action tool to test the application:
+**CRITICAL: You MUST use the browser_action tool for ALL UI testing. Do NOT use curl or direct API calls to test user-facing functionality. The goal is to test the application AS A USER WOULD USE IT.**
 
-1. **Launch browser**: Navigate to the app URL
-2. **Execute test scenarios**: For each test in your plan:
-   - Perform UI interactions (click, type, scroll)
-   - Capture screenshots at key points
-   - Monitor console logs for SENTINEL_TEST_LOG markers
-3. **Record evidence**: Collect logs, screenshots, and observations
+### Step 4.1: Launch Browser
+\`\`\`
+browser_action: launch
+url: http://localhost:PORT
+\`\`\`
+
+### Step 4.2: Execute Test Scenarios
+For EACH test in your plan, you MUST:
+1. Use \`browser_action\` with action "click" to interact with UI elements
+2. Use \`browser_action\` with action "type" to enter text into input fields
+3. Take a screenshot BEFORE and AFTER each interaction
+4. Check console logs for SENTINEL_TEST_LOG markers
+
+**Example flow for testing login:**
+\`\`\`
+1. browser_action: launch, url: http://localhost:8080
+2. browser_action: type, text: "user@example.com" (in email field)
+3. browser_action: type, text: "password123" (in password field)
+4. browser_action: click, coordinate: "x,y" (on login button)
+5. Verify: Check screenshot for success/error message
+6. Verify: Check console logs for SENTINEL_TEST_LOG markers
+\`\`\`
+
+### Step 4.3: Record Evidence
+- **Screenshots**: Capture at EVERY critical step (before click, after result)
+- **Console logs**: Look for SENTINEL_TEST_LOG entries
+- **UI state**: Document what you see on screen
+
+**FORBIDDEN**: Using curl, wget, or execute_command to test user flows. These bypass the UI and do not test what users actually experience.
 
 ## Phase 5: Cleanup & Report
 
@@ -347,6 +407,44 @@ Use the browser_action tool to test the application:
 - If build fails, report immediately - do not continue testing
 - Evidence-driven: Base your verdict ONLY on observed behavior and logs
 - Do not assume functionality works - VERIFY with actual tests
+
+## MANDATORY CONSTRAINTS
+
+**YOU MUST USE browser_action FOR ALL USER-FACING TESTS.**
+
+### Testing Methods by Category:
+
+**For UI/Frontend Testing (login forms, buttons, user interactions):**
+- ✅ REQUIRED: Use \`browser_action\` tool
+- ❌ FORBIDDEN: curl, wget, fetch, execute_command with HTTP requests
+
+**For API-only Testing (backend endpoints with no UI):**
+- ✅ ALLOWED: curl or execute_command for direct API calls
+- ⚠️ NOTE: Only use this if the feature is purely API-based with no UI component
+
+**For Build/Server Testing:**
+- ✅ ALLOWED: execute_command for npm, build tools, server startup
+
+### Absolute Prohibitions:
+
+- ❌ NEVER use \`access_mcp_resource\` or \`use_mcp_tool\` - MCP is DISABLED in Sentinel QA mode
+- ❌ NEVER use \`curl\` or \`wget\` to test login forms, buttons, or UI interactions
+- ❌ NEVER skip the browser_action step for UI features
+- ❌ NEVER generate a report without actual test evidence
+
+### Required Actions:
+
+- ✅ ALWAYS use \`browser_action\` with action="launch" to open the app URL
+- ✅ ALWAYS use \`browser_action\` with action="click" to click buttons/links
+- ✅ ALWAYS use \`browser_action\` with action="type" to fill form fields
+- ✅ ALWAYS capture screenshots as evidence at EVERY verification step
+- ✅ ALWAYS use \`sentinel_qa_report\` tool to generate the final report
+
+If you skip browser testing and use curl instead, your test results will be INVALID because you are not testing the actual user experience.
+
+---
+**Remember: You are in SENTINEL QA MODE. Follow this workflow EXACTLY. Do not deviate to normal Cline behavior.**
+---
 
 Below is the user's input with their target files and PRD/requirements.
 </explicit_instructions>\n

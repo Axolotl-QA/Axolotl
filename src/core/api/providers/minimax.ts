@@ -45,10 +45,124 @@ export class MinimaxHandler implements ApiHandler {
 		return this.client
 	}
 
+	/**
+	 * Filter out thinking blocks from messages before sending to MiniMax.
+	 * MiniMax doesn't support Anthropic's thinking/signature blocks and will error if they're present.
+	 * Uses JSON serialization to ensure completely clean objects with no hidden properties.
+	 */
+	private filterThinkingBlocks(messages: ClineStorageMessage[]): ClineStorageMessage[] {
+		// Use JSON parse/stringify to create completely plain objects
+		const plainMessages = JSON.parse(JSON.stringify(messages)) as ClineStorageMessage[]
+
+		return plainMessages.map((message) => {
+			if (typeof message.content === "string") {
+				return { role: message.role, content: message.content }
+			}
+
+			// Ensure content is an array before filtering
+			if (!Array.isArray(message.content)) {
+				return { role: message.role, content: message.content }
+			}
+
+			// Filter out thinking and redacted_thinking blocks from content array
+			const filteredContent = message.content.filter((block: any) => {
+				if (!block || typeof block !== "object") {
+					return true // Keep primitives
+				}
+
+				const blockType = String(block.type || "").toLowerCase().trim()
+
+				// Remove blocks with thinking-related types
+				if (blockType === "thinking" || blockType === "redacted_thinking") {
+					return false
+				}
+
+				// Remove blocks that have a 'thinking' property (these are thinking blocks)
+				if ("thinking" in block) {
+					return false
+				}
+
+				return true
+			})
+
+			// Create completely clean blocks with only the required fields
+			const cleanedContent = filteredContent.map((block: any) => {
+				if (!block || typeof block !== "object") {
+					return block
+				}
+
+				// Only keep essential fields based on block type
+				const blockType = String(block.type || "").toLowerCase().trim()
+
+				if (blockType === "text") {
+					return { type: "text", text: block.text || "" }
+				} else if (blockType === "tool_use") {
+					return { type: "tool_use", id: block.id, name: block.name, input: block.input }
+				} else if (blockType === "tool_result") {
+					const result: any = { type: "tool_result", tool_use_id: block.tool_use_id }
+					if (block.content !== undefined) {
+						result.content = block.content
+					}
+					if (block.is_error !== undefined) {
+						result.is_error = block.is_error
+					}
+					return result
+				} else if (blockType === "image") {
+					return { type: "image", source: block.source }
+				} else {
+					// For unknown types, strip known problematic fields
+					const cleaned: any = { type: block.type }
+					for (const key of Object.keys(block)) {
+						if (!["signature", "thinking", "summary", "call_id", "data"].includes(key)) {
+							cleaned[key] = block[key]
+						}
+					}
+					return cleaned
+				}
+			})
+
+			return {
+				role: message.role,
+				content: cleanedContent.length > 0 ? cleanedContent : [{ type: "text", text: "" }],
+			}
+		})
+	}
+
 	@withRetry()
 	async *createMessage(systemPrompt: string, messages: ClineStorageMessage[], tools?: ClineTool[]): ApiStream {
 		const client = this.ensureClient()
 		const model = this.getModel()
+
+		// Debug: Log incoming messages to see what's being passed
+		console.log("[minimax] Incoming messages count:", messages.length)
+		for (let i = 0; i < messages.length; i++) {
+			const msg = messages[i]
+			if (Array.isArray(msg.content)) {
+				console.log(`[minimax] Message ${i} (${msg.role}): ${msg.content.length} blocks`)
+				msg.content.forEach((block: any, j: number) => {
+					console.log(`[minimax]   Block ${j}: type=${block?.type}, hasThinking=${"thinking" in (block || {})}, hasSignature=${"signature" in (block || {})}`)
+				})
+			} else {
+				console.log(`[minimax] Message ${i} (${msg.role}): string content`)
+			}
+		}
+
+		// Filter out thinking blocks that MiniMax doesn't support
+		const filteredMessages = this.filterThinkingBlocks(messages)
+
+		// Debug: Log filtered messages
+		console.log("[minimax] Filtered messages count:", filteredMessages.length)
+		for (let i = 0; i < filteredMessages.length; i++) {
+			const msg = filteredMessages[i]
+			if (Array.isArray(msg.content)) {
+				console.log(`[minimax] Filtered Message ${i} (${msg.role}): ${msg.content.length} blocks`)
+				msg.content.forEach((block: any, j: number) => {
+					console.log(`[minimax]   Block ${j}: type=${block?.type}, hasThinking=${"thinking" in (block || {})}, hasSignature=${"signature" in (block || {})}`)
+				})
+			} else {
+				console.log(`[minimax] Filtered Message ${i} (${msg.role}): string content`)
+			}
+		}
 
 		// Tools are available only when native tools are enabled
 		const nativeToolsOn = tools?.length && tools?.length > 0
@@ -61,7 +175,7 @@ export class MinimaxHandler implements ApiHandler {
 			max_tokens: model.info.maxTokens || 8192,
 			temperature: 1.0, // MiniMax recommends 1.0, range is (0.0, 1.0]
 			system: [{ text: systemPrompt, type: "text" }],
-			messages,
+			messages: filteredMessages,
 			stream: true,
 			tools: nativeToolsOn ? (tools as AnthropicTool[]) : undefined,
 			tool_choice: nativeToolsOn ? { type: "any" } : undefined,

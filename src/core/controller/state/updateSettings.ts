@@ -276,6 +276,19 @@ export async function updateSettings(controller: Controller, request: UpdateSett
 						: request.browserSettings.disableToolUse,
 				customArgs:
 					"customArgs" in request.browserSettings ? request.browserSettings.customArgs : currentSettings.customArgs,
+				// Vision model settings for browser screenshots
+				visionModelProvider:
+					"visionModelProvider" in request.browserSettings
+						? (request.browserSettings as any).visionModelProvider
+						: currentSettings.visionModelProvider,
+				visionModelId:
+					"visionModelId" in request.browserSettings
+						? (request.browserSettings as any).visionModelId
+						: currentSettings.visionModelId,
+				visionModelApiKey:
+					"visionModelApiKey" in request.browserSettings
+						? (request.browserSettings as any).visionModelApiKey
+						: currentSettings.visionModelApiKey,
 			}
 
 			// Update global state with new settings

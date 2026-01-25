@@ -103,20 +103,39 @@ export interface ClineStorageMessage extends Anthropic.MessageParam {
 /**
  * Converts ClineStorageMessage to Anthropic.MessageParam by removing Cline-specific fields
  * Cline-specific fields (like modelInfo, reasoning_details) are properly omitted.
+ *
+ * IMPORTANT: When converting messages for Anthropic API, we must handle thinking blocks carefully:
+ * - Thinking blocks from non-Anthropic providers (e.g., MiniMax) have signatures that are invalid for Anthropic
+ * - We check the message's modelInfo.providerId to determine if thinking blocks should be preserved
+ * - Only thinking blocks from Anthropic provider are kept; all others are removed
  */
 export function convertClineStorageToAnthropicMessage(
 	clineMessage: ClineStorageMessage,
 	provider = "anthropic",
 ): Anthropic.MessageParam {
-	const { role, content } = clineMessage
+	const { role, content, modelInfo } = clineMessage
 
 	// Handle string content - fast path
 	if (typeof content === "string") {
 		return { role, content }
 	}
 
-	// Removes thinking block that has no signature (invalid thinking block that's incompatible with Anthropic API)
-	const filteredContent = content.filter((b) => b.type !== "thinking" || !!b.signature)
+	// Determine if thinking blocks should be preserved based on source provider
+	// Only keep thinking blocks if they came from Anthropic (or a compatible provider like "cline")
+	// Thinking blocks from other providers (MiniMax, etc.) have incompatible signatures
+	const sourceProviderId = modelInfo?.providerId?.toLowerCase() || ""
+	const isFromAnthropicProvider = sourceProviderId === "anthropic" || sourceProviderId === "cline"
+
+	// Filter content blocks:
+	// 1. Remove thinking/redacted_thinking blocks from non-Anthropic providers (incompatible signatures)
+	// 2. Remove thinking blocks without signatures (invalid for Anthropic API)
+	const filteredContent = content.filter((b) => {
+		if (b.type === "thinking" || b.type === "redacted_thinking") {
+			// Only keep thinking blocks from Anthropic provider AND with valid signature
+			return isFromAnthropicProvider && b.type === "thinking" && !!b.signature
+		}
+		return true
+	})
 
 	// Handle array content - strip Cline-specific fields for non-reasoning_details providers
 	const shouldCleanContent = !REASONING_DETAILS_PROVIDERS.includes(provider)

@@ -52,6 +52,7 @@ import { listFiles } from "@services/glob/list-files"
 import { Logger } from "@services/logging/Logger"
 import { McpHub } from "@services/mcp/McpHub"
 import { ApiConfiguration } from "@shared/api"
+import { BrowserSettings } from "@shared/BrowserSettings"
 import { findLast, findLastIndex } from "@shared/array"
 import { combineApiRequests } from "@shared/combineApiRequests"
 import { combineCommandSequences } from "@shared/combineCommandSequences"
@@ -194,6 +195,7 @@ export class Task {
 
 	// Service handlers
 	api: ApiHandler
+	private visionApi?: ApiHandler // Backup API handler for vision tasks when primary model doesn't support images
 	terminalManager: ITerminalManager
 	private urlContentFetcher: UrlContentFetcher
 	browserSession: BrowserSession
@@ -464,6 +466,21 @@ export class Task {
 
 		// Now that ulid is initialized, we can build the API handler
 		this.api = buildApiHandler(effectiveApiConfiguration, mode)
+
+		// Initialize vision API handler if configured and primary model doesn't support images
+		const browserSettings = stateManager.getGlobalSettingsKey("browserSettings")
+		const primaryModelSupportsImages = this.api.getModel().info.supportsImages ?? false
+		console.log(`[Sentinel Vision] Primary model supports images: ${primaryModelSupportsImages}`)
+		console.log(`[Sentinel Vision] Vision model provider configured: ${browserSettings.visionModelProvider}`)
+		if (!primaryModelSupportsImages && browserSettings.visionModelProvider) {
+			// Try to get API key: first from browserSettings, then fallback to main apiConfiguration
+			const visionApiKey = this.getVisionModelApiKey(browserSettings, apiConfiguration)
+			console.log(`[Sentinel Vision] Vision API key found: ${!!visionApiKey}`)
+			if (visionApiKey) {
+				this.visionApi = this.buildVisionApiHandler(browserSettings, visionApiKey)
+				console.log(`[Sentinel Vision] Vision API handler created: ${!!this.visionApi}`)
+			}
+		}
 
 		// Set ulid on browserSession for telemetry tracking
 		this.browserSession.setUlid(this.ulid)
@@ -1621,6 +1638,99 @@ export class Task {
 		return { model, providerId, customPrompt, mode }
 	}
 
+	/**
+	 * Get the API key for the vision model.
+	 * First tries browserSettings.visionModelApiKey, then falls back to the main API configuration
+	 * for the specified provider.
+	 */
+	private getVisionModelApiKey(browserSettings: BrowserSettings, apiConfig: ApiConfiguration): string | undefined {
+		const { visionModelProvider, visionModelApiKey } = browserSettings
+
+		// If explicitly set in browserSettings, use that
+		if (visionModelApiKey) {
+			return visionModelApiKey
+		}
+
+		// Otherwise, try to get from main API configuration based on provider
+		if (!visionModelProvider) {
+			return undefined
+		}
+
+		switch (visionModelProvider) {
+			case "anthropic":
+				return apiConfig.apiKey
+			case "openai":
+				return apiConfig.openAiApiKey
+			case "openrouter":
+				return apiConfig.openRouterApiKey
+			case "gemini":
+				return apiConfig.geminiApiKey
+			case "vertex":
+				// Vertex uses project-based auth, not API key
+				return apiConfig.vertexProjectId ? "vertex-auth" : undefined
+			default:
+				return undefined
+		}
+	}
+
+	/**
+	 * Build a vision API handler for processing messages with images
+	 * when the primary model doesn't support images.
+	 */
+	private buildVisionApiHandler(browserSettings: BrowserSettings, apiKey: string): ApiHandler | undefined {
+		const { visionModelProvider, visionModelId } = browserSettings
+		if (!visionModelProvider || !apiKey) {
+			return undefined
+		}
+
+		const mode = this.stateManager.getGlobalSettingsKey("mode")
+
+		// Build a minimal API configuration for the vision model
+		const defaultAnthropicModel = "claude-sonnet-4-20250514"
+		const defaultOpenAiModel = "gpt-4o"
+
+		const visionApiConfig: ApiConfiguration = {
+			// Set both plan and act mode to use the same vision model
+			planModeApiProvider: visionModelProvider,
+			actModeApiProvider: visionModelProvider,
+			// Anthropic
+			apiKey: visionModelProvider === "anthropic" ? apiKey : undefined,
+			planModeApiModelId: visionModelProvider === "anthropic" ? (visionModelId || defaultAnthropicModel) : undefined,
+			actModeApiModelId: visionModelProvider === "anthropic" ? (visionModelId || defaultAnthropicModel) : undefined,
+			// OpenAI
+			openAiApiKey: visionModelProvider === "openai" ? apiKey : undefined,
+			planModeOpenAiModelId: visionModelProvider === "openai" ? (visionModelId || defaultOpenAiModel) : undefined,
+			actModeOpenAiModelId: visionModelProvider === "openai" ? (visionModelId || defaultOpenAiModel) : undefined,
+			// OpenRouter
+			openRouterApiKey: visionModelProvider === "openrouter" ? apiKey : undefined,
+			planModeOpenRouterModelId: visionModelProvider === "openrouter" ? visionModelId : undefined,
+			actModeOpenRouterModelId: visionModelProvider === "openrouter" ? visionModelId : undefined,
+		}
+
+		try {
+			return buildApiHandler(visionApiConfig, mode)
+		} catch (error) {
+			console.error("Failed to build vision API handler:", error)
+			return undefined
+		}
+	}
+
+	/**
+	 * Check if the conversation history contains any images that need vision model support
+	 */
+	private conversationContainsImages(messages: ClineStorageMessage[]): boolean {
+		for (const message of messages) {
+			if (Array.isArray(message.content)) {
+				for (const block of message.content) {
+					if (block.type === "image") {
+						return true
+					}
+				}
+			}
+		}
+		return false
+	}
+
 	private getApiRequestIdSafe(): string | undefined {
 		const apiLike = this.api as Partial<{
 			getLastRequestId: () => string | undefined
@@ -1705,9 +1815,13 @@ export class Task {
 		const browserSettings = this.stateManager.getGlobalSettingsKey("browserSettings")
 		const disableBrowserTool = browserSettings.disableToolUse ?? false
 		// cline browser tool uses image recognition for navigation (requires model image support).
+		// If a vision model is configured, we can also use browser even if primary model doesn't support images.
 		const modelSupportsBrowserUse = providerInfo.model.info.supportsImages ?? false
+		const hasVisionModelFallback = !!this.visionApi
+		console.log(`[Sentinel Vision] attemptApiRequest - modelSupportsBrowserUse: ${modelSupportsBrowserUse}, hasVisionModelFallback: ${hasVisionModelFallback}, disableBrowserTool: ${disableBrowserTool}`)
 
-		const supportsBrowserUse = modelSupportsBrowserUse && !disableBrowserTool // only enable browser use if the model supports it and the user hasn't disabled it
+		const supportsBrowserUse = (modelSupportsBrowserUse || hasVisionModelFallback) && !disableBrowserTool // only enable browser use if the model supports it (or we have a vision fallback) and the user hasn't disabled it
+		console.log(`[Sentinel Vision] supportsBrowserUse: ${supportsBrowserUse}`)
 		const preferredLanguageRaw = this.stateManager.getGlobalSettingsKey("preferredLanguage")
 		const preferredLanguage = getLanguageKey(preferredLanguageRaw as LanguageDisplay)
 		const preferredLanguageInstructions =
@@ -1826,8 +1940,18 @@ export class Task {
 			// saves task history item which we use to keep track of conversation history deleted range
 		}
 
+		// Check if we need to use vision API for this request
+		// This happens when the conversation contains images but the primary model doesn't support them
+		const truncatedHistory = contextManagementMetadata.truncatedConversationHistory
+		const primaryModelSupportsImages = this.api.getModel().info.supportsImages ?? false
+		const conversationHasImages = this.conversationContainsImages(truncatedHistory)
+		const shouldUseVisionApi = !primaryModelSupportsImages && conversationHasImages && this.visionApi
+
+		// Select the appropriate API handler
+		const activeApi = shouldUseVisionApi ? this.visionApi! : this.api
+
 		// Response API requires native tool calls to be enabled
-		const stream = this.api.createMessage(systemPrompt, contextManagementMetadata.truncatedConversationHistory, tools)
+		const stream = activeApi.createMessage(systemPrompt, truncatedHistory, tools)
 
 		const iterator = stream[Symbol.asyncIterator]()
 
