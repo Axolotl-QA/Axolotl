@@ -193,7 +193,7 @@ func (ss *StreamingSegment) generateRichHeader() string {
 				command = strings.TrimSuffix(command, "REQ_APP")
 				command = strings.TrimSpace(command)
 			}
-			return fmt.Sprintf("### Cline wants to run `%s`\n", command)
+			return fmt.Sprintf("### Sentinel wants to run `%s`\n", command)
 		}
 
 		// For followup questions, show question header

@@ -298,23 +298,37 @@ TEST PLAN:
 2. ...
 \`\`\`
 
-## Phase 2: Log Injection (if needed)
+## Phase 2: Log Injection (REQUIRED - DO NOT SKIP)
+
+⚠️ **THIS PHASE IS MANDATORY** - You MUST inject logging statements BEFORE starting the dev server or browser tests.
 
 To capture evidence during test execution, inject temporary logging statements into the code.
 
 **Log Marker Format**: \`// SENTINEL_TEST_LOG: <test_id>\`
 **Console Log Format**: \`console.log('SENTINEL_TEST_LOG: <test_id> - <description>', <relevant_data>);\`
 
+**Where to inject logs:**
+1. **Authentication/Login flows**: After login success/failure handlers
+2. **Form submissions**: Before and after form validation
+3. **API calls**: After response handling
+4. **Error handlers**: In catch blocks and error boundaries
+5. **State changes**: When critical state updates occur
+
 Example:
 \`\`\`javascript
 // SENTINEL_TEST_LOG: login_success
 console.log('SENTINEL_TEST_LOG: login_success - User authenticated', { userId, timestamp });
+
+// SENTINEL_TEST_LOG: login_failure  
+console.log('SENTINEL_TEST_LOG: login_failure - Authentication failed', { error, email });
 \`\`\`
 
-**Important**:
-- Only inject logs at critical verification points
-- Track all injected logs for cleanup later
-- Use the write_to_file or replace_in_file tool for injection
+**MANDATORY Requirements**:
+- ✅ MUST inject logs at ALL critical verification points listed in your test plan
+- ✅ MUST inject BEFORE Phase 3 (starting dev server)
+- ✅ MUST track all injected logs for cleanup later
+- ✅ Use the write_to_file or apply_patch tool for injection
+- ❌ DO NOT skip this phase - logs are essential evidence for test verification
 
 ## Phase 3: Build & Run
 
@@ -398,6 +412,41 @@ For EACH test in your plan, you MUST:
 - **MERGEABLE**: All critical tests pass, no significant risks
 - **NOT_MERGEABLE**: Critical functionality broken, build fails, or major bugs found
 - **MERGEABLE_WITH_RISKS**: Main flow works but edge cases fail or minor issues found
+
+## Phase 6: Fix Issues (When Tests Fail)
+
+**IMPORTANT**: After generating the QA report, if any tests FAILED with verdict "NOT_MERGEABLE" or "MERGEABLE_WITH_RISKS", you MUST offer the user the option to fix the issues automatically.
+
+### Offer Fix Option
+After displaying the report, immediately ask the user:
+
+\`\`\`
+🔧 **Issues Found During Testing**
+
+The following tests failed:
+- [list failed test IDs and brief descriptions]
+
+**Would you like me to fix these issues?**
+- Reply "yes" or "fix it" to automatically implement fixes
+- Reply "no" to end the QA session without fixes
+- Reply with specific test IDs to fix only those issues (e.g., "fix TC002, TC003")
+\`\`\`
+
+### If User Requests Fixes
+When the user confirms they want fixes:
+
+1. **Analyze each failure**: Review the failure_reason and evidence from the report
+2. **Identify root cause**: Examine the code to understand why the test failed
+3. **Implement fix**: Use write_to_file or apply_patch to fix the issue
+4. **Re-test**: After fixing, re-run the specific failed tests to verify the fix
+5. **Update report**: If all fixes pass, update the verdict accordingly
+
+### Fix Implementation Guidelines
+- Fix ONE issue at a time
+- Show the user what you're changing before making edits
+- After each fix, briefly explain what was changed and why
+- If a fix requires multiple file changes, group them logically
+- If you cannot determine how to fix an issue, explain why and ask for guidance
 
 ## Important Rules
 

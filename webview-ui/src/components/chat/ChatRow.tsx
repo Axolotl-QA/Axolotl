@@ -326,7 +326,7 @@ export const ChatRowContent = memo(
 				case "command":
 					return [
 						<TerminalIcon className="text-foreground size-2" />,
-						<span className="font-bold text-foreground">Cline wants to execute this command:</span>,
+						<span className="font-bold text-foreground">Sentinel wants to execute this command:</span>,
 					]
 				case "use_mcp_server":
 					const mcpServerUse = JSON.parse(message.text || "{}") as ClineAskUseMcpServer
@@ -337,7 +337,7 @@ export const ChatRowContent = memo(
 							<span className="codicon codicon-server text-foreground mb-[-1.5px]" />
 						),
 						<span className="ph-no-capture font-bold text-foreground break-words">
-							Cline wants to {mcpServerUse.type === "use_mcp_tool" ? "use a tool" : "access a resource"} on the{" "}
+							Sentinel wants to {mcpServerUse.type === "use_mcp_tool" ? "use a tool" : "access a resource"} on the{" "}
 							<code className="break-all">
 								{getMcpServerDisplayName(mcpServerUse.serverName, mcpMarketplaceCatalog)}
 							</code>{" "}
@@ -438,7 +438,7 @@ export const ChatRowContent = memo(
 								<SquareMinusIcon className="size-2" />
 								{tool.operationIsLocatedInWorkspace === false &&
 									toolIcon("sign-out", "yellow", -90, "This file is outside of your workspace")}
-								<span style={{ fontWeight: "bold" }}>Cline wants to delete this file:</span>
+								<span style={{ fontWeight: "bold" }}>Sentinel wants to delete this file:</span>
 							</div>
 							<CodeAccordian
 								// isLoading={message.partial}
@@ -456,7 +456,7 @@ export const ChatRowContent = memo(
 								<FilePlus2Icon className="size-2" />
 								{tool.operationIsLocatedInWorkspace === false &&
 									toolIcon("sign-out", "yellow", -90, "This file is outside of your workspace")}
-								<span className="font-bold">Cline wants to create a new file:</span>
+								<span className="font-bold">Sentinel wants to create a new file:</span>
 							</div>
 							{backgroundEditEnabled && tool.path && tool.content ? (
 								<DiffEditRow patch={tool.content} path={tool.path} />
@@ -479,7 +479,7 @@ export const ChatRowContent = memo(
 								{isImage ? <ImageUpIcon className="size-2" /> : <FileCode2Icon className="size-2" />}
 								{tool.operationIsLocatedInWorkspace === false &&
 									toolIcon("sign-out", "yellow", -90, "This file is outside of your workspace")}
-								<span className="font-bold">Cline wants to read this file:</span>
+								<span className="font-bold">Sentinel wants to read this file:</span>
 							</div>
 							<div className="bg-code rounded-sm overflow-hidden border border-editor-group-border">
 								<div
@@ -1429,7 +1429,7 @@ export const ChatRowContent = memo(
 							<div>
 								<div className={HEADER_CLASSNAMES}>
 									<FilePlus2Icon className="size-2" />
-									<span className="text-foreground font-bold">Cline wants to start a new task:</span>
+									<span className="text-foreground font-bold">Sentinel wants to start a new task:</span>
 								</div>
 								<NewTaskPreview context={message.text || ""} />
 							</div>
@@ -1439,7 +1439,7 @@ export const ChatRowContent = memo(
 							<div>
 								<div className={HEADER_CLASSNAMES}>
 									<FilePlus2Icon className="size-2" />
-									<span className="text-foreground font-bold">Cline wants to condense your conversation:</span>
+									<span className="text-foreground font-bold">Sentinel wants to condense your conversation:</span>
 								</div>
 								<NewTaskPreview context={message.text || ""} />
 							</div>
@@ -1449,7 +1449,7 @@ export const ChatRowContent = memo(
 							<div>
 								<div className={HEADER_CLASSNAMES}>
 									<FilePlus2Icon className="size-2" />
-									<span className="text-foreground font-bold">Cline wants to create a Github issue:</span>
+									<span className="text-foreground font-bold">Sentinel wants to create a Github issue:</span>
 								</div>
 								<ReportBugPreview data={message.text || ""} />
 							</div>

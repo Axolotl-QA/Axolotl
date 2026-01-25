@@ -180,7 +180,7 @@ export class ExecuteCommandToolHandler implements IFullyManagedTool {
 		} else {
 			// Manual approval flow
 			showNotificationForApproval(
-				`Cline wants to execute a command: ${actualCommand}`,
+				`Sentinel wants to execute a command: ${actualCommand}`,
 				config.autoApprovalSettings.enableNotifications,
 			)
 

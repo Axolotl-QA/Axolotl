@@ -22,7 +22,7 @@ func NewToolRenderer(mdRenderer *MarkdownRenderer, outputFormat string) *ToolRen
 	}
 }
 
-// RenderToolApprovalRequest renders a tool approval request ("Cline wants to...")
+// RenderToolApprovalRequest renders a tool approval request ("Sentinel wants to...")
 func (tr *ToolRenderer) RenderToolApprovalRequest(tool *types.ToolMessage) string {
 	var output strings.Builder
 
@@ -147,7 +147,7 @@ func (tr *ToolRenderer) generateToolHeader(tool *types.ToolMessage, verbTense st
 			return fmt.Sprintf("### Cline %s `%s`", action, tool.Regex)
 		} else {
 			if verbTense == "wants to" {
-				return "### Cline wants to search files"
+				return "### Sentinel wants to search files"
 			} else {
 				return "### Cline is searching files"
 			}
@@ -179,7 +179,7 @@ func (tr *ToolRenderer) generateToolHeader(tool *types.ToolMessage, verbTense st
 
 	case string(types.ToolTypeSummarizeTask):
 		if verbTense == "wants to" {
-			return "### Cline wants to condense the conversation"
+			return "### Sentinel wants to condense the conversation"
 		} else {
 			return "### Cline condensed the conversation"
 		}
@@ -293,7 +293,7 @@ func (tr *ToolRenderer) RenderCommandApprovalRequest(command string, autoApprova
 	}
 
 	// Generate header
-	header := fmt.Sprintf("### Cline wants to run `%s`", command)
+	header := fmt.Sprintf("### Sentinel wants to run `%s`", command)
 	rendered := tr.renderMarkdown(header)
 	output.WriteString(rendered)
 	output.WriteString("\n")
