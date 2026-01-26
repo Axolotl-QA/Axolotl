@@ -290,12 +290,176 @@ You must follow these phases in order:
    - **Integration tests**: Component interactions, API calls
    - **UI/UX verification**: If applicable, visual and interaction checks
 
-Output a test plan in this format:
+### Step 1.1: Generate Visual Test Plan Document
+
+**REQUIRED**: Create a visual test plan document with a clean tree-style diagram (left-to-right layout).
+
+Use \`write_to_file\` to create a file named \`sentinel_test_plan_<timestamp>.md\` in the project root with this structure:
+
+\`\`\`markdown
+# 🎯 Sentinel QA Test Plan
+
+> **Generated**: <current_date_time>  
+> **Target**: <file_or_feature_name>  
+> **PRD**: <brief_summary_of_requirements>
+
+---
+
+## 📊 Test Coverage Tree
+
+\`\`\`mermaid
+flowchart LR
+    subgraph ROOT[" "]
+        TP[🎯 Test Plan]
+    end
+    
+    subgraph FUNC["🟢 Functional"]
+        F1[TC001]
+        F2[TC002]
+    end
+    
+    subgraph EDGE["🟡 Edge Cases"]
+        E1[TC003]
+        E2[TC004]
+    end
+    
+    subgraph ERROR["🔴 Error Handling"]
+        R1[TC005]
+        R2[TC006]
+    end
+    
+    subgraph UIUX["🔵 UI/UX"]
+        U1[TC007]
+        U2[TC008]
+    end
+    
+    TP --> FUNC
+    TP --> EDGE
+    TP --> ERROR
+    TP --> UIUX
+    
+    F1 --> F1D[Login Success Flow]
+    F2 --> F2D[Core Feature Works]
+    
+    E1 --> E1D[Empty/Invalid Input]
+    E2 --> E2D[Boundary Values]
+    
+    R1 --> R1D[Network Failure]
+    R2 --> R2D[Auth Failure]
+    
+    U1 --> U1D[Responsive Layout]
+    U2 --> U2D[Accessibility]
+\`\`\`
+
+---
+
+## 📋 Detailed Test Cases
+
+### 🟢 Functional Tests (Happy Path)
+
+| ID | Test Case | Steps | Expected Result | Priority |
+|:---|:----------|:------|:----------------|:---------|
+| TC001 | <name> | 1. <step1><br>2. <step2> | <expected> | 🔴 High |
+| TC002 | <name> | 1. <step1><br>2. <step2> | <expected> | 🔴 High |
+
+### 🟡 Edge Cases (Boundary Conditions)
+
+| ID | Test Case | Input Scenario | Expected Result | Priority |
+|:---|:----------|:---------------|:----------------|:---------|
+| TC003 | <name> | <input_scenario> | <expected> | 🟠 Medium |
+| TC004 | <name> | <input_scenario> | <expected> | 🟠 Medium |
+
+### 🔴 Error Handling (Failure Scenarios)
+
+| ID | Test Case | Error Scenario | Expected Result | Priority |
+|:---|:----------|:---------------|:----------------|:---------|
+| TC005 | <name> | <error_scenario> | <expected> | 🔴 High |
+| TC006 | <name> | <error_scenario> | <expected> | 🔴 High |
+
+### 🔵 UI/UX Verification
+
+| ID | Test Case | Verification | Expected Result | Priority |
+|:---|:----------|:-------------|:----------------|:---------|
+| TC007 | <name> | <ui_check> | <expected> | 🟢 Low |
+| TC008 | <name> | <ui_check> | <expected> | 🟢 Low |
+
+---
+
+## 🔄 Test Execution Flow
+
+\`\`\`mermaid
+flowchart LR
+    subgraph Phase1["Phase 1: Setup"]
+        A[Start] --> B[Inject Logs]
+        B --> C[Start Server]
+    end
+    
+    subgraph Phase2["Phase 2: Functional"]
+        D[TC001] --> E[TC002]
+    end
+    
+    subgraph Phase3["Phase 3: Edge Cases"]
+        F[TC003] --> G[TC004]
+    end
+    
+    subgraph Phase4["Phase 4: Errors"]
+        H[TC005] --> I[TC006]
+    end
+    
+    subgraph Phase5["Phase 5: UI/UX"]
+        J[TC007] --> K[TC008]
+    end
+    
+    subgraph Phase6["Phase 6: Report"]
+        L[Cleanup] --> M[Generate Report]
+    end
+    
+    Phase1 --> Phase2
+    Phase2 --> Phase3
+    Phase3 --> Phase4
+    Phase4 --> Phase5
+    Phase5 --> Phase6
+\`\`\`
+
+---
+
+## 📌 Legend
+
+| Symbol | Meaning |
+|:------:|:--------|
+| 🟢 | Functional / Low Priority |
+| 🟡 | Edge Case / Medium Priority |
+| 🔴 | Error / High Priority |
+| 🔵 | UI/UX |
+| ⬜ | Pending |
+| ✅ | Passed |
+| ❌ | Failed |
+| ⏭️ | Skipped |
+\`\`\`
+
+**Customize the tree diagram based on the actual test scenarios you identify. Keep the left-to-right flow structure.**
+
+## Legend
+
+- 🟢 **Functional**: Core feature verification
+- 🟡 **Edge Case**: Boundary and unusual inputs
+- 🔴 **Error**: Failure scenario handling  
+- 🔵 **UI/UX**: Visual and interaction checks
+- ⚪ **Pending** | ✅ **Passed** | ❌ **Failed** | ⏭️ **Skipped**
+\`\`\`
+
+**Customize the mindmap and flow diagram based on the actual test scenarios you identify.**
+
+### Step 1.2: Output Summary in Chat
+
+Also output a brief summary in chat:
 \`\`\`
 TEST PLAN:
 1. [test_id] [category] - [description]
    Expected: [what should happen]
 2. ...
+
+📄 Full visual test plan saved to: sentinel_test_plan_<timestamp>.md
 \`\`\`
 
 ## Phase 2: Log Injection (REQUIRED - DO NOT SKIP)
