@@ -126,7 +126,7 @@ func (h *AskHandler) handlePlanModeRespond(msg *types.ClineMessage, dc *DisplayC
 // showApprovalHint displays a hint in non-interactive mode about how to approve/deny
 func (h *AskHandler) showApprovalHint(dc *DisplayContext) {
 	if !dc.IsInteractive {
-		output.Printf("\n%s\n", dc.Renderer.Dim("Cline is requesting approval to use this tool"))
+		output.Printf("\n%s\n", dc.Renderer.Dim("Sentinel is requesting approval to use this tool"))
 		output.Printf("%s\n", dc.Renderer.Dim("Use cline task send --approve or --deny to respond"))
 	}
 }

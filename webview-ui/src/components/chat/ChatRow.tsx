@@ -321,7 +321,7 @@ export const ChatRowContent = memo(
 				case "mistake_limit_reached":
 					return [
 						<CircleXIcon className="text-error size-2" />,
-						<span className="text-error font-bold">Cline is having trouble...</span>,
+						<span className="text-error font-bold">Sentinel is having trouble...</span>,
 					]
 				case "command":
 					return [
@@ -356,7 +356,7 @@ export const ChatRowContent = memo(
 				case "followup":
 					return [
 						<span className="codicon codicon-question text-foreground mb-[-1.5px]" />,
-						<span className="font-bold text-foreground">Cline has a question:</span>,
+						<span className="font-bold text-foreground">Sentinel has a question:</span>,
 					]
 				default:
 					return [null, null]
@@ -594,7 +594,7 @@ export const ChatRowContent = memo(
 						<div>
 							<div className={HEADER_CLASSNAMES}>
 								<FoldVerticalIcon className="size-2" />
-								<span className="font-bold">Cline is condensing the conversation:</span>
+								<span className="font-bold">Sentinel is condensing the conversation:</span>
 							</div>
 							<div className="bg-code overflow-hidden border border-editor-group-border rounded-[3px]">
 								<div

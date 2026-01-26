@@ -174,7 +174,7 @@ export class StandaloneTerminalManager implements ITerminalManager {
 		// Create new terminal
 		const newTerminalInfo = this.registry.createTerminal({
 			cwd: cwd,
-			name: `Cline Terminal ${this.registry.size + 1}`,
+			name: `Sentinel Terminal ${this.registry.size + 1}`,
 		})
 		this.terminalIds.add(newTerminalInfo.id)
 		return newTerminalInfo

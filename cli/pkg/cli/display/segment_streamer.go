@@ -156,10 +156,10 @@ func (ss *StreamingSegment) renderFinal(currentBuffer string) {
 func (ss *StreamingSegment) generateRichHeader() string {
 	switch ss.sayType {
 	case string(types.SayTypeReasoning):
-		return "### Cline is thinking\n"
+		return "### Sentinel is thinking\n"
 		
 	case string(types.SayTypeText):
-		return "### Cline responds\n"
+		return "### Sentinel responds\n"
 		
 	case string(types.SayTypeCompletionResult):
 		return "### Task completed\n"
@@ -202,7 +202,7 @@ func (ss *StreamingSegment) generateRichHeader() string {
 		}
 
 		// For other ask types, show generic message
-		return fmt.Sprintf("### Cline is asking (%s)\n", ss.msg.Ask)
+		return fmt.Sprintf("### Sentinel is asking (%s)\n", ss.msg.Ask)
 		
 	default:
 		return fmt.Sprintf("### %s\n", ss.prefix)

@@ -283,7 +283,7 @@ func (ih *InputHandler) promptForInput(ctx context.Context) (string, bool, error
 
 	model := output.NewInputModelWithRegistry(
 		output.InputTypeMessage,
-		"Cline is ready for your message...",
+		"Sentinel is ready for your message...",
 		"/plan or /act to switch modes\nctrl+e to open editor\ntab to autocomplete commands",
 		currentMode,
 		ih.manager.GetSlashRegistry(),

@@ -199,7 +199,7 @@ func (h *SayHandler) handleText(msg *types.ClineMessage, dc *DisplayContext) err
 		output.Printf("%s\n", rendered)
 	} else {
 		// In non-streaming mode, render header + body together
-		markdown := fmt.Sprintf("### Cline responds\n\n%s", msg.Text)
+		markdown := fmt.Sprintf("### Sentinel responds\n\n%s", msg.Text)
 		rendered = dc.Renderer.RenderMarkdown(markdown)
 		output.Printf("\n%s\n", rendered)
 	}
@@ -219,7 +219,7 @@ func (h *SayHandler) handleReasoning(msg *types.ClineMessage, dc *DisplayContext
 		output.Printf("%s\n", rendered)
 	} else {
 		// In non-streaming mode, render header + body together
-		markdown := fmt.Sprintf("### Cline is thinking\n\n%s", msg.Text)
+		markdown := fmt.Sprintf("### Sentinel is thinking\n\n%s", msg.Text)
 		rendered = dc.Renderer.RenderMarkdown(markdown)
 		output.Printf("\n%s\n", rendered)
 	}
@@ -375,7 +375,7 @@ func (h *SayHandler) handleTool(msg *types.ClineMessage, dc *DisplayContext) err
 
 // handleShellIntegrationWarning handles shell integration warning messages
 func (h *SayHandler) handleShellIntegrationWarning(msg *types.ClineMessage, dc *DisplayContext) error {
-	return dc.Renderer.RenderMessage("WARNING", "Shell Integration Unavailable - Cline won't be able to view the command's output.", true)
+	return dc.Renderer.RenderMessage("WARNING", "Shell Integration Unavailable - Sentinel won't be able to view the command's output.", true)
 }
 
 // handleBrowserActionLaunch handles browser action launch messages
@@ -490,10 +490,10 @@ func (h *SayHandler) handleClineignoreError(msg *types.ClineMessage, dc *Display
 	if dc.SystemRenderer != nil {
 		return dc.SystemRenderer.RenderInfo(
 			"Access Denied",
-			fmt.Sprintf("Cline tried to access `%s` which is blocked by the .clineignore file.", msg.Text),
+			fmt.Sprintf("Sentinel tried to access `%s` which is blocked by the .clineignore file.", msg.Text),
 		)
 	}
-	return dc.Renderer.RenderMessage("WARNING", fmt.Sprintf("Access Denied - Cline tried to access %s which is blocked by the .clineignore file", msg.Text), true)
+	return dc.Renderer.RenderMessage("WARNING", fmt.Sprintf("Access Denied - Sentinel tried to access %s which is blocked by the .clineignore file", msg.Text), true)
 }
 
 func (h *SayHandler) handleCheckpointCreated(msg *types.ClineMessage, dc *DisplayContext, timestamp string) error {

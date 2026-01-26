@@ -577,26 +577,39 @@ For EACH test in your plan, you MUST:
 - **NOT_MERGEABLE**: Critical functionality broken, build fails, or major bugs found
 - **MERGEABLE_WITH_RISKS**: Main flow works but edge cases fail or minor issues found
 
-## Phase 6: Fix Issues (When Tests Fail)
+⚠️ **CRITICAL**: After generating the report, if ANY tests failed (verdict is NOT "MERGEABLE"), you MUST immediately proceed to Phase 6 to offer the fix option. Do NOT execute any other commands or end the session.
 
-**IMPORTANT**: After generating the QA report, if any tests FAILED with verdict "NOT_MERGEABLE" or "MERGEABLE_WITH_RISKS", you MUST offer the user the option to fix the issues automatically.
+## Phase 6: Fix Issues (MANDATORY WHEN TESTS FAIL)
 
-### Offer Fix Option
-After displaying the report, immediately ask the user:
+⚠️ **THIS PHASE IS MANDATORY IF ANY TESTS FAILED** ⚠️
+
+After generating the QA report, you MUST check if any tests failed. If \`summary.failed > 0\` OR verdict is "NOT_MERGEABLE" or "MERGEABLE_WITH_RISKS":
+
+### Step 6.1: MANDATORY - Ask User About Fixes
+
+**YOU MUST use the \`ask_followup_question\` tool** to ask the user if they want fixes. Do NOT skip this step. Do NOT end the session without asking.
+
+Use this EXACT format with the ask_followup_question tool:
 
 \`\`\`
 🔧 **Issues Found During Testing**
 
 The following tests failed:
-- [list failed test IDs and brief descriptions]
+- [TC_ID]: [test name] - [brief failure reason]
+- [TC_ID]: [test name] - [brief failure reason]
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 **Would you like me to fix these issues?**
-- Reply "yes" or "fix it" to automatically implement fixes
-- Reply "no" to end the QA session without fixes
-- Reply with specific test IDs to fix only those issues (e.g., "fix TC002, TC003")
+
+Reply with:
+• **"yes"** or **"fix it"** - I'll automatically implement all fixes
+• **"no"** - End QA session without fixes  
+• **"fix TC001, TC003"** - Fix only specific test failures
 \`\`\`
 
-### If User Requests Fixes
+### Step 6.2: If User Requests Fixes
+
 When the user confirms they want fixes:
 
 1. **Analyze each failure**: Review the failure_reason and evidence from the report
@@ -605,12 +618,23 @@ When the user confirms they want fixes:
 4. **Re-test**: After fixing, re-run the specific failed tests to verify the fix
 5. **Update report**: If all fixes pass, update the verdict accordingly
 
-### Fix Implementation Guidelines
+### Step 6.3: Fix Implementation Guidelines
+
 - Fix ONE issue at a time
 - Show the user what you're changing before making edits
 - After each fix, briefly explain what was changed and why
 - If a fix requires multiple file changes, group them logically
 - If you cannot determine how to fix an issue, explain why and ask for guidance
+
+### ❌ PROHIBITED ACTIONS AFTER REPORT GENERATION
+
+When you have generated a report with failed tests, you MUST NOT:
+- Execute any more commands (like \`node server.js\`)
+- Start any new processes
+- Continue testing without asking about fixes first
+- End the session without offering the fix option
+
+**The ONLY acceptable action after a failed report is to use \`ask_followup_question\` to offer fixes.**
 
 ## Important Rules
 
