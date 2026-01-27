@@ -1,0 +1,19 @@
+Sentinel
+Copyright 2025 Sentinel Contributors
+
+This product is a derivative work based on Cline, which was originally
+developed by Cline Bot Inc.
+
+Cline
+Copyright 2025 Cline Bot Inc.
+Licensed under the Apache License, Version 2.0
+Source: https://github.com/cline/cline
+
+===============================================================================
+
+This product includes software developed by Cline Bot Inc.
+Significant modifications have been made to create Sentinel,
+an AI-powered QA Agent for VS Code.
+
+For more information about the original Cline project, visit:
+https://github.com/cline/cline
