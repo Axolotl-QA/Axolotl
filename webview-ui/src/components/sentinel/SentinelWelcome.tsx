@@ -1,10 +1,12 @@
 import { StringRequest } from "@shared/proto/cline/common"
 import { NewTaskRequest } from "@shared/proto/cline/task"
-import { ChevronDown, ChevronRight, FileCode, FileText, History, Play } from "lucide-react"
+import { ChevronDown, ChevronRight, FileCode, FileText, GitBranch, GitPullRequest, History, Play } from "lucide-react"
 import { memo, useCallback, useState } from "react"
 import SentinelLogo from "@/assets/SentinelLogo"
 import { useExtensionState } from "@/context/ExtensionStateContext"
 import { TaskServiceClient } from "@/services/grpc-client"
+
+type TestSource = "uncommitted" | "pr" | "files"
 
 interface SentinelWelcomeProps {
 	showHistoryView: () => void
@@ -12,31 +14,60 @@ interface SentinelWelcomeProps {
 
 const SentinelWelcome = ({ showHistoryView }: SentinelWelcomeProps) => {
 	const { taskHistory, environment } = useExtensionState()
+	const [testSource, setTestSource] = useState<TestSource>("files")
 	const [targetFiles, setTargetFiles] = useState("")
+	const [prInput, setPrInput] = useState("")
 	const [prdDescription, setPrdDescription] = useState("")
 	const [isHistoryExpanded, setIsHistoryExpanded] = useState(false)
 
 	const handleStartTest = useCallback(async () => {
-		if (targetFiles.trim() || prdDescription.trim()) {
-			// Build the sentinel-qa command message
-			let message = "/sentinel-qa"
-			if (targetFiles.trim()) {
-				message += ` @${targetFiles.trim()}`
-			}
-			if (prdDescription.trim()) {
-				message += ` PRD: ${prdDescription.trim()}`
-			}
+		let message = "/sentinel-qa"
 
-			// Create a new task with the sentinel-qa command
-			await TaskServiceClient.newTask(
-				NewTaskRequest.create({
-					text: message,
-					images: [],
-					files: [],
-				}),
-			)
+		// Build message based on test source
+		switch (testSource) {
+			case "uncommitted": {
+				message += " --source=uncommitted"
+				break
+			}
+			case "pr": {
+				if (!prInput.trim()) return
+				message += ` --source=pr --pr=${prInput.trim()}`
+				break
+			}
+			case "files": {
+				if (!targetFiles.trim() && !prdDescription.trim()) return
+				if (targetFiles.trim()) {
+					message += ` @${targetFiles.trim()}`
+				}
+				break
+			}
 		}
-	}, [targetFiles, prdDescription])
+
+		// Add PRD description if provided
+		if (prdDescription.trim()) {
+			message += ` PRD: ${prdDescription.trim()}`
+		}
+
+		// Create a new task with the sentinel-qa command
+		await TaskServiceClient.newTask(
+			NewTaskRequest.create({
+				text: message,
+				images: [],
+				files: [],
+			}),
+		)
+	}, [testSource, targetFiles, prInput, prdDescription])
+
+	const isStartDisabled = useCallback(() => {
+		switch (testSource) {
+			case "uncommitted":
+				return false // Always enabled for uncommitted changes
+			case "pr":
+				return !prInput.trim()
+			case "files":
+				return !targetFiles.trim() && !prdDescription.trim()
+		}
+	}, [testSource, targetFiles, prInput, prdDescription])
 
 	const handleHistorySelect = useCallback((id: string) => {
 		TaskServiceClient.showTaskWithId(StringRequest.create({ value: id })).catch((error) =>
@@ -152,6 +183,48 @@ const SentinelWelcome = ({ showHistoryView }: SentinelWelcomeProps) => {
 						border-radius: 8px;
 						padding: 12px;
 					}
+					.sentinel-source-tabs {
+						display: flex;
+						gap: 4px;
+						padding: 4px;
+						background-color: color-mix(in srgb, var(--vscode-toolbar-hoverBackground) 30%, transparent);
+						border-radius: 8px;
+						margin-bottom: 16px;
+					}
+					.sentinel-source-tab {
+						flex: 1;
+						padding: 8px 12px;
+						border: none;
+						border-radius: 6px;
+						background: transparent;
+						color: var(--vscode-descriptionForeground);
+						font-size: 0.75rem;
+						font-weight: 500;
+						cursor: pointer;
+						display: flex;
+						align-items: center;
+						justify-content: center;
+						gap: 6px;
+						transition: all 0.15s;
+					}
+					.sentinel-source-tab:hover {
+						background-color: var(--vscode-list-hoverBackground);
+					}
+					.sentinel-source-tab.active {
+						background-color: var(--vscode-button-background);
+						color: var(--vscode-button-foreground);
+					}
+					.sentinel-source-description {
+						font-size: 0.75rem;
+						color: var(--vscode-descriptionForeground);
+						padding: 12px;
+						background-color: color-mix(in srgb, var(--vscode-editorInfo-foreground) 8%, transparent);
+						border-radius: 6px;
+						margin-bottom: 16px;
+						display: flex;
+						align-items: flex-start;
+						gap: 8px;
+					}
 				`}
 			</style>
 
@@ -199,33 +272,111 @@ const SentinelWelcome = ({ showHistoryView }: SentinelWelcomeProps) => {
 						Start New Test
 					</h2>
 
-					{/* Target Files Input */}
-					<div style={{ marginBottom: "16px" }}>
-						<label
-							style={{
-								display: "flex",
-								alignItems: "center",
-								gap: "8px",
-								fontSize: "0.75rem",
-								color: "var(--vscode-descriptionForeground)",
-								marginBottom: "8px",
-							}}>
-							<FileCode size={12} />
-							Target Files (code to test)
-						</label>
-						<textarea
-							className="sentinel-input"
-							onChange={(e) => setTargetFiles(e.target.value)}
-							placeholder="e.g., @/src/auth/login.ts or paste file paths..."
-							rows={2}
-							value={targetFiles}
-						/>
-						<p style={{ fontSize: "0.75rem", color: "var(--vscode-descriptionForeground)", marginTop: "4px" }}>
-							Use @ to mention files or paste paths directly
-						</p>
+					{/* Test Source Selector */}
+					<div className="sentinel-source-tabs">
+						<button
+							className={`sentinel-source-tab ${testSource === "uncommitted" ? "active" : ""}`}
+							onClick={() => setTestSource("uncommitted")}
+							type="button">
+							<GitBranch size={14} />
+							Uncommitted
+						</button>
+						<button
+							className={`sentinel-source-tab ${testSource === "pr" ? "active" : ""}`}
+							onClick={() => setTestSource("pr")}
+							type="button">
+							<GitPullRequest size={14} />
+							PR
+						</button>
+						<button
+							className={`sentinel-source-tab ${testSource === "files" ? "active" : ""}`}
+							onClick={() => setTestSource("files")}
+							type="button">
+							<FileCode size={14} />
+							Files
+						</button>
 					</div>
 
-					{/* PRD Description Input */}
+					{/* Source Description */}
+					{testSource === "uncommitted" && (
+						<div className="sentinel-source-description">
+							<GitBranch size={14} style={{ flexShrink: 0, marginTop: "2px" }} />
+							<span>
+								Test all uncommitted changes in your workspace. Sentinel will automatically detect modified
+								files using <code style={{ fontSize: "0.7rem" }}>git diff</code>.
+							</span>
+						</div>
+					)}
+					{testSource === "pr" && (
+						<div className="sentinel-source-description">
+							<GitPullRequest size={14} style={{ flexShrink: 0, marginTop: "2px" }} />
+							<span>
+								Test changes from a Pull Request. Sentinel will checkout the PR branch, analyze the changes,
+								and run tests. You'll be asked to confirm before switching branches.
+							</span>
+						</div>
+					)}
+					{testSource === "files" && (
+						<div className="sentinel-source-description">
+							<FileCode size={14} style={{ flexShrink: 0, marginTop: "2px" }} />
+							<span>Manually select specific files to test. Use @ to mention files or paste paths directly.</span>
+						</div>
+					)}
+
+					{/* PR Input (shown only for PR mode) */}
+					{testSource === "pr" && (
+						<div style={{ marginBottom: "16px" }}>
+							<label
+								style={{
+									display: "flex",
+									alignItems: "center",
+									gap: "8px",
+									fontSize: "0.75rem",
+									color: "var(--vscode-descriptionForeground)",
+									marginBottom: "8px",
+								}}>
+								<GitPullRequest size={12} />
+								PR URL or Number
+							</label>
+							<input
+								className="sentinel-input"
+								onChange={(e) => setPrInput(e.target.value)}
+								placeholder="e.g., https://github.com/owner/repo/pull/123 or #123"
+								type="text"
+								value={prInput}
+							/>
+						</div>
+					)}
+
+					{/* Target Files Input (shown only for files mode) */}
+					{testSource === "files" && (
+						<div style={{ marginBottom: "16px" }}>
+							<label
+								style={{
+									display: "flex",
+									alignItems: "center",
+									gap: "8px",
+									fontSize: "0.75rem",
+									color: "var(--vscode-descriptionForeground)",
+									marginBottom: "8px",
+								}}>
+								<FileCode size={12} />
+								Target Files (code to test)
+							</label>
+							<textarea
+								className="sentinel-input"
+								onChange={(e) => setTargetFiles(e.target.value)}
+								placeholder="e.g., @/src/auth/login.ts or paste file paths..."
+								rows={2}
+								value={targetFiles}
+							/>
+							<p style={{ fontSize: "0.75rem", color: "var(--vscode-descriptionForeground)", marginTop: "4px" }}>
+								Use @ to mention files or paste paths directly
+							</p>
+						</div>
+					)}
+
+					{/* PRD Description Input (shown for all modes) */}
 					<div style={{ marginBottom: "16px" }}>
 						<label
 							style={{
@@ -237,7 +388,7 @@ const SentinelWelcome = ({ showHistoryView }: SentinelWelcomeProps) => {
 								marginBottom: "8px",
 							}}>
 							<FileText size={12} />
-							PRD / Feature Description
+							PRD / Feature Description {testSource !== "files" && "(optional)"}
 						</label>
 						<textarea
 							className="sentinel-input"
@@ -251,7 +402,7 @@ const SentinelWelcome = ({ showHistoryView }: SentinelWelcomeProps) => {
 					{/* Start Button */}
 					<button
 						className="sentinel-btn-start"
-						disabled={!targetFiles.trim() && !prdDescription.trim()}
+						disabled={isStartDisabled()}
 						onClick={handleStartTest}
 						type="button">
 						<Play size={16} />
@@ -403,8 +554,9 @@ const SentinelWelcome = ({ showHistoryView }: SentinelWelcomeProps) => {
 							paddingLeft: 0,
 							listStyle: "none",
 						}}>
-						<li style={{ marginBottom: "4px" }}>• Use the form above for structured test input</li>
-						<li style={{ marginBottom: "4px" }}>• Or chat freely below - Sentinel understands natural language</li>
+						<li style={{ marginBottom: "4px" }}>• <strong>Uncommitted</strong>: Test all your local changes before committing</li>
+						<li style={{ marginBottom: "4px" }}>• <strong>PR</strong>: Test changes from a Pull Request (will checkout branch)</li>
+						<li style={{ marginBottom: "4px" }}>• <strong>Files</strong>: Manually select specific files to test</li>
 						<li>• After testing, you'll get a merge recommendation</li>
 					</ul>
 				</div>
