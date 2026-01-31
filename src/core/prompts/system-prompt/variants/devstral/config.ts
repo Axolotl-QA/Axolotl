@@ -53,6 +53,9 @@ export const config = createVariant(ModelFamily.DEVSTRAL)
 		ClineDefaultTool.MCP_DOCS,
 		ClineDefaultTool.TODO,
 		ClineDefaultTool.USE_SKILL,
+		ClineDefaultTool.SENTINEL_QA_REPORT,
+		ClineDefaultTool.SENTINEL_DETECT_CHANGES,
+		ClineDefaultTool.SENTINEL_GENERATE_PLAN,
 	)
 	.placeholders({
 		MODEL_FAMILY: "devstral",

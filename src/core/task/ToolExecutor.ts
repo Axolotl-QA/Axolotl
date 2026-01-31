@@ -31,6 +31,8 @@ import { CondenseHandler } from "./tools/handlers/CondenseHandler"
 import { ExecuteCommandToolHandler } from "./tools/handlers/ExecuteCommandToolHandler"
 import { GenerateExplanationToolHandler } from "./tools/handlers/GenerateExplanationToolHandler"
 import { SentinelQAReportHandler } from "./tools/handlers/SentinelQAReportHandler"
+import { SentinelDetectChangesHandler } from "./tools/handlers/SentinelDetectChangesHandler"
+import { SentinelGeneratePlanHandler } from "./tools/handlers/SentinelGeneratePlanHandler"
 import { ListCodeDefinitionNamesToolHandler } from "./tools/handlers/ListCodeDefinitionNamesToolHandler"
 import { ListFilesToolHandler } from "./tools/handlers/ListFilesToolHandler"
 import { LoadMcpDocumentationHandler } from "./tools/handlers/LoadMcpDocumentationHandler"
@@ -238,6 +240,8 @@ export class ToolExecutor {
 		this.coordinator.register(new ApplyPatchHandler(validator))
 		this.coordinator.register(new GenerateExplanationToolHandler())
 		this.coordinator.register(new SentinelQAReportHandler())
+		this.coordinator.register(new SentinelDetectChangesHandler())
+		this.coordinator.register(new SentinelGeneratePlanHandler())
 	}
 
 	/**

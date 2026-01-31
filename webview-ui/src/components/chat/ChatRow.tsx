@@ -6,6 +6,8 @@ import {
 	ClineMessage,
 	ClinePlanModeResponse,
 	ClineSayGenerateExplanation,
+	ClineSaySentinelDetectChanges,
+	ClineSaySentinelGeneratePlan,
 	ClineSaySentinelQAReport,
 	ClineSayTool,
 	COMPLETION_RESULT_CHANGES_FLAG,
@@ -1102,6 +1104,202 @@ export const ChatRowContent = memo(
 												<code className="bg-quote rounded-sm py-0.5 px-1.5">
 													{explanationInfo.toRef || "working directory"}
 												</code>
+											</div>
+										)}
+									</div>
+								)}
+							</div>
+						)
+					}
+					case "sentinel_detect_changes": {
+						let detectInfo: ClineSaySentinelDetectChanges = {
+							status: "detecting",
+						}
+						try {
+							if (message.text) {
+								detectInfo = JSON.parse(message.text)
+							}
+						} catch {
+							// Use defaults if parsing fails
+						}
+						const detectWasCancelled =
+							detectInfo.status === "detecting" &&
+							(!isLast ||
+								lastModifiedMessage?.ask === "resume_task" ||
+								lastModifiedMessage?.ask === "resume_completed_task")
+						const isDetecting = detectInfo.status === "detecting" && !detectWasCancelled
+						const detectIsError = detectInfo.status === "error"
+						const detectResult = detectInfo.result
+
+						// Get status icon color
+						const getStatusColor = (status: string) => {
+							switch (status) {
+								case "added":
+									return "text-success"
+								case "deleted":
+									return "text-error"
+								case "modified":
+									return "text-warning"
+								default:
+									return ""
+							}
+						}
+
+						return (
+							<div className="bg-code flex flex-col border border-editor-group-border rounded-sm py-2.5 px-3">
+								<div className="flex items-center">
+									{isDetecting ? (
+										<ProgressIndicator />
+									) : detectIsError ? (
+										<CircleXIcon className="size-2 mr-2 text-error" />
+									) : detectWasCancelled ? (
+										<CircleSlashIcon className="size-2 mr-2" />
+									) : detectInfo.status === "no_changes" ? (
+										<CircleSlashIcon className="size-2 mr-2" />
+									) : (
+										<CheckIcon className="size-2 mr-2 text-success" />
+									)}
+									<span className="font-semibold">
+										{isDetecting
+											? "Detecting changes..."
+											: detectIsError
+												? "Failed to detect changes"
+												: detectWasCancelled
+													? "Detection cancelled"
+													: detectInfo.status === "no_changes"
+														? "No changes detected"
+														: "Changes Detected"}
+									</span>
+								</div>
+								{detectIsError && detectInfo.error && (
+									<div className="opacity-80 ml-6 mt-1.5 text-error break-words">{detectInfo.error}</div>
+								)}
+								{!detectIsError && !isDetecting && !detectWasCancelled && detectResult && (
+									<div className="ml-6 mt-2">
+										<div className="text-xs opacity-70 mb-1">
+											Source: {detectResult.source} • {detectResult.totalFiles} file(s)
+										</div>
+										<div className="flex flex-wrap gap-1 mt-1">
+											{detectResult.changes.slice(0, 5).map((change, i) => (
+												<span
+													key={i}
+													className={`text-xs px-1.5 py-0.5 rounded bg-editor-group-border ${getStatusColor(change.status)}`}>
+													{change.file.split("/").pop()}
+												</span>
+											))}
+											{detectResult.changes.length > 5 && (
+												<span className="text-xs opacity-50">
+													+{detectResult.changes.length - 5} more
+												</span>
+											)}
+										</div>
+									</div>
+								)}
+							</div>
+						)
+					}
+					case "sentinel_generate_plan": {
+						let planInfo: ClineSaySentinelGeneratePlan = {
+							status: "generating",
+						}
+						try {
+							if (message.text) {
+								planInfo = JSON.parse(message.text)
+							}
+						} catch {
+							// Use defaults if parsing fails
+						}
+						const planWasCancelled =
+							planInfo.status === "generating" &&
+							(!isLast ||
+								lastModifiedMessage?.ask === "resume_task" ||
+								lastModifiedMessage?.ask === "resume_completed_task")
+						const isGeneratingPlan = planInfo.status === "generating" && !planWasCancelled
+						const planIsError = planInfo.status === "error"
+						const plan = planInfo.plan
+
+						// Get priority color
+						const getPriorityColor = (priority: string) => {
+							switch (priority) {
+								case "high":
+									return "text-error"
+								case "medium":
+									return "text-warning"
+								case "low":
+									return "text-success"
+								default:
+									return ""
+							}
+						}
+
+						// Get category icon
+						const getCategoryIcon = (category: string) => {
+							switch (category) {
+								case "functional":
+									return "🟢"
+								case "edge_case":
+									return "🟡"
+								case "error_handling":
+									return "🔴"
+								case "ui_ux":
+									return "🔵"
+								default:
+									return "⚪"
+							}
+						}
+
+						return (
+							<div className="bg-code flex flex-col border border-editor-group-border rounded-sm py-2.5 px-3">
+								<div className="flex items-center">
+									{isGeneratingPlan ? (
+										<ProgressIndicator />
+									) : planIsError ? (
+										<CircleXIcon className="size-2 mr-2 text-error" />
+									) : planWasCancelled ? (
+										<CircleSlashIcon className="size-2 mr-2" />
+									) : (
+										<CheckIcon className="size-2 mr-2 text-success" />
+									)}
+									<span className="font-semibold">
+										{isGeneratingPlan
+											? "Generating test plan..."
+											: planIsError
+												? "Failed to generate test plan"
+												: planWasCancelled
+													? "Test plan cancelled"
+													: "Test Plan Generated"}
+									</span>
+								</div>
+								{planIsError && planInfo.error && (
+									<div className="opacity-80 ml-6 mt-1.5 text-error break-words">{planInfo.error}</div>
+								)}
+								{!planIsError && !isGeneratingPlan && !planWasCancelled && plan && (
+									<div className="ml-6 mt-2">
+										<div className="text-xs opacity-70 mb-2">
+											{plan.totalTests} test case(s) for {plan.targetFiles.length} file(s)
+										</div>
+										<div className="space-y-1.5 max-h-[200px] overflow-y-auto">
+											{plan.testCases.slice(0, 6).map((tc, i) => (
+												<div
+													key={i}
+													className="flex items-center gap-2 text-xs bg-editor-group-border rounded px-2 py-1">
+													<span>{getCategoryIcon(tc.category)}</span>
+													<span className="font-mono opacity-50">{tc.id}</span>
+													<span className="flex-1 truncate">{tc.name}</span>
+													<span className={`text-[10px] ${getPriorityColor(tc.priority)}`}>
+														{tc.priority.toUpperCase()}
+													</span>
+												</div>
+											))}
+											{plan.testCases.length > 6 && (
+												<div className="text-xs opacity-50 text-center">
+													+{plan.testCases.length - 6} more test cases
+												</div>
+											)}
+										</div>
+										{planInfo.planFilePath && (
+											<div className="mt-2 text-xs opacity-50 truncate">
+												📄 {planInfo.planFilePath.split("/").pop()}
 											</div>
 										)}
 									</div>

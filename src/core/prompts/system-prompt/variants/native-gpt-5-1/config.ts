@@ -71,6 +71,9 @@ export const config = createVariant(ModelFamily.NATIVE_GPT_5_1)
 		ClineDefaultTool.TODO,
 		ClineDefaultTool.GENERATE_EXPLANATION,
 		ClineDefaultTool.USE_SKILL,
+		ClineDefaultTool.SENTINEL_QA_REPORT,
+		ClineDefaultTool.SENTINEL_DETECT_CHANGES,
+		ClineDefaultTool.SENTINEL_GENERATE_PLAN,
 	)
 	.placeholders({
 		MODEL_FAMILY: ModelFamily.NATIVE_GPT_5_1,

@@ -62,6 +62,9 @@ export const config = createVariant(ModelFamily.NATIVE_NEXT_GEN)
 		ClineDefaultTool.TODO,
 		ClineDefaultTool.GENERATE_EXPLANATION,
 		ClineDefaultTool.USE_SKILL,
+		ClineDefaultTool.SENTINEL_QA_REPORT,
+		ClineDefaultTool.SENTINEL_DETECT_CHANGES,
+		ClineDefaultTool.SENTINEL_GENERATE_PLAN,
 	)
 	.placeholders({
 		MODEL_FAMILY: ModelFamily.NATIVE_NEXT_GEN,

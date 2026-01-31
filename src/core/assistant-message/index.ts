@@ -50,6 +50,16 @@ export const toolParamNames = [
 	"to_ref",
 	"skill_name",
 	"report_json",
+	// Sentinel QA tool parameters
+	"source",
+	"pr_identifier",
+	"file_paths",
+	"prd_description",
+	"changed_files",
+	"code_analysis",
+	"diff_content",
+	"test_cases",
+	"logs_cleanup_summary",
 ] as const
 
 export type ToolParamName = (typeof toolParamNames)[number]

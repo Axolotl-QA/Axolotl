@@ -152,6 +152,8 @@ export type ClineAsk =
 	| "condense"
 	| "summarize_task"
 	| "report_bug"
+	| "sentinel_confirm_changes"
+	| "sentinel_confirm_plan"
 
 export type ClineSay =
 	| "task"
@@ -185,6 +187,8 @@ export type ClineSay =
 	| "load_mcp_documentation"
 	| "generate_explanation"
 	| "sentinel_qa_report"
+	| "sentinel_detect_changes"
+	| "sentinel_generate_plan"
 	| "info" // Added for general informational messages like retry status
 	| "task_progress"
 	| "hook_status"
@@ -293,6 +297,57 @@ export interface SentinelQAReport {
 export interface ClineSaySentinelQAReport {
 	status: "generating" | "complete" | "error"
 	report?: SentinelQAReport
+	error?: string
+}
+
+export interface SentinelDetectedChange {
+	file: string
+	status: "modified" | "added" | "deleted" | "renamed"
+	additions?: number
+	deletions?: number
+}
+
+export interface SentinelDetectionResult {
+	source: string
+	changes: SentinelDetectedChange[]
+	totalFiles: number
+	summary: string
+	diff?: string
+	prInfo?: {
+		title: string
+		number: number
+		branch: string
+	}
+}
+
+export interface ClineSaySentinelDetectChanges {
+	status: "detecting" | "confirmed" | "cancelled" | "no_changes" | "error"
+	result?: SentinelDetectionResult
+	error?: string
+}
+
+export interface SentinelTestCase {
+	id: string
+	name: string
+	category: "functional" | "edge_case" | "error_handling" | "ui_ux"
+	description: string
+	steps: string[]
+	expectedResult: string
+	priority: "high" | "medium" | "low"
+}
+
+export interface SentinelTestPlan {
+	targetFiles: string[]
+	prdDescription?: string
+	testCases: SentinelTestCase[]
+	totalTests: number
+	summary: string
+}
+
+export interface ClineSaySentinelGeneratePlan {
+	status: "generating" | "confirmed" | "cancelled" | "error"
+	plan?: SentinelTestPlan
+	planFilePath?: string
 	error?: string
 }
 
