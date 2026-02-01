@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Sentinel Login</title>
+    <style>
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        margin: 0;
+        padding: 40px;
+        background: #f6f7fb;
+        color: #111827;
+      }
+      .card {
+        max-width: 520px;
+        margin: 0 auto;
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        padding: 24px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.06);
+      }
+      h1 {
+        margin: 0 0 12px;
+        font-size: 22px;
+      }
+      p {
+        margin: 0 0 16px;
+        color: #4b5563;
+      }
+      button {
+        background: #111827;
+        color: #ffffff;
+        border: 0;
+        border-radius: 8px;
+        padding: 10px 16px;
+        font-size: 14px;
+        cursor: pointer;
+      }
+      button:hover {
+        background: #0b1220;
+      }
+      .meta {
+        margin-top: 12px;
+        font-size: 12px;
+        color: #6b7280;
+        word-break: break-all;
+      }
+      code {
+        background: #f3f4f6;
+        padding: 2px 6px;
+        border-radius: 4px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <h1>Sentinel Login</h1>
+      <p>Click the button to return to VS Code.</p>
+      <button id="login">Login / Sign Up</button>
+      <div class="meta" id="info"></div>
+    </div>
+
+    <script>
+      const params = new URLSearchParams(window.location.search)
+      const callbackUrl = params.get("callback_url")
+      const provider = params.get("provider") || "sentinel"
+      const code = params.get("code") || "demo123"
+
+      const info = document.getElementById("info")
+      if (callbackUrl) {
+        info.textContent = `callback_url = ${callbackUrl}`
+      } else {
+        info.innerHTML = `Missing <code>callback_url</code> in URL query.`
+      }
+
+      document.getElementById("login").addEventListener("click", () => {
+        if (!callbackUrl) {
+          alert("Missing callback_url")
+          return
+        }
+        const joiner = callbackUrl.includes("?") ? "&" : "?"
+        const redirect = `${callbackUrl}${joiner}code=${encodeURIComponent(code)}&provider=${encodeURIComponent(provider)}`
+        window.location.href = redirect
+      })
+    </script>
+  </body>
+</html>
