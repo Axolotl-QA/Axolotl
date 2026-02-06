@@ -200,11 +200,11 @@ fastify.post("/v1/auth/token", async (request, reply) => {
       tokenType: "Bearer",
       expiresAt,
       userInfo: {
-        id: user?.id || codeRow.user_id,
+        subject: null,
         email: user?.email || "",
-        displayName: user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email || "",
-        createdAt: user?.created_at || new Date().toISOString(),
-        organizations: [],
+        name: user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email || "",
+        clineUserId: user?.id || codeRow.user_id,
+        accounts: null,
       },
     },
   })
@@ -232,15 +232,15 @@ fastify.post("/v1/auth/refresh", async (request, reply) => {
       tokenType: "Bearer",
       expiresAt,
       userInfo: {
-        id: session.user.id,
+        subject: null,
         email: session.user.email || "",
-        displayName:
+        name:
           session.user.user_metadata?.full_name ||
           session.user.user_metadata?.name ||
           session.user.email ||
           "",
-        createdAt: session.user.created_at || new Date().toISOString(),
-        organizations: [],
+        clineUserId: session.user.id,
+        accounts: null,
       },
     },
   })

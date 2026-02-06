@@ -68,9 +68,9 @@ class ClineEndpoint {
 			default:
 				return {
 					environment: Environment.production,
-					appBaseUrl: envAppBaseUrl || "https://app.cline.bot",
-					apiBaseUrl: envApiBaseUrl || "https://api.cline.bot",
-					mcpBaseUrl: "https://api.cline.bot/v1/mcp",
+					appBaseUrl: envAppBaseUrl || "https://whale-app-ae67c.ondigitalocean.app/sentinel-static-site",
+					apiBaseUrl: envApiBaseUrl || "https://whale-app-ae67c.ondigitalocean.app",
+					mcpBaseUrl: "https://whale-app-ae67c.ondigitalocean.app/v1/mcp",
 				}
 		}
 	}

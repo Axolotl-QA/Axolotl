@@ -1,0 +1,658 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Sentinel - Sign Up</title>
+    <style>
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        background: #f8f9fa;
+        color: #111827;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+      }
+
+      .card {
+        width: 100%;
+        max-width: 420px;
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 16px;
+        padding: 40px 32px;
+        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+      }
+
+      h1 {
+        font-size: 24px;
+        font-weight: 700;
+        margin-bottom: 8px;
+        text-align: center;
+      }
+
+      .subtitle {
+        font-size: 14px;
+        color: #6b7280;
+        text-align: center;
+        margin-bottom: 28px;
+        line-height: 1.5;
+      }
+
+      .form-group {
+        margin-bottom: 16px;
+      }
+
+      .form-group label {
+        display: block;
+        font-size: 14px;
+        font-weight: 500;
+        color: #374151;
+        margin-bottom: 6px;
+      }
+
+      .input-wrapper {
+        position: relative;
+      }
+
+      .input-wrapper input {
+        width: 100%;
+        border: 1px solid #d1d5db;
+        border-radius: 10px;
+        padding: 12px 14px;
+        font-size: 14px;
+        outline: none;
+        transition: border-color 0.2s;
+        background: #fff;
+      }
+
+      .input-wrapper input:focus {
+        border-color: #111827;
+        box-shadow: 0 0 0 3px rgba(17, 24, 39, 0.08);
+      }
+
+      .input-wrapper input::placeholder {
+        color: #9ca3af;
+      }
+
+      .input-wrapper.has-toggle input {
+        padding-right: 44px;
+      }
+
+      .toggle-password {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 4px;
+        color: #9ca3af;
+        display: flex;
+        align-items: center;
+      }
+
+      .toggle-password:hover {
+        color: #6b7280;
+      }
+
+      .toggle-password svg {
+        width: 20px;
+        height: 20px;
+      }
+
+      /* Email row with Send code button */
+      .email-row {
+        display: flex;
+        gap: 8px;
+      }
+
+      .email-row .input-wrapper {
+        flex: 1;
+      }
+
+      .btn-send-code {
+        background: #111827;
+        color: #ffffff;
+        border: none;
+        border-radius: 10px;
+        padding: 12px 16px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        white-space: nowrap;
+        transition: background-color 0.2s;
+        min-width: 90px;
+      }
+
+      .btn-send-code:hover {
+        background: #1f2937;
+      }
+
+      .btn-send-code:disabled {
+        background: #9ca3af;
+        cursor: not-allowed;
+      }
+
+      .email-hint {
+        font-size: 12px;
+        color: #9ca3af;
+        margin-top: 6px;
+      }
+
+      /* OTP input */
+      .otp-section {
+        display: none;
+        margin-bottom: 16px;
+      }
+
+      .otp-section label {
+        display: block;
+        font-size: 14px;
+        font-weight: 500;
+        color: #374151;
+        margin-bottom: 8px;
+      }
+
+      .otp-inputs {
+        display: flex;
+        gap: 8px;
+        justify-content: center;
+      }
+
+      .otp-inputs input {
+        width: 48px;
+        height: 52px;
+        border: 1px solid #d1d5db;
+        border-radius: 10px;
+        text-align: center;
+        font-size: 20px;
+        font-weight: 600;
+        outline: none;
+        transition: border-color 0.2s;
+      }
+
+      .otp-inputs input:focus {
+        border-color: #111827;
+        box-shadow: 0 0 0 3px rgba(17, 24, 39, 0.08);
+      }
+
+      /* Password rules */
+      .password-rules {
+        margin-top: 8px;
+      }
+
+      .password-rules .rule {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 12px;
+        color: #9ca3af;
+        margin-bottom: 4px;
+        transition: color 0.2s;
+      }
+
+      .password-rules .rule.passed {
+        color: #059669;
+      }
+
+      .password-rules .rule .icon {
+        font-size: 14px;
+        width: 16px;
+        text-align: center;
+      }
+
+      /* Create account button */
+      .btn-create {
+        width: 100%;
+        background: #059669;
+        color: #ffffff;
+        border: none;
+        border-radius: 10px;
+        padding: 12px 16px;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color 0.2s;
+        margin-top: 8px;
+      }
+
+      .btn-create:hover {
+        background: #047857;
+      }
+
+      .btn-create:disabled {
+        background: #d1d5db;
+        color: #9ca3af;
+        cursor: not-allowed;
+      }
+
+      /* Links */
+      .links {
+        text-align: center;
+        margin-top: 20px;
+        font-size: 14px;
+        color: #6b7280;
+      }
+
+      .links a {
+        color: #111827;
+        font-weight: 600;
+        text-decoration: none;
+        transition: color 0.2s;
+      }
+
+      .links a:hover {
+        color: #374151;
+      }
+
+      /* Error and status messages */
+      .error-msg {
+        background: #fef2f2;
+        border: 1px solid #fecaca;
+        border-radius: 8px;
+        padding: 10px 14px;
+        margin-bottom: 16px;
+        font-size: 13px;
+        color: #991b1b;
+        display: none;
+        text-align: center;
+      }
+
+      .status-msg {
+        text-align: center;
+        font-size: 13px;
+        color: #6b7280;
+        margin-top: 12px;
+        display: none;
+      }
+
+      .spinner {
+        display: inline-block;
+        width: 14px;
+        height: 14px;
+        border: 2px solid #d1d5db;
+        border-top: 2px solid #111827;
+        border-radius: 50%;
+        animation: spin 0.6s linear infinite;
+        vertical-align: middle;
+        margin-right: 6px;
+      }
+
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <h1>Sign up</h1>
+      <p class="subtitle">Create your account to get started</p>
+
+      <div class="error-msg" id="error-msg"></div>
+
+      <!-- Full Name -->
+      <div class="form-group">
+        <label for="fullname">Full Name</label>
+        <div class="input-wrapper">
+          <input id="fullname" type="text" placeholder="Jane Doe" autocomplete="name" />
+        </div>
+      </div>
+
+      <!-- Email + Send code -->
+      <div class="form-group">
+        <label for="email">Email</label>
+        <div class="email-row">
+          <div class="input-wrapper">
+            <input id="email" type="email" placeholder="you@example.com" autocomplete="email" />
+          </div>
+          <button class="btn-send-code" id="send-code-btn">Send code</button>
+        </div>
+        <div class="email-hint">We'll send a 6-digit code to verify your email.</div>
+      </div>
+
+      <!-- OTP verification code -->
+      <div class="otp-section" id="otp-section">
+        <label>Verification code</label>
+        <div class="otp-inputs" id="otp-inputs">
+          <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" data-index="0" />
+          <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" data-index="1" />
+          <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" data-index="2" />
+          <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" data-index="3" />
+          <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" data-index="4" />
+          <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" data-index="5" />
+        </div>
+      </div>
+
+      <!-- Password -->
+      <div class="form-group">
+        <label for="password">Password</label>
+        <div class="input-wrapper has-toggle">
+          <input id="password" type="password" placeholder="Create a strong password" autocomplete="new-password" />
+          <button type="button" class="toggle-password" id="toggle-password" aria-label="Toggle password visibility">
+            <svg class="eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+            <svg class="eye-off-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none">
+              <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+              <line x1="1" y1="1" x2="23" y2="23"/>
+            </svg>
+          </button>
+        </div>
+        <div class="password-rules" id="password-rules">
+          <div class="rule" id="rule-length"><span class="icon">&#x2715;</span> At least 8 characters</div>
+          <div class="rule" id="rule-lower"><span class="icon">&#x2715;</span> Has a lowercase letter</div>
+          <div class="rule" id="rule-upper"><span class="icon">&#x2715;</span> Has a capital letter</div>
+          <div class="rule" id="rule-number"><span class="icon">&#x2715;</span> Has a number</div>
+        </div>
+      </div>
+
+      <!-- Confirm Password -->
+      <div class="form-group">
+        <label for="confirm-password">Confirm password</label>
+        <div class="input-wrapper has-toggle">
+          <input id="confirm-password" type="password" placeholder="Re-enter your password" autocomplete="new-password" />
+          <button type="button" class="toggle-password" id="toggle-confirm-password" aria-label="Toggle password visibility">
+            <svg class="eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+            <svg class="eye-off-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none">
+              <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+              <line x1="1" y1="1" x2="23" y2="23"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <button class="btn-create" id="create-btn" disabled>Create account</button>
+
+      <div class="links">
+        Already have an account? <a href="#" id="login-link">Log in</a>
+      </div>
+
+      <div class="status-msg" id="status-msg"></div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+      const SUPABASE_URL = "https://cxoizjoeozrtjpybgicc.supabase.co"
+      const SUPABASE_ANON_KEY = "6EB4753E-E919-4691-B6E4-65A6B6E38A04"
+
+      const params = new URLSearchParams(window.location.search)
+      const state = params.get("state")
+
+      const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+
+      // DOM elements
+      const fullnameInput = document.getElementById("fullname")
+      const emailInput = document.getElementById("email")
+      const passwordInput = document.getElementById("password")
+      const confirmPasswordInput = document.getElementById("confirm-password")
+      const sendCodeBtn = document.getElementById("send-code-btn")
+      const otpSection = document.getElementById("otp-section")
+      const otpInputs = document.querySelectorAll("#otp-inputs input")
+      const createBtn = document.getElementById("create-btn")
+      const errorMsg = document.getElementById("error-msg")
+      const statusMsg = document.getElementById("status-msg")
+      const loginLink = document.getElementById("login-link")
+
+      // State
+      let codeSent = false
+      let countdownTimer = null
+
+      // Navigation
+      loginLink.addEventListener("click", (e) => {
+        e.preventDefault()
+        const loginUrl = state
+          ? `login.html?state=${encodeURIComponent(state)}`
+          : "login.html"
+        window.location.href = loginUrl
+      })
+
+      // Password toggle for both password fields
+      setupPasswordToggle("toggle-password", passwordInput)
+      setupPasswordToggle("toggle-confirm-password", confirmPasswordInput)
+
+      function setupPasswordToggle(btnId, input) {
+        const btn = document.getElementById(btnId)
+        btn.addEventListener("click", () => {
+          const isPassword = input.type === "password"
+          input.type = isPassword ? "text" : "password"
+          btn.querySelector(".eye-icon").style.display = isPassword ? "none" : "block"
+          btn.querySelector(".eye-off-icon").style.display = isPassword ? "block" : "none"
+        })
+      }
+
+      // Send code
+      sendCodeBtn.addEventListener("click", sendCode)
+
+      async function sendCode() {
+        const email = emailInput.value.trim()
+        if (!email) {
+          showError("Please enter your email address.")
+          return
+        }
+        hideError()
+        sendCodeBtn.disabled = true
+        showStatus("Sending verification code...")
+
+        try {
+          const { error } = await supabase.auth.signInWithOtp({
+            email,
+            options: { shouldCreateUser: true },
+          })
+
+          if (error) {
+            sendCodeBtn.disabled = false
+            hideStatus()
+            showError(error.message)
+            return
+          }
+
+          codeSent = true
+          hideStatus()
+          otpSection.style.display = "block"
+          otpInputs[0].focus()
+          startCountdown(60)
+          updateCreateButton()
+        } catch (err) {
+          sendCodeBtn.disabled = false
+          hideStatus()
+          showError(err.message || "Failed to send verification code.")
+        }
+      }
+
+      function startCountdown(seconds) {
+        let remaining = seconds
+        sendCodeBtn.disabled = true
+        sendCodeBtn.textContent = `${remaining}s`
+
+        countdownTimer = setInterval(() => {
+          remaining--
+          if (remaining <= 0) {
+            clearInterval(countdownTimer)
+            sendCodeBtn.disabled = false
+            sendCodeBtn.textContent = "Resend"
+          } else {
+            sendCodeBtn.textContent = `${remaining}s`
+          }
+        }, 1000)
+      }
+
+      // OTP input handling
+      otpInputs.forEach((input, index) => {
+        input.addEventListener("input", (e) => {
+          const value = e.target.value
+          // Only allow digits
+          if (!/^\d*$/.test(value)) {
+            e.target.value = ""
+            return
+          }
+          if (value && index < 5) {
+            otpInputs[index + 1].focus()
+          }
+          updateCreateButton()
+        })
+
+        input.addEventListener("keydown", (e) => {
+          if (e.key === "Backspace" && !e.target.value && index > 0) {
+            otpInputs[index - 1].focus()
+          }
+        })
+
+        // Handle paste
+        input.addEventListener("paste", (e) => {
+          e.preventDefault()
+          const pastedData = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6)
+          pastedData.split("").forEach((char, i) => {
+            if (otpInputs[i]) {
+              otpInputs[i].value = char
+            }
+          })
+          const focusIndex = Math.min(pastedData.length, 5)
+          otpInputs[focusIndex].focus()
+          updateCreateButton()
+        })
+      })
+
+      // Password strength validation
+      const rules = {
+        length: (pw) => pw.length >= 8,
+        lower: (pw) => /[a-z]/.test(pw),
+        upper: (pw) => /[A-Z]/.test(pw),
+        number: (pw) => /[0-9]/.test(pw),
+      }
+
+      passwordInput.addEventListener("input", () => {
+        const pw = passwordInput.value
+        Object.entries(rules).forEach(([key, check]) => {
+          const ruleEl = document.getElementById(`rule-${key}`)
+          const passed = check(pw)
+          ruleEl.classList.toggle("passed", passed)
+          ruleEl.querySelector(".icon").innerHTML = passed ? "&#x2713;" : "&#x2715;"
+        })
+        updateCreateButton()
+      })
+
+      confirmPasswordInput.addEventListener("input", updateCreateButton)
+
+      function getOtpCode() {
+        return Array.from(otpInputs).map((i) => i.value).join("")
+      }
+
+      function allPasswordRulesPassed() {
+        const pw = passwordInput.value
+        return Object.values(rules).every((check) => check(pw))
+      }
+
+      function updateCreateButton() {
+        const otp = getOtpCode()
+        const pw = passwordInput.value
+        const confirmPw = confirmPasswordInput.value
+        const name = fullnameInput.value.trim()
+
+        const valid =
+          codeSent &&
+          otp.length === 6 &&
+          name.length > 0 &&
+          allPasswordRulesPassed() &&
+          pw === confirmPw &&
+          confirmPw.length > 0
+
+        createBtn.disabled = !valid
+      }
+
+      // Also validate on name changes
+      fullnameInput.addEventListener("input", updateCreateButton)
+
+      // Create account
+      createBtn.addEventListener("click", createAccount)
+
+      async function createAccount() {
+        const email = emailInput.value.trim()
+        const fullName = fullnameInput.value.trim()
+        const password = passwordInput.value
+        const confirmPw = confirmPasswordInput.value
+        const otpCode = getOtpCode()
+
+        if (password !== confirmPw) {
+          showError("Passwords do not match.")
+          return
+        }
+
+        hideError()
+        createBtn.disabled = true
+        showStatus("Creating your account...")
+
+        try {
+          // Step 1: Verify OTP
+          const { data, error } = await supabase.auth.verifyOtp({
+            email,
+            token: otpCode,
+            type: "email",
+          })
+
+          if (error) {
+            createBtn.disabled = false
+            hideStatus()
+            showError(error.message)
+            return
+          }
+
+          // Step 2: Set password and full name
+          const { error: updateError } = await supabase.auth.updateUser({
+            password,
+            data: { full_name: fullName },
+          })
+
+          if (updateError) {
+            createBtn.disabled = false
+            hideStatus()
+            showError(updateError.message)
+            return
+          }
+
+          // Step 3: Sign out so user logs in with password through the full auth flow
+          await supabase.auth.signOut()
+
+          // Step 4: Redirect to login page
+          hideStatus()
+          const loginUrl = state
+            ? `login.html?state=${encodeURIComponent(state)}&registered=true`
+            : "login.html?registered=true"
+          window.location.href = loginUrl
+        } catch (err) {
+          createBtn.disabled = false
+          hideStatus()
+          showError(err.message || "Failed to create account.")
+        }
+      }
+
+      // Utility functions
+      function showError(msg) {
+        errorMsg.textContent = msg
+        errorMsg.style.display = "block"
+      }
+
+      function hideError() {
+        errorMsg.style.display = "none"
+      }
+
+      function showStatus(msg) {
+        statusMsg.innerHTML = `<span class="spinner"></span>${msg}`
+        statusMsg.style.display = "block"
+      }
+
+      function hideStatus() {
+        statusMsg.style.display = "none"
+      }
+    </script>
+  </body>
+</html>
