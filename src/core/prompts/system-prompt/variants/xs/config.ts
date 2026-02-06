@@ -51,6 +51,7 @@ export const config = createVariant(ModelFamily.XS)
 		ClineDefaultTool.SENTINEL_QA_REPORT,
 		ClineDefaultTool.SENTINEL_DETECT_CHANGES,
 		ClineDefaultTool.SENTINEL_GENERATE_PLAN,
+		ClineDefaultTool.SENTINEL_ANALYZE_CODE,
 	)
 	.placeholders({
 		MODEL_FAMILY: ModelFamily.XS,

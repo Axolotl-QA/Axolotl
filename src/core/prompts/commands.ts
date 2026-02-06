@@ -245,11 +245,12 @@ You are now in **Sentinel QA Mode** - an automated QA engineer workflow. Follow 
 
 \`\`\`
 Phase 1: Detect Changes → sentinel_detect_changes (user confirms scope)
-Phase 2: Generate Plan → sentinel_generate_plan (AI generates test cases, user reviews)
-Phase 3: Inject Logs → Add SENTINEL_TEST_LOG markers (MUST TRACK for cleanup)
-Phase 4: Execute Tests → execute_command + browser_action
-Phase 5: Cleanup Logs → REMOVE all injected logs (MANDATORY before report)
-Phase 6: Report → sentinel_qa_report (user decides on fixes)
+Phase 2: Analyze Code → sentinel_analyze_code (understand code structure)
+Phase 3: Generate Plan → sentinel_generate_plan (AI generates test cases, user reviews)
+Phase 4: Inject Logs → Add SENTINEL_TEST_LOG markers (MUST TRACK for cleanup)
+Phase 5: Execute Tests → execute_command + browser_action
+Phase 6: Cleanup Logs → REMOVE all injected logs (MANDATORY before report)
+Phase 7: Report → sentinel_qa_report (user decides on fixes)
 \`\`\`
 
 ## Phase 1: Detect Changes
@@ -264,17 +265,30 @@ Parse the user's input to determine the source:
 
 Wait for user confirmation before proceeding.
 
-## Phase 2: Generate Test Plan
+## Phase 2: Analyze Code Structure (MANDATORY)
 
-This is a **two-step process**:
+**⚠️ IMPORTANT: You MUST call \`sentinel_analyze_code\` BEFORE generating test cases!**
 
-### Step 2.1: Analyze Code
-1. Read the changed files to understand the code structure
-2. Identify testable functionality, edge cases, error handling scenarios
-3. Understand the user's PRD/requirements
+This step is **REQUIRED** - do NOT skip it. After changes are confirmed, use \`sentinel_analyze_code\` to deeply understand the code:
 
-### Step 2.2: Generate Test Cases
-Call \`sentinel_generate_plan\` WITH the \`test_cases\` parameter containing your AI-generated test cases:
+\`\`\`
+sentinel_analyze_code
+- file_paths: ["src/auth/login.ts", "src/components/LoginForm.tsx"]
+- analysis_type: "both"
+- search_pattern: "throw|catch|error|validate"
+- focus_areas: "error handling, validation, authentication"
+\`\`\`
+
+This tool provides:
+1. **Code Structure**: Extracts classes, functions, methods, interfaces using AST parsing
+2. **Pattern Search**: Finds error handling, validation logic, API calls, etc.
+3. **Summary**: Helps identify what needs to be tested
+
+**You MUST wait for the analysis results before proceeding to Phase 3.**
+
+## Phase 3: Generate Test Plan
+
+Based on the code analysis from Phase 2, call \`sentinel_generate_plan\` WITH the \`test_cases\` parameter:
 
 \`\`\`
 sentinel_generate_plan
@@ -287,9 +301,9 @@ sentinel_generate_plan
   ]
 \`\`\`
 
-**IMPORTANT**: Do NOT call sentinel_generate_plan without test_cases. You must analyze the code and generate the test cases yourself.
+**IMPORTANT**: Do NOT call sentinel_generate_plan without test_cases. Use the code analysis from Phase 2 to generate comprehensive test cases.
 
-## Phase 3: Inject Logs (REQUIRED - MUST TRACK)
+## Phase 4: Inject Logs (REQUIRED - MUST TRACK)
 
 **Before testing, inject logging statements for evidence capture.**
 
@@ -312,7 +326,7 @@ SENTINEL_INJECTED_LOGS:
 
 **Display this list to the user** so they know what was injected.
 
-## Phase 4: Execute Tests
+## Phase 5: Execute Tests
 
 1. **Start dev server**:
    - Run \`npm install\` and \`npm run dev\` (or equivalent)
@@ -327,7 +341,7 @@ SENTINEL_INJECTED_LOGS:
 
 **CRITICAL**: Use \`browser_action\` for ALL UI testing. Do NOT use curl/wget.
 
-## Phase 5: Cleanup Logs (MANDATORY)
+## Phase 6: Cleanup Logs (MANDATORY)
 
 **⚠️ BEFORE generating the report, you MUST remove ALL injected logs!**
 
@@ -346,9 +360,9 @@ SENTINEL_LOG_CLEANUP_COMPLETE:
 - Original code restored: ✅
 \`\`\`
 
-**Do NOT proceed to Phase 6 until cleanup is complete!**
+**Do NOT proceed to Phase 7 until cleanup is complete!**
 
-## Phase 6: Generate Report
+## Phase 7: Generate Report
 
 **Only after log cleanup**, use \`sentinel_qa_report\`:
 
@@ -362,7 +376,7 @@ sentinel_qa_report
   }
 \`\`\`
 
-## Phase 7: Fix Issues (if tests failed)
+## Phase 8: Fix Issues (if tests failed)
 
 If any tests failed:
 - Ask if user wants automatic fixes
@@ -371,11 +385,14 @@ If any tests failed:
 
 ## Key Rules
 
-- ✅ Generate meaningful test cases based on actual code analysis
+- ✅ **MANDATORY**: Call \`sentinel_analyze_code\` BEFORE \`sentinel_generate_plan\` - this is NOT optional!
+- ✅ Generate meaningful test cases based on the code analysis output
 - ✅ ALWAYS track injected logs with file paths and line numbers
 - ✅ ALWAYS cleanup injected logs before generating report
 - ✅ Use \`browser_action\` for ALL UI testing
 - ✅ Capture evidence (screenshots, logs) at every step
+- ❌ **NEVER** skip \`sentinel_analyze_code\` - it provides essential code structure info
+- ❌ Do NOT call \`sentinel_generate_plan\` without first calling \`sentinel_analyze_code\`
 - ❌ Do NOT skip log cleanup phase
 - ❌ Do NOT use curl/wget to test UI components
 - ❌ Do NOT leave SENTINEL_TEST_LOG in the code after testing

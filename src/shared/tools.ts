@@ -35,6 +35,7 @@ export enum ClineDefaultTool {
 	SENTINEL_QA_REPORT = "sentinel_qa_report",
 	SENTINEL_DETECT_CHANGES = "sentinel_detect_changes",
 	SENTINEL_GENERATE_PLAN = "sentinel_generate_plan",
+	SENTINEL_ANALYZE_CODE = "sentinel_analyze_code",
 }
 
 // Array of all tool names for compatibility

@@ -353,6 +353,100 @@
     }
   },
   {
+    "name": "sentinel_qa_report",
+    "description": "Generate and display a Sentinel QA test report. Use this tool ONLY after:\n1. Completing all test execution\n2. Cleaning up ALL injected SENTINEL_TEST_LOG statements\n\n**IMPORTANT**: You MUST cleanup injected logs BEFORE calling this tool. Do NOT leave test logs in the code!",
+    "parameters": {
+      "type": "OBJECT",
+      "properties": {
+        "report_json": {
+          "type": "STRING"
+        },
+        "logs_cleanup_summary": {
+          "type": "STRING"
+        }
+      },
+      "required": [
+        "report_json"
+      ]
+    }
+  },
+  {
+    "name": "sentinel_detect_changes",
+    "description": "Detect and analyze code changes for Sentinel QA testing. This tool identifies files that have been modified based on the specified source (uncommitted changes, PR, or specific files) and prepares them for testing.\n\nUse this tool as the FIRST step in a Sentinel QA workflow to:\n1. Detect which files have changed\n2. Get the diff content for analysis\n3. Allow the user to confirm the test scope before proceeding\n\nThe tool will return a structured summary of changes that can be used to generate a test plan.",
+    "parameters": {
+      "type": "OBJECT",
+      "properties": {
+        "source": {
+          "type": "STRING"
+        },
+        "pr_identifier": {
+          "type": "STRING"
+        },
+        "file_paths": {
+          "type": "STRING"
+        },
+        "prd_description": {
+          "type": "STRING"
+        }
+      },
+      "required": [
+        "source"
+      ]
+    }
+  },
+  {
+    "name": "sentinel_generate_plan",
+    "description": "Generate a comprehensive test plan for Sentinel QA testing. This is a two-step process:\n\n**Step 1 (without test_cases):** Call this tool with changed_files to get instructions for generating test cases. You should:\n1. Read the changed files to understand the code\n2. Analyze the functionality and identify testable scenarios\n3. Generate comprehensive test cases based on your analysis\n\n**Step 2 (with test_cases):** Call this tool again with your AI-generated test cases as JSON. The tool will:\n1. Create a test plan markdown file with mermaid diagram\n2. Save it for user review\n3. Allow the user to modify before execution\n\nUse this tool AFTER sentinel_detect_changes has confirmed the test scope.",
+    "parameters": {
+      "type": "OBJECT",
+      "properties": {
+        "changed_files": {
+          "type": "STRING"
+        },
+        "test_cases": {
+          "type": "STRING"
+        },
+        "prd_description": {
+          "type": "STRING"
+        },
+        "code_analysis": {
+          "type": "STRING"
+        },
+        "diff_content": {
+          "type": "STRING"
+        }
+      },
+      "required": [
+        "changed_files"
+      ]
+    }
+  },
+  {
+    "name": "sentinel_analyze_code",
+    "description": "Analyze code structure and search for patterns in the specified files for Sentinel QA testing. This tool combines AST-based code structure analysis with regex pattern search to help understand the code before generating test cases.\n\nUse this tool AFTER sentinel_detect_changes to deeply analyze the changed files before calling sentinel_generate_plan.\n\nThe tool provides:\n1. **Code Structure Analysis**: Extracts class, function, method, and interface definitions using AST parsing\n2. **Pattern Search**: Finds specific code patterns using regex (e.g., error handling, validation, API calls)\n3. **Summary**: Provides a concise overview of the analyzed code\n\nOutput is automatically truncated to prevent context overflow (max 100KB).",
+    "parameters": {
+      "type": "OBJECT",
+      "properties": {
+        "file_paths": {
+          "type": "STRING"
+        },
+        "analysis_type": {
+          "type": "STRING"
+        },
+        "search_pattern": {
+          "type": "STRING"
+        },
+        "focus_areas": {
+          "type": "STRING"
+        }
+      },
+      "required": [
+        "file_paths",
+        "analysis_type"
+      ]
+    }
+  },
+  {
     "name": "12345670mcp0test_tool",
     "description": "test-server: A test tool",
     "parameters": {

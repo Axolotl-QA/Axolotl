@@ -30,9 +30,6 @@ import { BrowserToolHandler } from "./tools/handlers/BrowserToolHandler"
 import { CondenseHandler } from "./tools/handlers/CondenseHandler"
 import { ExecuteCommandToolHandler } from "./tools/handlers/ExecuteCommandToolHandler"
 import { GenerateExplanationToolHandler } from "./tools/handlers/GenerateExplanationToolHandler"
-import { SentinelQAReportHandler } from "./tools/handlers/SentinelQAReportHandler"
-import { SentinelDetectChangesHandler } from "./tools/handlers/SentinelDetectChangesHandler"
-import { SentinelGeneratePlanHandler } from "./tools/handlers/SentinelGeneratePlanHandler"
 import { ListCodeDefinitionNamesToolHandler } from "./tools/handlers/ListCodeDefinitionNamesToolHandler"
 import { ListFilesToolHandler } from "./tools/handlers/ListFilesToolHandler"
 import { LoadMcpDocumentationHandler } from "./tools/handlers/LoadMcpDocumentationHandler"
@@ -41,6 +38,10 @@ import { PlanModeRespondHandler } from "./tools/handlers/PlanModeRespondHandler"
 import { ReadFileToolHandler } from "./tools/handlers/ReadFileToolHandler"
 import { ReportBugHandler } from "./tools/handlers/ReportBugHandler"
 import { SearchFilesToolHandler } from "./tools/handlers/SearchFilesToolHandler"
+import { SentinelAnalyzeCodeHandler } from "./tools/handlers/SentinelAnalyzeCodeHandler"
+import { SentinelDetectChangesHandler } from "./tools/handlers/SentinelDetectChangesHandler"
+import { SentinelGeneratePlanHandler } from "./tools/handlers/SentinelGeneratePlanHandler"
+import { SentinelQAReportHandler } from "./tools/handlers/SentinelQAReportHandler"
 import { SummarizeTaskHandler } from "./tools/handlers/SummarizeTaskHandler"
 import { UseMcpToolHandler } from "./tools/handlers/UseMcpToolHandler"
 import { UseSkillToolHandler } from "./tools/handlers/UseSkillToolHandler"
@@ -242,6 +243,7 @@ export class ToolExecutor {
 		this.coordinator.register(new SentinelQAReportHandler())
 		this.coordinator.register(new SentinelDetectChangesHandler())
 		this.coordinator.register(new SentinelGeneratePlanHandler())
+		this.coordinator.register(new SentinelAnalyzeCodeHandler())
 	}
 
 	/**

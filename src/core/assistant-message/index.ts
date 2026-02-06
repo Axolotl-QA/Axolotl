@@ -60,6 +60,9 @@ export const toolParamNames = [
 	"diff_content",
 	"test_cases",
 	"logs_cleanup_summary",
+	"analysis_type",
+	"search_pattern",
+	"focus_areas",
 ] as const
 
 export type ToolParamName = (typeof toolParamNames)[number]

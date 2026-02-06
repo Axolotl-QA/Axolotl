@@ -263,6 +263,164 @@ Usage:
 <load_mcp_documentation>
 </load_mcp_documentation>
 
+## sentinel_qa_report
+Description: Generate and display a Sentinel QA test report. Use this tool ONLY after:
+1. Completing all test execution
+2. Cleaning up ALL injected SENTINEL_TEST_LOG statements
+
+**IMPORTANT**: You MUST cleanup injected logs BEFORE calling this tool. Do NOT leave test logs in the code!
+Parameters:
+- report_json: (required) The complete test report as a JSON string. Must follow this schema:
+{
+  "summary": {
+    "total_tests": number,
+    "passed": number,
+    "failed": number,
+    "skipped": number,
+    "verdict": "MERGEABLE" | "NOT_MERGEABLE" | "MERGEABLE_WITH_RISKS"
+  },
+  "tests": [
+    {
+      "id": "string",
+      "name": "string",
+      "category": "functional" | "edge_case" | "integration" | "ui_ux",
+      "status": "passed" | "failed" | "skipped",
+      "evidence": {
+        "logs": ["captured log lines"],
+        "screenshots": ["screenshot descriptions"],
+        "notes": "additional observations"
+      },
+      "failure_reason": "string (if failed)"
+    }
+  ],
+  "risks": ["identified risks or concerns"],
+  "recommendations": ["suggested improvements"]
+}
+- logs_cleanup_summary: (optional) Summary of log cleanup performed. If you injected any SENTINEL_TEST_LOG statements, you MUST provide this to confirm cleanup was done.
+
+Format: "Removed N logs from M files: file1.ts (lines X,Y), file2.ts (line Z)" or "No logs were injected" if no logs were added.
+
+If logs were injected but this field is empty, you have NOT completed the cleanup phase!
+Usage:
+<sentinel_qa_report>
+<report_json>{"summary":{"total_tests":3,"passed":2,"failed":1,"skipped":0,"verdict":"MERGEABLE_WITH_RISKS"},"tests":[...],"risks":["Edge case not handled"],"recommendations":["Add input validation"]}</report_json>
+<logs_cleanup_summary>Removed 3 logs from 2 files: src/auth/login.ts (lines 15, 23), src/components/Form.tsx (line 45)</logs_cleanup_summary>
+</sentinel_qa_report>
+
+## sentinel_detect_changes
+Description: Detect and analyze code changes for Sentinel QA testing. This tool identifies files that have been modified based on the specified source (uncommitted changes, PR, or specific files) and prepares them for testing.
+
+Use this tool as the FIRST step in a Sentinel QA workflow to:
+1. Detect which files have changed
+2. Get the diff content for analysis
+3. Allow the user to confirm the test scope before proceeding
+
+The tool will return a structured summary of changes that can be used to generate a test plan.
+Parameters:
+- source: (required) The source of changes to detect. Must be one of:
+- "uncommitted": Detect uncommitted changes in the workspace using git diff
+- "pr": Detect changes from a Pull Request (requires pr_identifier)
+- "files": Use specific files provided by the user
+- pr_identifier: (optional) Required when source is "pr". The PR number or URL to analyze.
+Examples: "123", "#123", "https://github.com/owner/repo/pull/123"
+- file_paths: (optional) Required when source is "files". A JSON array of file paths to test.
+Example: ["src/auth/login.ts", "src/components/LoginForm.tsx"]
+- prd_description: (optional) Optional PRD or feature description provided by the user. This context helps understand what the changes are supposed to do.
+Usage:
+<sentinel_detect_changes>
+<source>uncommitted</source>
+<pr_identifier>123</pr_identifier>
+<file_paths>["src/auth/login.ts"]</file_paths>
+<prd_description>User login with email and password validation</prd_description>
+</sentinel_detect_changes>
+
+## sentinel_generate_plan
+Description: Generate a comprehensive test plan for Sentinel QA testing. This is a two-step process:
+
+**Step 1 (without test_cases):** Call this tool with changed_files to get instructions for generating test cases. You should:
+1. Read the changed files to understand the code
+2. Analyze the functionality and identify testable scenarios
+3. Generate comprehensive test cases based on your analysis
+
+**Step 2 (with test_cases):** Call this tool again with your AI-generated test cases as JSON. The tool will:
+1. Create a test plan markdown file with mermaid diagram
+2. Save it for user review
+3. Allow the user to modify before execution
+
+Use this tool AFTER sentinel_detect_changes has confirmed the test scope.
+Parameters:
+- changed_files: (required) A JSON array of file paths that were detected for testing. This should come from the sentinel_detect_changes result.
+Example: ["src/auth/login.ts", "src/components/LoginForm.tsx"]
+- test_cases: (optional) A JSON array of test cases YOU generate after analyzing the code. Each test case must have:
+- id: Unique identifier (e.g., "TC001")
+- name: Short descriptive name
+- category: One of "functional", "edge_case", "error_handling", "ui_ux"
+- description: What the test verifies
+- steps: Array of test steps
+- expectedResult: What should happen if test passes
+- priority: "high", "medium", or "low"
+
+Generate 5-10 meaningful test cases based on actual code analysis. Do NOT use generic templates.
+
+Example:
+[
+  {
+    "id": "TC001",
+    "name": "Login with valid credentials",
+    "category": "functional",
+    "description": "Verify user can login with correct email and password",
+    "steps": ["Navigate to /login", "Enter 'test@example.com'", "Enter 'password123'", "Click Login button"],
+    "expectedResult": "User sees welcome message and is redirected to /dashboard",
+    "priority": "high"
+  }
+]
+- prd_description: (optional) The PRD or feature description that explains what the code should do. This helps generate more accurate and relevant test cases.
+- code_analysis: (optional) Optional code analysis or context gathered from reading the changed files. Include relevant function signatures, component structures, or business logic that should be tested.
+- diff_content: (optional) Optional diff content showing the actual changes. This helps understand what specifically changed and needs testing.
+Usage:
+<sentinel_generate_plan>
+<changed_files>["src/auth/login.ts", "src/components/LoginForm.tsx"]</changed_files>
+<test_cases>[{"id":"TC001","name":"Login success","category":"functional","description":"...","steps":["..."],"expectedResult":"...","priority":"high"}]</test_cases>
+<prd_description>User login with email and password, showing appropriate error messages on failure</prd_description>
+<code_analysis>LoginForm component has email/password fields with validation. handleSubmit calls authService.login()</code_analysis>
+<diff_content>The git diff content from sentinel_detect_changes</diff_content>
+</sentinel_generate_plan>
+
+## sentinel_analyze_code
+Description: Analyze code structure and search for patterns in the specified files for Sentinel QA testing. This tool combines AST-based code structure analysis with regex pattern search to help understand the code before generating test cases.
+
+Use this tool AFTER sentinel_detect_changes to deeply analyze the changed files before calling sentinel_generate_plan.
+
+The tool provides:
+1. **Code Structure Analysis**: Extracts class, function, method, and interface definitions using AST parsing
+2. **Pattern Search**: Finds specific code patterns using regex (e.g., error handling, validation, API calls)
+3. **Summary**: Provides a concise overview of the analyzed code
+
+Output is automatically truncated to prevent context overflow (max 100KB).
+Parameters:
+- file_paths: (required) A JSON array of file paths to analyze. These should be the files detected by sentinel_detect_changes.
+Example: ["src/auth/login.ts", "src/components/LoginForm.tsx"]
+Maximum 20 files will be analyzed.
+- analysis_type: (required) The type of analysis to perform. Must be one of:
+- "structure": Extract code definitions (classes, functions, methods) using AST parsing
+- "search": Search for patterns using regex
+- "both": Perform both structure analysis and pattern search
+- search_pattern: (optional) Required when analysis_type is "search" or "both". A regex pattern to search for in the code.
+Examples:
+- "throw|catch|error" - Find error handling
+- "validate|validation" - Find validation logic
+- "fetch|axios|api" - Find API calls
+- "useState|useEffect" - Find React hooks
+- focus_areas: (optional) Optional hints about what aspects of the code to focus on. This helps the AI understand the testing context.
+Examples: "error handling, input validation", "authentication flow", "form submission"
+Usage:
+<sentinel_analyze_code>
+<file_paths>["src/auth/login.ts", "src/components/LoginForm.tsx"]</file_paths>
+<analysis_type>both</analysis_type>
+<search_pattern>throw|catch|error</search_pattern>
+<focus_areas>error handling, validation</focus_areas>
+</sentinel_analyze_code>
+
 # Tool Use Examples
 
 ## Example 1: Requesting to execute a command
