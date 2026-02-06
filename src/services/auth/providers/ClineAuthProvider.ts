@@ -342,12 +342,22 @@ export class ClineAuthProvider {
 		}
 	}
 
-	async getAuthRequest(callbackUrl: string): Promise<string> {
+	async getAuthRequest(
+		callbackUrl: string,
+		options?: { state?: string; codeChallenge?: string; codeChallengeMethod?: string },
+	): Promise<string> {
 		const authUrl = new URL(CLINE_API_ENDPOINT.AUTH, this.config.apiBaseUrl)
 		authUrl.searchParams.set("client_type", "extension")
 		authUrl.searchParams.set("callback_url", callbackUrl)
 		// Ensure the redirect_uri is properly encoded and included
 		authUrl.searchParams.set("redirect_uri", callbackUrl)
+		if (options?.state) {
+			authUrl.searchParams.set("state", options.state)
+		}
+		if (options?.codeChallenge) {
+			authUrl.searchParams.set("code_challenge", options.codeChallenge)
+			authUrl.searchParams.set("code_challenge_method", options.codeChallengeMethod || "S256")
+		}
 
 		// The server will respond with a 302 redirect to the OAuth provider
 		// We need to follow the redirect and get the final URL
@@ -384,7 +394,7 @@ export class ClineAuthProvider {
 		}
 	}
 
-	async signIn(controller: Controller, authorizationCode: string, provider: string): Promise<ClineAuthInfo | null> {
+	async signIn(controller: Controller, authorizationCode: string, codeVerifier?: string): Promise<ClineAuthInfo | null> {
 		try {
 			// Get the callback URL that was used during the initial auth request
 			const callbackHost = await HostProvider.get().getCallbackUrl()
@@ -401,7 +411,7 @@ export class ClineAuthProvider {
 					code: authorizationCode,
 					client_type: "extension",
 					redirect_uri: callbackUrl,
-					provider: provider,
+					code_verifier: codeVerifier,
 				}),
 			})
 
@@ -441,9 +451,10 @@ export class ClineAuthProvider {
 
 	private async fetchRemoteUserInfo(tokenData: ClineAuthApiTokenExchangeResponse["data"]): Promise<ClineAccountUserInfo> {
 		try {
-			const userResponse = await axios.get(`${ClineEnv.config().apiBaseUrl}/api/v1/users/me`, {
+			const userInfoUrl = new URL(CLINE_API_ENDPOINT.USER_INFO, ClineEnv.config().apiBaseUrl).toString()
+			const userResponse = await axios.get(userInfoUrl, {
 				headers: {
-					Authorization: `Bearer workos:${tokenData.accessToken}`,
+					Authorization: `Bearer ${tokenData.accessToken}`,
 					...(await this.headers()),
 				},
 				...getAxiosSettings(),

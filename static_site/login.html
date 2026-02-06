@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Sentinel Login</title>
+    <style>
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        background: #f6f7fb;
+        color: #111827;
+        margin: 0;
+        padding: 40px;
+      }
+      .card {
+        max-width: 520px;
+        margin: 0 auto;
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        padding: 24px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.06);
+      }
+      h1 {
+        margin: 0 0 8px;
+        font-size: 22px;
+      }
+      p {
+        margin: 0 0 16px;
+        color: #4b5563;
+      }
+      label {
+        display: block;
+        font-size: 12px;
+        color: #6b7280;
+        margin: 12px 0 6px;
+      }
+      input {
+        width: 100%;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        padding: 10px 12px;
+        font-size: 14px;
+      }
+      button {
+        background: #111827;
+        color: #ffffff;
+        border: 0;
+        border-radius: 8px;
+        padding: 10px 16px;
+        font-size: 14px;
+        cursor: pointer;
+        margin-right: 8px;
+        margin-top: 12px;
+      }
+      button.secondary {
+        background: #e5e7eb;
+        color: #111827;
+      }
+      .status {
+        margin-top: 12px;
+        font-size: 12px;
+        color: #6b7280;
+        word-break: break-all;
+      }
+      .row {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      code {
+        background: #f3f4f6;
+        padding: 2px 6px;
+        border-radius: 4px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <h1>Sentinel Login</h1>
+      <p>Sign in to continue in VS Code.</p>
+
+      <label>Email</label>
+      <input id="email" type="email" placeholder="you@company.com" />
+      <label>Password</label>
+      <input id="password" type="password" placeholder="••••••••" />
+
+      <div class="row">
+        <button id="sign-in">Sign In</button>
+        <button id="sign-up" class="secondary">Sign Up</button>
+        <button id="google" class="secondary">Continue with Google</button>
+      </div>
+
+      <div class="status" id="status"></div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+      const statusEl = document.getElementById("status")
+      const params = new URLSearchParams(window.location.search)
+      const state = params.get("state")
+
+      const SUPABASE_URL = window.SUPABASE_URL || "__SUPABASE_URL__"
+      const SUPABASE_ANON_KEY = window.SUPABASE_ANON_KEY || "__SUPABASE_ANON_KEY__"
+      const API_BASE_URL = window.API_BASE_URL || "__API_BASE_URL__"
+
+      const setStatus = (msg) => (statusEl.textContent = msg)
+
+      if (!state) {
+        setStatus("Missing state in URL. Please start login from VS Code.")
+      }
+
+      if (SUPABASE_URL.includes("__")) {
+        setStatus("Supabase env not set. Replace __SUPABASE_URL__ and __SUPABASE_ANON_KEY__.")
+      }
+
+      const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+
+      const exchangeWithBackend = async (session) => {
+        if (!state) return
+        if (!session?.access_token) {
+          setStatus("No session token found.")
+          return
+        }
+        setStatus("Exchanging token with backend...")
+        const res = await fetch(`${API_BASE_URL}/v1/auth/code`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            state,
+            supabaseAccessToken: session.access_token,
+            supabaseRefreshToken: session.refresh_token,
+          }),
+        })
+
+        if (res.redirected) {
+          window.location.href = res.url
+          return
+        }
+
+        const data = await res.json().catch(() => ({}))
+        if (data.redirect_url) {
+          window.location.href = data.redirect_url
+          return
+        }
+
+        setStatus(`Backend error: ${res.status} ${JSON.stringify(data)}`)
+      }
+
+      const signIn = async () => {
+        const email = document.getElementById("email").value
+        const password = document.getElementById("password").value
+        setStatus("Signing in...")
+        const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+        if (error) {
+          setStatus(error.message)
+          return
+        }
+        await exchangeWithBackend(data.session)
+      }
+
+      const signUp = async () => {
+        const email = document.getElementById("email").value
+        const password = document.getElementById("password").value
+        setStatus("Signing up...")
+        const { data, error } = await supabase.auth.signUp({ email, password })
+        if (error) {
+          setStatus(error.message)
+          return
+        }
+        await exchangeWithBackend(data.session)
+      }
+
+      const signInWithGoogle = async () => {
+        if (!state) return
+        setStatus("Redirecting to Google...")
+        const redirectTo = `${window.location.origin}${window.location.pathname}?state=${encodeURIComponent(state)}`
+        const { error } = await supabase.auth.signInWithOAuth({
+          provider: "google",
+          options: { redirectTo },
+        })
+        if (error) setStatus(error.message)
+      }
+
+      document.getElementById("sign-in").addEventListener("click", signIn)
+      document.getElementById("sign-up").addEventListener("click", signUp)
+      document.getElementById("google").addEventListener("click", signInWithGoogle)
+
+      // If coming back from OAuth, session should be present
+      supabase.auth.getSession().then(({ data }) => {
+        if (data?.session?.access_token) {
+          exchangeWithBackend(data.session)
+        }
+      })
+    </script>
+  </body>
+</html>

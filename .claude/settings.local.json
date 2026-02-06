@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(while IFS= read -r file)",
+      "Bash(do rm -f \"$file\")",
+      "Bash(echo:*)",
+      "Bash(done)",
+      "Bash(git push:*)"
+    ]
+  }
+}

@@ -311,6 +311,8 @@ const SECRETS_KEYS = [
 	"mistralApiKey",
 	"liteLlmApiKey",
 	"authNonce",
+	"sentinelAuthState",
+	"sentinelAuthCodeVerifier",
 	"asksageApiKey",
 	"xaiApiKey",
 	"moonshotApiKey",

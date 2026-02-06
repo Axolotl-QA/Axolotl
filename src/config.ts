@@ -48,26 +48,28 @@ class ClineEndpoint {
 	}
 
 	public getEnvironment(): EnvironmentConfig {
+		const envAppBaseUrl = process?.env?.SENTINEL_APP_BASE_URL
+		const envApiBaseUrl = process?.env?.SENTINEL_API_BASE_URL
 		switch (this.environment) {
 			case Environment.staging:
 				return {
 					environment: Environment.staging,
-					appBaseUrl: "https://staging-app.cline.bot",
-					apiBaseUrl: "https://core-api.staging.int.cline.bot",
+					appBaseUrl: envAppBaseUrl || "https://staging-app.cline.bot",
+					apiBaseUrl: envApiBaseUrl || "https://core-api.staging.int.cline.bot",
 					mcpBaseUrl: "https://core-api.staging.int.cline.bot/v1/mcp",
 				}
 			case Environment.local:
 				return {
 					environment: Environment.local,
-					appBaseUrl: "http://localhost:3000",
-					apiBaseUrl: "http://localhost:7777",
+					appBaseUrl: envAppBaseUrl || "http://localhost:3000",
+					apiBaseUrl: envApiBaseUrl || "http://localhost:7777",
 					mcpBaseUrl: "https://api.cline.bot/v1/mcp",
 				}
 			default:
 				return {
 					environment: Environment.production,
-					appBaseUrl: "https://app.cline.bot",
-					apiBaseUrl: "https://api.cline.bot",
+					appBaseUrl: envAppBaseUrl || "https://app.cline.bot",
+					apiBaseUrl: envApiBaseUrl || "https://api.cline.bot",
 					mcpBaseUrl: "https://api.cline.bot/v1/mcp",
 				}
 		}

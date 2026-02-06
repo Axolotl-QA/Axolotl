@@ -12,6 +12,7 @@ import { featureFlagsService } from "../feature-flags"
 import { Logger } from "../logging/Logger"
 import { ClineAuthProvider } from "./providers/ClineAuthProvider"
 import { LogoutReason } from "./types"
+import { generateAuthState, generateCodeChallenge, generateCodeVerifier } from "./pkce"
 
 export type ServiceConfig = {
 	URI?: string
@@ -126,7 +127,7 @@ export class AuthService {
 			// This prevents 401 errors from using expired tokens
 			return null
 		}
-		return `workos:${token}`
+		return token
 	}
 
 	/**
@@ -257,8 +258,18 @@ export class AuthService {
 
 		const callbackHost = await HostProvider.get().getCallbackUrl()
 		const callbackUrl = `${callbackHost}/auth`
+		const state = generateAuthState()
+		const codeVerifier = generateCodeVerifier()
+		const codeChallenge = generateCodeChallenge(codeVerifier)
 
-		const authUrl = await this._provider.getAuthRequest(callbackUrl)
+		this._controller.stateManager.setSecret("sentinelAuthState", state)
+		this._controller.stateManager.setSecret("sentinelAuthCodeVerifier", codeVerifier)
+
+		const authUrl = await this._provider.getAuthRequest(callbackUrl, {
+			state,
+			codeChallenge,
+			codeChallengeMethod: "S256",
+		})
 		const authUrlString = authUrl.toString()
 
 		await openExternal(authUrlString)
@@ -279,9 +290,18 @@ export class AuthService {
 		}
 	}
 
-	async handleAuthCallback(authorizationCode: string, provider: string): Promise<void> {
+	async handleAuthCallback(authorizationCode: string, state?: string | null): Promise<void> {
 		try {
-			this._clineAuthInfo = await this._provider.signIn(this._controller, authorizationCode, provider)
+			const expectedState = this._controller.stateManager.getSecretKey("sentinelAuthState")
+			if (expectedState && state !== expectedState) {
+				throw new Error("Auth state mismatch")
+			}
+			const codeVerifier = this._controller.stateManager.getSecretKey("sentinelAuthCodeVerifier")
+			if (!codeVerifier) {
+				throw new Error("Missing code verifier")
+			}
+
+			this._clineAuthInfo = await this._provider.signIn(this._controller, authorizationCode, codeVerifier)
 			this._authenticated = this._clineAuthInfo?.idToken !== undefined
 
 			telemetryService.captureAuthSucceeded(this._provider.name)
@@ -291,6 +311,8 @@ export class AuthService {
 			telemetryService.captureAuthFailed(this._provider.name)
 			throw error
 		} finally {
+			this._controller.stateManager.setSecret("sentinelAuthState", undefined)
+			this._controller.stateManager.setSecret("sentinelAuthCodeVerifier", undefined)
 			await this.sendAuthStatusUpdate()
 		}
 	}
@@ -421,5 +443,7 @@ export class AuthService {
 	private destroyTokens() {
 		this._controller.stateManager.setSecret("clineAccountId", undefined)
 		this._controller.stateManager.setSecret("cline:clineAccountId", undefined)
+		this._controller.stateManager.setSecret("sentinelAuthState", undefined)
+		this._controller.stateManager.setSecret("sentinelAuthCodeVerifier", undefined)
 	}
 }

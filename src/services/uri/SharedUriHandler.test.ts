@@ -74,10 +74,10 @@ describe("SharedUriHandler", () => {
 
 		describe("Auth callback handling", () => {
 			it("should successfully handle auth callback with idToken", async () => {
-				const result = await SharedUriHandler.handleUri("vscode://cline.cline/auth?idToken=jwt123&provider=google")
+				const result = await SharedUriHandler.handleUri("vscode://cline.cline/auth?idToken=jwt123&state=abc123")
 
 				expect(result).to.be.true
-				sinon.assert.calledOnceWithExactly(handleAuthCallbackStub, "jwt123", "google")
+				sinon.assert.calledOnceWithExactly(handleAuthCallbackStub, "jwt123", "abc123")
 			})
 
 			it("should successfully handle auth callback without provider", async () => {
@@ -126,7 +126,7 @@ describe("SharedUriHandler", () => {
 		describe("Query parameter parsing", () => {
 			it("should correctly parse multiple query parameters", async () => {
 				const result = await SharedUriHandler.handleUri(
-					"vscode://cline.cline/auth?idToken=jwt123&provider=github&extra=param",
+					"vscode://cline.cline/auth?idToken=jwt123&state=github&extra=param",
 				)
 
 				expect(result).to.be.true
@@ -135,7 +135,7 @@ describe("SharedUriHandler", () => {
 
 			it("should handle URL-encoded parameters", async () => {
 				const result = await SharedUriHandler.handleUri(
-					"vscode://cline.cline/auth?idToken=jwt%20with%20spaces&provider=google",
+					"vscode://cline.cline/auth?idToken=jwt%20with%20spaces&state=google",
 				)
 
 				expect(result).to.be.true
@@ -161,7 +161,7 @@ describe("SharedUriHandler", () => {
 			})
 
 			it("should handle HTTPS scheme URIs", async () => {
-				const result = await SharedUriHandler.handleUri("https://example.com/auth?idToken=jwt123&provider=github")
+				const result = await SharedUriHandler.handleUri("https://example.com/auth?idToken=jwt123&state=github")
 
 				expect(result).to.be.true
 				sinon.assert.calledOnceWithExactly(handleAuthCallbackStub, "jwt123", "github")

@@ -1,0 +1,14 @@
+{
+  "name": "sentinel-backend",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "@fastify/cors": "^9.0.0",
+    "@supabase/supabase-js": "^2.48.1",
+    "fastify": "^4.28.1"
+  }
+}
