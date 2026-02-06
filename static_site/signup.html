@@ -374,23 +374,21 @@
       <button class="btn-create" id="create-btn" disabled>Create account</button>
 
       <div class="links">
-        Already have an account? <a href="#" id="login-link">Log in</a>
+        Already have an account? <a href="login.html" id="login-link">Log in</a>
       </div>
 
       <div class="status-msg" id="status-msg"></div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
+      // ── Config ──
       const SUPABASE_URL = "https://cxoizjoeozrtjpybgicc.supabase.co"
       const SUPABASE_ANON_KEY = "6EB4753E-E919-4691-B6E4-65A6B6E38A04"
 
       const params = new URLSearchParams(window.location.search)
       const state = params.get("state")
 
-      const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
-
-      // DOM elements
+      // ── DOM elements ──
       const fullnameInput = document.getElementById("fullname")
       const emailInput = document.getElementById("email")
       const passwordInput = document.getElementById("password")
@@ -403,23 +401,35 @@
       const statusMsg = document.getElementById("status-msg")
       const loginLink = document.getElementById("login-link")
 
-      // State
-      let codeSent = false
-      let countdownTimer = null
+      // ── Utility functions (defined first) ──
+      function showError(msg) {
+        errorMsg.textContent = msg
+        errorMsg.style.display = "block"
+      }
 
-      // Navigation
+      function hideError() {
+        errorMsg.style.display = "none"
+      }
+
+      function showStatus(msg) {
+        statusMsg.innerHTML = '<span class="spinner"></span>' + msg
+        statusMsg.style.display = "block"
+      }
+
+      function hideStatus() {
+        statusMsg.style.display = "none"
+      }
+
+      // ── Navigation (set up BEFORE Supabase so it always works) ──
       loginLink.addEventListener("click", (e) => {
         e.preventDefault()
         const loginUrl = state
-          ? `login.html?state=${encodeURIComponent(state)}`
+          ? "login.html?state=" + encodeURIComponent(state)
           : "login.html"
         window.location.href = loginUrl
       })
 
-      // Password toggle for both password fields
-      setupPasswordToggle("toggle-password", passwordInput)
-      setupPasswordToggle("toggle-confirm-password", confirmPasswordInput)
-
+      // ── Password toggle ──
       function setupPasswordToggle(btnId, input) {
         const btn = document.getElementById(btnId)
         btn.addEventListener("click", () => {
@@ -429,11 +439,128 @@
           btn.querySelector(".eye-off-icon").style.display = isPassword ? "block" : "none"
         })
       }
+      setupPasswordToggle("toggle-password", passwordInput)
+      setupPasswordToggle("toggle-confirm-password", confirmPasswordInput)
 
-      // Send code
+      // ── Password strength validation ──
+      const rules = {
+        length: (pw) => pw.length >= 8,
+        lower: (pw) => /[a-z]/.test(pw),
+        upper: (pw) => /[A-Z]/.test(pw),
+        number: (pw) => /[0-9]/.test(pw),
+      }
+
+      passwordInput.addEventListener("input", () => {
+        const pw = passwordInput.value
+        Object.entries(rules).forEach(([key, check]) => {
+          const ruleEl = document.getElementById("rule-" + key)
+          const passed = check(pw)
+          ruleEl.classList.toggle("passed", passed)
+          ruleEl.querySelector(".icon").innerHTML = passed ? "&#x2713;" : "&#x2715;"
+        })
+        updateCreateButton()
+      })
+
+      confirmPasswordInput.addEventListener("input", updateCreateButton)
+      fullnameInput.addEventListener("input", updateCreateButton)
+
+      // ── OTP input handling ──
+      otpInputs.forEach((input, index) => {
+        input.addEventListener("input", (e) => {
+          const value = e.target.value
+          if (!/^\d*$/.test(value)) {
+            e.target.value = ""
+            return
+          }
+          if (value && index < 5) {
+            otpInputs[index + 1].focus()
+          }
+          updateCreateButton()
+        })
+
+        input.addEventListener("keydown", (e) => {
+          if (e.key === "Backspace" && !e.target.value && index > 0) {
+            otpInputs[index - 1].focus()
+          }
+        })
+
+        input.addEventListener("paste", (e) => {
+          e.preventDefault()
+          const pastedData = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6)
+          pastedData.split("").forEach((char, i) => {
+            if (otpInputs[i]) {
+              otpInputs[i].value = char
+            }
+          })
+          const focusIndex = Math.min(pastedData.length, 5)
+          otpInputs[focusIndex].focus()
+          updateCreateButton()
+        })
+      })
+
+      // ── State & validation helpers ──
+      let codeSent = false
+      let countdownTimer = null
+
+      function getOtpCode() {
+        return Array.from(otpInputs).map((i) => i.value).join("")
+      }
+
+      function allPasswordRulesPassed() {
+        const pw = passwordInput.value
+        return Object.values(rules).every((check) => check(pw))
+      }
+
+      function updateCreateButton() {
+        const otp = getOtpCode()
+        const pw = passwordInput.value
+        const confirmPw = confirmPasswordInput.value
+        const name = fullnameInput.value.trim()
+
+        const valid =
+          codeSent &&
+          otp.length === 6 &&
+          name.length > 0 &&
+          allPasswordRulesPassed() &&
+          pw === confirmPw &&
+          confirmPw.length > 0
+
+        createBtn.disabled = !valid
+      }
+
+      function startCountdown(seconds) {
+        let remaining = seconds
+        sendCodeBtn.disabled = true
+        sendCodeBtn.textContent = remaining + "s"
+
+        countdownTimer = setInterval(() => {
+          remaining--
+          if (remaining <= 0) {
+            clearInterval(countdownTimer)
+            sendCodeBtn.disabled = false
+            sendCodeBtn.textContent = "Resend"
+          } else {
+            sendCodeBtn.textContent = remaining + "s"
+          }
+        }, 1000)
+      }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+      // ── Supabase initialization (separate block so UI always works) ──
+      let supabase
+      try {
+        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+      } catch (err) {
+        console.error("Failed to initialize Supabase client:", err)
+        showError("Failed to initialize authentication. Please try again later.")
+      }
+
+      // ── Send code ──
       sendCodeBtn.addEventListener("click", sendCode)
 
       async function sendCode() {
+        if (!supabase) { showError("Authentication service unavailable."); return }
         const email = emailInput.value.trim()
         if (!email) {
           showError("Please enter your email address.")
@@ -469,113 +596,11 @@
         }
       }
 
-      function startCountdown(seconds) {
-        let remaining = seconds
-        sendCodeBtn.disabled = true
-        sendCodeBtn.textContent = `${remaining}s`
-
-        countdownTimer = setInterval(() => {
-          remaining--
-          if (remaining <= 0) {
-            clearInterval(countdownTimer)
-            sendCodeBtn.disabled = false
-            sendCodeBtn.textContent = "Resend"
-          } else {
-            sendCodeBtn.textContent = `${remaining}s`
-          }
-        }, 1000)
-      }
-
-      // OTP input handling
-      otpInputs.forEach((input, index) => {
-        input.addEventListener("input", (e) => {
-          const value = e.target.value
-          // Only allow digits
-          if (!/^\d*$/.test(value)) {
-            e.target.value = ""
-            return
-          }
-          if (value && index < 5) {
-            otpInputs[index + 1].focus()
-          }
-          updateCreateButton()
-        })
-
-        input.addEventListener("keydown", (e) => {
-          if (e.key === "Backspace" && !e.target.value && index > 0) {
-            otpInputs[index - 1].focus()
-          }
-        })
-
-        // Handle paste
-        input.addEventListener("paste", (e) => {
-          e.preventDefault()
-          const pastedData = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6)
-          pastedData.split("").forEach((char, i) => {
-            if (otpInputs[i]) {
-              otpInputs[i].value = char
-            }
-          })
-          const focusIndex = Math.min(pastedData.length, 5)
-          otpInputs[focusIndex].focus()
-          updateCreateButton()
-        })
-      })
-
-      // Password strength validation
-      const rules = {
-        length: (pw) => pw.length >= 8,
-        lower: (pw) => /[a-z]/.test(pw),
-        upper: (pw) => /[A-Z]/.test(pw),
-        number: (pw) => /[0-9]/.test(pw),
-      }
-
-      passwordInput.addEventListener("input", () => {
-        const pw = passwordInput.value
-        Object.entries(rules).forEach(([key, check]) => {
-          const ruleEl = document.getElementById(`rule-${key}`)
-          const passed = check(pw)
-          ruleEl.classList.toggle("passed", passed)
-          ruleEl.querySelector(".icon").innerHTML = passed ? "&#x2713;" : "&#x2715;"
-        })
-        updateCreateButton()
-      })
-
-      confirmPasswordInput.addEventListener("input", updateCreateButton)
-
-      function getOtpCode() {
-        return Array.from(otpInputs).map((i) => i.value).join("")
-      }
-
-      function allPasswordRulesPassed() {
-        const pw = passwordInput.value
-        return Object.values(rules).every((check) => check(pw))
-      }
-
-      function updateCreateButton() {
-        const otp = getOtpCode()
-        const pw = passwordInput.value
-        const confirmPw = confirmPasswordInput.value
-        const name = fullnameInput.value.trim()
-
-        const valid =
-          codeSent &&
-          otp.length === 6 &&
-          name.length > 0 &&
-          allPasswordRulesPassed() &&
-          pw === confirmPw &&
-          confirmPw.length > 0
-
-        createBtn.disabled = !valid
-      }
-
-      // Also validate on name changes
-      fullnameInput.addEventListener("input", updateCreateButton)
-
-      // Create account
+      // ── Create account ──
       createBtn.addEventListener("click", createAccount)
 
       async function createAccount() {
+        if (!supabase) { showError("Authentication service unavailable."); return }
         const email = emailInput.value.trim()
         const fullName = fullnameInput.value.trim()
         const password = passwordInput.value
@@ -625,7 +650,7 @@
           // Step 4: Redirect to login page
           hideStatus()
           const loginUrl = state
-            ? `login.html?state=${encodeURIComponent(state)}&registered=true`
+            ? "login.html?state=" + encodeURIComponent(state) + "&registered=true"
             : "login.html?registered=true"
           window.location.href = loginUrl
         } catch (err) {
@@ -633,25 +658,6 @@
           hideStatus()
           showError(err.message || "Failed to create account.")
         }
-      }
-
-      // Utility functions
-      function showError(msg) {
-        errorMsg.textContent = msg
-        errorMsg.style.display = "block"
-      }
-
-      function hideError() {
-        errorMsg.style.display = "none"
-      }
-
-      function showStatus(msg) {
-        statusMsg.innerHTML = `<span class="spinner"></span>${msg}`
-        statusMsg.style.display = "block"
-      }
-
-      function hideStatus() {
-        statusMsg.style.display = "none"
       }
     </script>
   </body>
