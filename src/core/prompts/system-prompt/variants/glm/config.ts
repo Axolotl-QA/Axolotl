@@ -57,6 +57,7 @@ export const config = createVariant(ModelFamily.GLM)
 		ClineDefaultTool.SENTINEL_DETECT_CHANGES,
 		ClineDefaultTool.SENTINEL_GENERATE_PLAN,
 		ClineDefaultTool.SENTINEL_ANALYZE_CODE,
+		ClineDefaultTool.SENTINEL_WEB_SEARCH,
 	)
 	.placeholders({
 		MODEL_FAMILY: ModelFamily.GLM,

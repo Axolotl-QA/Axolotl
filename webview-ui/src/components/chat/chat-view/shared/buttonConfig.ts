@@ -109,6 +109,24 @@ export const BUTTON_CONFIGS: Record<string, ButtonConfig> = {
 		primaryAction: undefined,
 		secondaryAction: undefined,
 	},
+
+	// Sentinel QA plan confirmation
+	sentinel_confirm_plan: {
+		sendingDisabled: false,
+		enableButtons: true,
+		primaryText: "Approve Plan",
+		secondaryText: "Reject",
+		primaryAction: "approve",
+		secondaryAction: "reject",
+	},
+	sentinel_confirm_changes: {
+		sendingDisabled: false,
+		enableButtons: true,
+		primaryText: "Proceed",
+		secondaryText: "Cancel",
+		primaryAction: "approve",
+		secondaryAction: "reject",
+	},
 	plan_mode_respond: {
 		sendingDisabled: false,
 		enableButtons: false,
@@ -253,6 +271,12 @@ export function getButtonConfig(message: ClineMessage | undefined, _mode: Mode =
 				return BUTTON_CONFIGS.command
 			case "command_output":
 				return BUTTON_CONFIGS.command_output
+
+			// Sentinel QA approvals
+			case "sentinel_confirm_plan":
+				return BUTTON_CONFIGS.sentinel_confirm_plan
+			case "sentinel_confirm_changes":
+				return BUTTON_CONFIGS.sentinel_confirm_changes
 
 			// Standard approvals
 			case "followup":

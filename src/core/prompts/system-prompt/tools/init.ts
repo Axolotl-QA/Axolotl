@@ -21,6 +21,7 @@ import { sentinel_analyze_code_variants } from "./sentinel_analyze_code"
 import { sentinel_detect_changes_variants } from "./sentinel_detect_changes"
 import { sentinel_generate_plan_variants } from "./sentinel_generate_plan"
 import { sentinel_qa_report_variants } from "./sentinel_qa_report"
+import { sentinel_web_search_variants } from "./sentinel_web_search"
 import { use_mcp_tool_variants } from "./use_mcp_tool"
 import { use_skill_variants } from "./use_skill"
 import { web_fetch_variants } from "./web_fetch"
@@ -57,6 +58,7 @@ export function registerClineToolSets(): void {
 		...sentinel_detect_changes_variants,
 		...sentinel_generate_plan_variants,
 		...sentinel_analyze_code_variants,
+		...sentinel_web_search_variants,
 		...web_fetch_variants,
 		...web_search_variants,
 		...write_to_file_variants,

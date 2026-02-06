@@ -222,10 +222,25 @@ Generate at least 5-10 meaningful test cases based on actual code analysis.`,
 			)
 
 			// Handle user response
-			if (response === "messageResponse") {
-				const feedback = userFeedback?.toLowerCase() || ""
+			// 1. Reject button → cancel
+			if (response === "noButtonClicked") {
+				await config.callbacks.say(
+					"sentinel_generate_plan",
+					createPlanMessage("cancelled", testPlan, planFilePath),
+					undefined,
+					undefined,
+					false,
+				)
+				return formatResponse.toolResult("User rejected the Sentinel QA test plan.")
+			}
 
-				if (feedback.includes("cancel")) {
+			// 2. User provided text feedback (via message, or typed text + clicked Approve)
+			const feedbackText = userFeedback?.trim()
+			if (feedbackText) {
+				const feedbackLower = feedbackText.toLowerCase()
+
+				// Explicit cancel
+				if (feedbackLower.includes("cancel")) {
 					await config.callbacks.say(
 						"sentinel_generate_plan",
 						createPlanMessage("cancelled", testPlan, planFilePath),
@@ -236,30 +251,37 @@ Generate at least 5-10 meaningful test cases based on actual code analysis.`,
 					return formatResponse.toolResult("User cancelled the Sentinel QA test plan generation.")
 				}
 
-				if (feedback.includes("edit")) {
-					await config.callbacks.say(
-						"sentinel_generate_plan",
-						createPlanMessage("confirmed", testPlan, planFilePath),
-						undefined,
-						undefined,
-						false,
-					)
-					return formatResponse.toolResult(
-						`Test plan saved to ${planFilePath}. User wants to edit the plan before proceeding.
+				// Any other text = user wants to modify the plan
+				// Show user feedback in UI
+				await config.callbacks.say("user_feedback", feedbackText, undefined, undefined, false)
 
-Please wait for the user to review and edit the test plan file, then continue when they're ready.
+				await config.callbacks.say(
+					"sentinel_generate_plan",
+					createPlanMessage("confirmed", testPlan, planFilePath),
+					undefined,
+					undefined,
+					false,
+				)
 
-The user can:
-1. Open and edit ${planFileName} to modify test cases
-2. Add or remove test scenarios
-3. Adjust priorities and expected results
+				return formatResponse.toolResult(
+					`User provided feedback on the test plan. Please modify the test plan based on their feedback and call sentinel_generate_plan again with updated test_cases.
 
-After editing, the user should confirm they want to proceed with the updated plan.`,
-					)
-				}
+📝 User Feedback:
+${feedbackText}
+
+📋 Current Test Plan (${planFilePath}):
+- Total Tests: ${testPlan.totalTests}
+- Test Cases: ${testCases.map((tc) => `[${tc.id}] ${tc.name}`).join(", ")}
+
+Instructions:
+1. Review the user's feedback carefully
+2. Modify, add, or remove test cases as requested
+3. Call sentinel_generate_plan again with the updated test_cases parameter
+4. The user will review the modified plan again`,
+				)
 			}
 
-			// User confirmed - proceed
+			// 3. Approve with no text → proceed
 			await config.callbacks.say(
 				"sentinel_generate_plan",
 				createPlanMessage("confirmed", testPlan, planFilePath),

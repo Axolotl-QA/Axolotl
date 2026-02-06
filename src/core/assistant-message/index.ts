@@ -63,6 +63,8 @@ export const toolParamNames = [
 	"analysis_type",
 	"search_pattern",
 	"focus_areas",
+	// Sentinel web search parameters
+	"search_query",
 ] as const
 
 export type ToolParamName = (typeof toolParamNames)[number]

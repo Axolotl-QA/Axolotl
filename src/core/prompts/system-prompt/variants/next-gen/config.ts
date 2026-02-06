@@ -71,6 +71,7 @@ export const config = createVariant(ModelFamily.NEXT_GEN)
 		ClineDefaultTool.SENTINEL_DETECT_CHANGES,
 		ClineDefaultTool.SENTINEL_GENERATE_PLAN,
 		ClineDefaultTool.SENTINEL_ANALYZE_CODE,
+		ClineDefaultTool.SENTINEL_WEB_SEARCH,
 	)
 	.placeholders({
 		MODEL_FAMILY: ModelFamily.NEXT_GEN,

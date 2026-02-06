@@ -42,6 +42,7 @@ import { SentinelAnalyzeCodeHandler } from "./tools/handlers/SentinelAnalyzeCode
 import { SentinelDetectChangesHandler } from "./tools/handlers/SentinelDetectChangesHandler"
 import { SentinelGeneratePlanHandler } from "./tools/handlers/SentinelGeneratePlanHandler"
 import { SentinelQAReportHandler } from "./tools/handlers/SentinelQAReportHandler"
+import { SentinelWebSearchHandler } from "./tools/handlers/SentinelWebSearchHandler"
 import { SummarizeTaskHandler } from "./tools/handlers/SummarizeTaskHandler"
 import { UseMcpToolHandler } from "./tools/handlers/UseMcpToolHandler"
 import { UseSkillToolHandler } from "./tools/handlers/UseSkillToolHandler"
@@ -244,6 +245,7 @@ export class ToolExecutor {
 		this.coordinator.register(new SentinelDetectChangesHandler())
 		this.coordinator.register(new SentinelGeneratePlanHandler())
 		this.coordinator.register(new SentinelAnalyzeCodeHandler())
+		this.coordinator.register(new SentinelWebSearchHandler())
 	}
 
 	/**

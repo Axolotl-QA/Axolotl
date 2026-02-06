@@ -149,7 +149,11 @@ export class SentinelDetectChangesHandler implements IToolHandler, IPartialBlock
 				false,
 			)
 
-			if (response === "messageResponse" && userFeedback?.toLowerCase().includes("cancel")) {
+			// Handle reject button or cancel message
+			if (
+				response === "noButtonClicked" ||
+				(userFeedback?.toLowerCase().includes("cancel"))
+			) {
 				await config.callbacks.say(
 					"sentinel_detect_changes",
 					createDetectionMessage("cancelled", result),

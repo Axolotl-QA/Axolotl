@@ -36,6 +36,7 @@ export enum ClineDefaultTool {
 	SENTINEL_DETECT_CHANGES = "sentinel_detect_changes",
 	SENTINEL_GENERATE_PLAN = "sentinel_generate_plan",
 	SENTINEL_ANALYZE_CODE = "sentinel_analyze_code",
+	SENTINEL_WEB_SEARCH = "sentinel_web_search",
 }
 
 // Array of all tool names for compatibility
@@ -54,4 +55,5 @@ export const READ_ONLY_TOOLS = [
 	ClineDefaultTool.WEB_SEARCH,
 	ClineDefaultTool.WEB_FETCH,
 	ClineDefaultTool.USE_SKILL,
+	ClineDefaultTool.SENTINEL_WEB_SEARCH,
 ] as const
