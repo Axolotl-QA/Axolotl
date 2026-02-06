@@ -1,15 +1,15 @@
-import { buildApiHandler } from "@core/api"
-import { isBinaryFile } from "isbinaryfile"
-import { HostProvider } from "@/hosts/host-provider"
-import { formatContentBlockToMarkdown } from "@/integrations/misc/export-markdown"
-import { ApiConfiguration } from "@/shared/api"
-import { ClineStorageMessage } from "@/shared/messages/content"
+import { buildApiHandler } from "@core/api";
+import { isBinaryFile } from "isbinaryfile";
+import { HostProvider } from "@/hosts/host-provider";
+import { formatContentBlockToMarkdown } from "@/integrations/misc/export-markdown";
+import { ApiConfiguration } from "@/shared/api";
+import { ClineStorageMessage } from "@/shared/messages/content";
 
 export interface ChangedFile {
-	relativePath: string
-	absolutePath: string
-	before: string
-	after: string
+	relativePath: string;
+	absolutePath: string;
+	before: string;
+	after: string;
 }
 
 const EXPLAINER_SYSTEM_PROMPT = `You are an AI coding assistant called Cline that will be explaining code changes to a developer. Your goal is to help the user understand what changed and why.
@@ -19,17 +19,17 @@ const EXPLAINER_SYSTEM_PROMPT = `You are an AI coding assistant called Cline tha
 - Highlight any important decisions, trade-offs, or things the user should be aware of
 
 Remember: The user wants to understand the changes well enough to maintain, extend, or debug this code themselves.
-`
+`;
 
 /**
  * Add line numbers to content (0-indexed for AI reference)
  */
 function addLineNumbers(content: string): string {
 	if (!content) {
-		return content
+		return content;
 	}
-	const lines = content.split("\n")
-	return lines.map((line, index) => `${index}: ${line}`).join("\n")
+	const lines = content.split("\n");
+	return lines.map((line, index) => `${index}: ${line}`).join("\n");
 }
 
 /**
@@ -37,23 +37,26 @@ function addLineNumbers(content: string): string {
  * Includes 0-indexed line numbers so the AI can reference specific lines
  */
 export function buildDiffContent(changedFiles: ChangedFile[]): string {
-	const parts: string[] = []
+	const parts: string[] = [];
 
 	for (const file of changedFiles) {
-		parts.push(`\n=== File: ${file.absolutePath} ===\n`)
-		parts.push(`--- Before ---\n${file.before || "(new file)"}\n`)
+		parts.push(`\n=== File: ${file.absolutePath} ===\n`);
+		parts.push(`--- Before ---\n${file.before || "(new file)"}\n`);
 		parts.push(
 			`--- After (use these line numbers for comments) ---\n${file.after ? addLineNumbers(file.after) : "(deleted)"}\n`,
-		)
+		);
 	}
 
-	return parts.join("\n")
+	return parts.join("\n");
 }
 
 /**
  * Open the multi-file diff view with the changed files
  */
-export async function openDiffView(title: string, changedFiles: ChangedFile[]): Promise<void> {
+export async function openDiffView(
+	title: string,
+	changedFiles: ChangedFile[],
+): Promise<void> {
 	await HostProvider.diff.openMultiFileDiff({
 		title,
 		diffs: changedFiles.map((file) => ({
@@ -61,7 +64,7 @@ export async function openDiffView(title: string, changedFiles: ChangedFile[]): 
 			leftContent: file.before,
 			rightContent: file.after,
 		})),
-	})
+	});
 }
 
 /**
@@ -72,28 +75,37 @@ export async function setupCommentController(
 	changedFiles: ChangedFile[],
 	conversationContext: string,
 ) {
-	const commentController = HostProvider.get().createCommentReviewController()
-	commentController.clearAllComments()
+	const commentController = HostProvider.get().createCommentReviewController();
+	commentController.clearAllComments();
 
 	// Ensure the Comments panel won't auto-open when we add comments
-	await commentController.ensureCommentsViewDisabled()
+	await commentController.ensureCommentsViewDisabled();
 
 	// Set up reply handler for conversations
-	commentController.setOnReplyCallback(async (filePath, startLine, endLine, replyText, existingComments, onChunk) => {
-		await handleCommentReply(
-			apiConfiguration,
+	commentController.setOnReplyCallback(
+		async (
 			filePath,
 			startLine,
 			endLine,
 			replyText,
 			existingComments,
-			changedFiles,
-			conversationContext,
 			onChunk,
-		)
-	})
+		) => {
+			await handleCommentReply(
+				apiConfiguration,
+				filePath,
+				startLine,
+				endLine,
+				replyText,
+				existingComments,
+				changedFiles,
+				conversationContext,
+				onChunk,
+			);
+		},
+	);
 
-	return commentController
+	return commentController;
 }
 
 /**
@@ -108,7 +120,11 @@ export async function streamAIExplanationComments(
 	diffContent: string,
 	contextDescription: string,
 	changedFiles: ChangedFile[],
-	onCommentStart: (filePath: string, startLine: number, endLine: number) => void,
+	onCommentStart: (
+		filePath: string,
+		startLine: number,
+		endLine: number,
+	) => void,
 	onCommentChunk: (chunk: string) => void,
 	onCommentEnd: () => void,
 	shouldAbort?: () => boolean,
@@ -118,11 +134,11 @@ export async function streamAIExplanationComments(
 		...apiConfiguration,
 		actModeThinkingBudgetTokens: 0,
 		planModeThinkingBudgetTokens: 0,
-	}
-	const apiHandler = buildApiHandler(configWithoutThinking, "act")
+	};
+	const apiHandler = buildApiHandler(configWithoutThinking, "act");
 
-	const fileCount = changedFiles.length
-	const maxCommentsPerFile = fileCount > 3 ? 1 : 3
+	const fileCount = changedFiles.length;
+	const maxCommentsPerFile = fileCount > 3 ? 1 : 3;
 
 	const systemPrompt = `${EXPLAINER_SYSTEM_PROMPT}
 
@@ -152,7 +168,7 @@ Rules:
 4. End with @@@ on its own line
 5. Each file MUST have at least one comment, MAX ${maxCommentsPerFile} comment${maxCommentsPerFile > 1 ? "s" : ""} per file - focus on the most significant changes
 6. Explain important/non-obvious changes, not every little thing. Skip trivial changes - ignore whitespace, formatting, simple renames, obvious fixes.
-`
+`;
 
 	const userMessage = `Explain these code changes:
 
@@ -165,123 +181,127 @@ ${changedFiles.map((f) => `- ${f.absolutePath}`).join("\n")}
 ## Diff content
 ${diffContent}
 
-Output your explanation comments now using the @@@ format:`
+Output your explanation comments now using the @@@ format:`;
 
-	let commentCount = 0
-	let buffer = ""
-	let currentFile: string | null = null
-	let currentStartLine: number | null = null
-	let currentEndLine: number | null = null
-	let inComment = false
+	let commentCount = 0;
+	let buffer = "";
+	let currentFile: string | null = null;
+	let currentStartLine: number | null = null;
+	let currentEndLine: number | null = null;
+	let inComment = false;
 
 	try {
-		for await (const chunk of apiHandler.createMessage(systemPrompt, [{ role: "user", content: userMessage }])) {
+		for await (const chunk of apiHandler.createMessage(systemPrompt, [
+			{ role: "user", content: userMessage },
+		])) {
 			// Check if we should abort before processing each chunk
 			if (shouldAbort?.()) {
 				// If we're in the middle of a comment, end it cleanly
 				if (inComment) {
-					onCommentEnd()
+					onCommentEnd();
 				}
-				return commentCount
+				return commentCount;
 			}
 
 			if (chunk.type === "text") {
-				buffer += chunk.text
+				buffer += chunk.text;
 
 				// Process buffer line by line, keeping incomplete lines
 				while (true) {
 					// Check abort before processing each line
 					if (shouldAbort?.()) {
 						if (inComment) {
-							onCommentEnd()
+							onCommentEnd();
 						}
-						return commentCount
+						return commentCount;
 					}
 
-					const newlineIndex = buffer.indexOf("\n")
+					const newlineIndex = buffer.indexOf("\n");
 					if (newlineIndex === -1) {
-						break
+						break;
 					}
 
-					const line = buffer.substring(0, newlineIndex)
-					buffer = buffer.substring(newlineIndex + 1)
+					const line = buffer.substring(0, newlineIndex);
+					buffer = buffer.substring(newlineIndex + 1);
 
-					const trimmedLine = line.trim()
+					const trimmedLine = line.trim();
 
 					// Check for FILE header
 					if (trimmedLine.startsWith("@@@ FILE:")) {
-						const filePath = trimmedLine.substring("@@@ FILE:".length).trim()
-						const matchingFile = changedFiles.find((f) => f.absolutePath === filePath || f.relativePath === filePath)
-						currentFile = matchingFile?.absolutePath || filePath
-						continue
+						const filePath = trimmedLine.substring("@@@ FILE:".length).trim();
+						const matchingFile = changedFiles.find(
+							(f) => f.absolutePath === filePath || f.relativePath === filePath,
+						);
+						currentFile = matchingFile?.absolutePath || filePath;
+						continue;
 					}
 
 					// Check for LINE header (single line number)
 					if (trimmedLine.startsWith("@@@ LINE:")) {
-						const lineStr = trimmedLine.substring("@@@ LINE:".length).trim()
-						const lineNum = parseInt(lineStr, 10)
+						const lineStr = trimmedLine.substring("@@@ LINE:".length).trim();
+						const lineNum = parseInt(lineStr, 10);
 						if (!Number.isNaN(lineNum) && currentFile) {
-							currentStartLine = lineNum
-							currentEndLine = lineNum
+							currentStartLine = lineNum;
+							currentEndLine = lineNum;
 							// Now we have location - create the comment UI immediately!
-							onCommentStart(currentFile, currentStartLine, currentEndLine)
-							inComment = true
-							commentCount++
+							onCommentStart(currentFile, currentStartLine, currentEndLine);
+							inComment = true;
+							commentCount++;
 						}
-						continue
+						continue;
 					}
 
 					// Check for end marker
 					if (trimmedLine === "@@@") {
 						if (inComment) {
-							onCommentEnd()
-							inComment = false
-							currentFile = null
-							currentStartLine = null
-							currentEndLine = null
+							onCommentEnd();
+							inComment = false;
+							currentFile = null;
+							currentStartLine = null;
+							currentEndLine = null;
 						}
-						continue
+						continue;
 					}
 
 					// If we're in a comment, stream the text
 					if (inComment) {
-						onCommentChunk(line + "\n")
+						onCommentChunk(line + "\n");
 					}
 				}
 
 				// Stream partial content in buffer for more responsive UI
 				// But don't stream if it might be a marker (starts with @)
 				if (inComment && buffer.length > 0 && !buffer.startsWith("@")) {
-					onCommentChunk(buffer)
-					buffer = "" // Clear buffer after streaming
+					onCommentChunk(buffer);
+					buffer = ""; // Clear buffer after streaming
 				}
 			}
 		}
 
 		// Handle any remaining content in buffer
 		if (buffer.trim()) {
-			const trimmedBuffer = buffer.trim()
+			const trimmedBuffer = buffer.trim();
 			if (trimmedBuffer === "@@@") {
 				if (inComment) {
-					onCommentEnd()
-					inComment = false
+					onCommentEnd();
+					inComment = false;
 				}
 			} else if (inComment && !trimmedBuffer.startsWith("@@@")) {
-				onCommentChunk(buffer)
-				onCommentEnd()
-				inComment = false
+				onCommentChunk(buffer);
+				onCommentEnd();
+				inComment = false;
 			}
 		} else if (inComment) {
-			onCommentEnd()
+			onCommentEnd();
 		}
 
-		return commentCount
+		return commentCount;
 	} catch (error) {
-		console.error("Error streaming AI explanation comments:", error)
+		console.error("Error streaming AI explanation comments:", error);
 		if (inComment) {
-			onCommentEnd()
+			onCommentEnd();
 		}
-		return commentCount
+		return commentCount;
 	}
 }
 
@@ -304,20 +324,20 @@ async function handleCommentReply(
 		...apiConfiguration,
 		actModeThinkingBudgetTokens: 0,
 		planModeThinkingBudgetTokens: 0,
-	}
+	};
 
 	// Find the relevant file
-	const file = changedFiles.find((f) => f.absolutePath === filePath)
+	const file = changedFiles.find((f) => f.absolutePath === filePath);
 	if (!file) {
-		onChunk("Error: Could not find the file context")
-		return
+		onChunk("Error: Could not find the file context");
+		return;
 	}
 
 	// Get the relevant code snippet
-	const afterLines = file.after.split("\n")
-	const codeSnippet = afterLines.slice(startLine, endLine + 1).join("\n")
+	const afterLines = file.after.split("\n");
+	const codeSnippet = afterLines.slice(startLine, endLine + 1).join("\n");
 
-	const apiHandler = buildApiHandler(configWithoutThinking, "act")
+	const apiHandler = buildApiHandler(configWithoutThinking, "act");
 
 	const systemPrompt = `${EXPLAINER_SYSTEM_PROMPT}
 
@@ -325,7 +345,7 @@ The user is asking followup questions about code change explanations you provide
 Respond helpfully to the user's question about the code.
 Use markdown formatting where appropriate.
 If the user asks you to make changes, fix something, or do any work that requires modifying code, let them know they can click the "Add to Cline Chat" button (the arrow icon in the top-right of the comment box) to send this conversation to the main Cline agent, which can then make the requested changes.
-`
+`;
 
 	const userMessage = `## Context
 ${conversationContext}
@@ -343,37 +363,45 @@ ${existingComments.join("\n\n")}
 ## User's Question
 ${replyText}
 
-Please respond to the user's question about this code.`
+Please respond to the user's question about this code.`;
 
 	try {
-		for await (const chunk of apiHandler.createMessage(systemPrompt, [{ role: "user", content: userMessage }])) {
+		for await (const chunk of apiHandler.createMessage(systemPrompt, [
+			{ role: "user", content: userMessage },
+		])) {
 			if (chunk.type === "text") {
-				onChunk(chunk.text)
+				onChunk(chunk.text);
 			}
 		}
 	} catch (error) {
-		console.error("Error getting reply:", error)
-		onChunk(`Error: ${error instanceof Error ? error.message : "Unknown error"}`)
+		console.error("Error getting reply:", error);
+		onChunk(
+			`Error: ${error instanceof Error ? error.message : "Unknown error"}`,
+		);
 	}
 }
 
 /**
  * Stringify conversation history into a readable summary for context
  */
-export function stringifyConversationHistory(apiConversationHistory: ClineStorageMessage[]): string {
+export function stringifyConversationHistory(
+	apiConversationHistory: ClineStorageMessage[],
+): string {
 	if (!apiConversationHistory || apiConversationHistory.length === 0) {
-		return "No prior conversation context available."
+		return "No prior conversation context available.";
 	}
 
 	return apiConversationHistory
 		.map((message) => {
-			const role = message.role === "user" ? "**User:**" : "**Assistant:**"
+			const role = message.role === "user" ? "**User:**" : "**Assistant:**";
 			const content = Array.isArray(message.content)
-				? message.content.map((block) => formatContentBlockToMarkdown(block)).join("\n")
-				: message.content
-			return `${role}\n\n${content}\n\n`
+				? message.content
+						.map((block) => formatContentBlockToMarkdown(block))
+						.join("\n")
+				: message.content;
+			return `${role}\n\n${content}\n\n`;
 		})
-		.join("---\n\n")
+		.join("---\n\n");
 }
 
 /**
@@ -441,7 +469,7 @@ const BINARY_EXTENSIONS = new Set([
 	".sqlite3",
 	".lock",
 	".wasm",
-])
+]);
 
 /**
  * Check if a file is binary based on its extension or content.
@@ -449,24 +477,30 @@ const BINARY_EXTENSIONS = new Set([
  * @returns Promise<boolean> - true if the file is binary, false if text or if detection fails
  */
 export async function detectBinaryFile(filePath: string): Promise<boolean> {
-	const lastDotIndex = filePath.lastIndexOf(".")
-	const lastSlashIndex = Math.max(filePath.lastIndexOf("/"), filePath.lastIndexOf("\\"))
-	const ext = lastDotIndex > lastSlashIndex ? filePath.substring(lastDotIndex).toLowerCase() : ""
-	const isDotfile = lastDotIndex !== -1 && lastDotIndex === lastSlashIndex + 1
+	const lastDotIndex = filePath.lastIndexOf(".");
+	const lastSlashIndex = Math.max(
+		filePath.lastIndexOf("/"),
+		filePath.lastIndexOf("\\"),
+	);
+	const ext =
+		lastDotIndex > lastSlashIndex
+			? filePath.substring(lastDotIndex).toLowerCase()
+			: "";
+	const isDotfile = lastDotIndex !== -1 && lastDotIndex === lastSlashIndex + 1;
 
 	// Legacy/fast method: Check known binary extensions
 	if (ext && BINARY_EXTENSIONS.has(ext)) {
-		return true
+		return true;
 	}
 
 	// Use actual binary check for dotfiles or files without extensions. Returns true if file is binary.
 	if (!ext || isDotfile) {
 		try {
-			const result = await isBinaryFile(filePath)
-			return result
+			const result = await isBinaryFile(filePath);
+			return result;
 		} catch {
-			return false
+			return false;
 		}
 	}
-	return false
+	return false;
 }

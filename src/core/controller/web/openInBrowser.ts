@@ -1,6 +1,6 @@
-import { Empty, StringRequest } from "@shared/proto/cline/common"
-import { openExternal } from "@utils/env"
-import { Controller } from ".."
+import { Empty, StringRequest } from "@shared/proto/cline/common";
+import { openExternal } from "@utils/env";
+import { Controller } from "..";
 
 /**
  * Opens a URL in the user's default browser
@@ -8,14 +8,17 @@ import { Controller } from ".."
  * @param request The URL to open
  * @returns Empty response since the client doesn't need a return value
  */
-export async function openInBrowser(_controller: Controller, request: StringRequest): Promise<Empty> {
+export async function openInBrowser(
+	_controller: Controller,
+	request: StringRequest,
+): Promise<Empty> {
 	try {
 		if (request.value) {
-			await openExternal(request.value)
+			await openExternal(request.value);
 		}
-		return Empty.create()
+		return Empty.create();
 	} catch (error) {
-		console.error("Error opening URL in browser:", error)
-		return Empty.create()
+		console.error("Error opening URL in browser:", error);
+		return Empty.create();
 	}
 }

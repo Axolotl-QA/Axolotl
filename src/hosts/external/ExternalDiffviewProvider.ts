@@ -1,19 +1,19 @@
-import { status } from "@grpc/grpc-js"
-import { HostProvider } from "@/hosts/host-provider"
-import { DiffViewProvider } from "@/integrations/editor/DiffViewProvider"
+import { status } from "@grpc/grpc-js";
+import { HostProvider } from "@/hosts/host-provider";
+import { DiffViewProvider } from "@/integrations/editor/DiffViewProvider";
 
 export class ExternalDiffViewProvider extends DiffViewProvider {
-	private activeDiffEditorId: string | undefined
+	private activeDiffEditorId: string | undefined;
 
 	override async openDiffEditor(): Promise<void> {
 		if (!this.absolutePath) {
-			return
+			return;
 		}
 		const response = await HostProvider.diff.openDiff({
 			path: this.absolutePath,
 			content: this.originalContent ?? "",
-		})
-		this.activeDiffEditorId = response.diffId
+		});
+		this.activeDiffEditorId = response.diffId;
 	}
 
 	override async replaceText(
@@ -22,72 +22,82 @@ export class ExternalDiffViewProvider extends DiffViewProvider {
 		_currentLine: number | undefined,
 	): Promise<void> {
 		if (!this.activeDiffEditorId) {
-			return
+			return;
 		}
 		await HostProvider.diff.replaceText({
 			diffId: this.activeDiffEditorId,
 			content: content,
 			startLine: rangeToReplace.startLine,
 			endLine: rangeToReplace.endLine,
-		})
+		});
 	}
 
 	protected override async truncateDocument(lineNumber: number): Promise<void> {
 		if (!this.activeDiffEditorId) {
-			return
+			return;
 		}
 		await HostProvider.diff.truncateDocument({
 			diffId: this.activeDiffEditorId,
 			endLine: lineNumber,
-		})
+		});
 	}
 
 	protected async saveDocument(): Promise<Boolean> {
 		if (!this.activeDiffEditorId) {
-			return false
+			return false;
 		}
 		try {
-			await HostProvider.diff.saveDocument({ diffId: this.activeDiffEditorId })
-			return true
+			await HostProvider.diff.saveDocument({ diffId: this.activeDiffEditorId });
+			return true;
 		} catch (err: any) {
 			if (err.code === status.NOT_FOUND) {
 				// This can happen when the task is reloaded or the diff editor is closed. So, don't
 				// consider it a real error.
-				console.log("Diff not found:", this.activeDiffEditorId)
-				return false
+				console.log("Diff not found:", this.activeDiffEditorId);
+				return false;
 			} else {
-				throw err
+				throw err;
 			}
 		}
 	}
 
 	protected override async scrollEditorToLine(line: number): Promise<void> {
 		if (!this.activeDiffEditorId) {
-			return
+			return;
 		}
-		await HostProvider.diff.scrollDiff({ diffId: this.activeDiffEditorId, line: line })
+		await HostProvider.diff.scrollDiff({
+			diffId: this.activeDiffEditorId,
+			line: line,
+		});
 	}
 
-	override async scrollAnimation(_startLine: number, _endLine: number): Promise<void> {}
+	override async scrollAnimation(
+		_startLine: number,
+		_endLine: number,
+	): Promise<void> {}
 
 	protected override async getDocumentText(): Promise<string | undefined> {
 		if (!this.activeDiffEditorId) {
-			return undefined
+			return undefined;
 		}
 		try {
-			return (await HostProvider.diff.getDocumentText({ diffId: this.activeDiffEditorId })).content
+			return (
+				await HostProvider.diff.getDocumentText({
+					diffId: this.activeDiffEditorId,
+				})
+			).content;
 		} catch (err) {
-			console.log("Error getting contents of diff editor", err)
-			return undefined
+			console.log("Error getting contents of diff editor", err);
+			return undefined;
 		}
 	}
 
 	protected override async closeAllDiffViews(): Promise<void> {
-		await HostProvider.diff.closeAllDiffs({})
-		this.activeDiffEditorId = undefined
+		await HostProvider.diff.closeAllDiffs({});
+		this.activeDiffEditorId = undefined;
 	}
 
 	protected override async resetDiffView(): Promise<void> {
-		this.activeDiffEditorId = undefined
+		this.activeDiffEditorId = undefined;
 	}
 }

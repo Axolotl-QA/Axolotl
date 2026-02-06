@@ -1,9 +1,11 @@
-import { Empty, EmptyRequest } from "@shared/proto/cline/common"
-import { getRequestRegistry, StreamingResponseHandler } from "../grpc-handler"
-import { Controller } from "../index"
+import { Empty, EmptyRequest } from "@shared/proto/cline/common";
+import { getRequestRegistry, StreamingResponseHandler } from "../grpc-handler";
+import { Controller } from "../index";
 
 // Keep track of active account button clicked subscriptions
-const activeAccountButtonClickedSubscriptions = new Set<StreamingResponseHandler<Empty>>()
+const activeAccountButtonClickedSubscriptions = new Set<
+	StreamingResponseHandler<Empty>
+>();
 
 /**
  * Subscribe to account button clicked events
@@ -18,19 +20,24 @@ export async function subscribeToAccountButtonClicked(
 	responseStream: StreamingResponseHandler<Empty>,
 	requestId?: string,
 ): Promise<void> {
-	console.log(`[DEBUG] set up accountButtonClicked subscription`)
+	console.log(`[DEBUG] set up accountButtonClicked subscription`);
 
 	// Add this subscription to the active subscriptions
-	activeAccountButtonClickedSubscriptions.add(responseStream)
+	activeAccountButtonClickedSubscriptions.add(responseStream);
 
 	// Register cleanup when the connection is closed
 	const cleanup = () => {
-		activeAccountButtonClickedSubscriptions.delete(responseStream)
-	}
+		activeAccountButtonClickedSubscriptions.delete(responseStream);
+	};
 
 	// Register the cleanup function with the request registry if we have a requestId
 	if (requestId) {
-		getRequestRegistry().registerRequest(requestId, cleanup, { type: "accountButtonClicked_subscription" }, responseStream)
+		getRequestRegistry().registerRequest(
+			requestId,
+			cleanup,
+			{ type: "accountButtonClicked_subscription" },
+			responseStream,
+		);
 	}
 }
 
@@ -39,19 +46,21 @@ export async function subscribeToAccountButtonClicked(
  */
 export async function sendAccountButtonClickedEvent(): Promise<void> {
 	// Send the event to all active subscribers
-	const promises = Array.from(activeAccountButtonClickedSubscriptions).map(async (responseStream) => {
-		try {
-			const event = Empty.create({})
-			await responseStream(
-				event,
-				false, // Not the last message
-			)
-		} catch (error) {
-			console.error("Error sending accountButtonClicked event:", error)
-			// Remove the subscription if there was an error
-			activeAccountButtonClickedSubscriptions.delete(responseStream)
-		}
-	})
+	const promises = Array.from(activeAccountButtonClickedSubscriptions).map(
+		async (responseStream) => {
+			try {
+				const event = Empty.create({});
+				await responseStream(
+					event,
+					false, // Not the last message
+				);
+			} catch (error) {
+				console.error("Error sending accountButtonClicked event:", error);
+				// Remove the subscription if there was an error
+				activeAccountButtonClickedSubscriptions.delete(responseStream);
+			}
+		},
+	);
 
-	await Promise.all(promises)
+	await Promise.all(promises);
 }

@@ -1,6 +1,6 @@
-import { Empty } from "@shared/proto/cline/common"
-import { ExecuteQuickWinRequest } from "@shared/proto/cline/task"
-import type { Controller } from "../index"
+import { Empty } from "@shared/proto/cline/common";
+import { ExecuteQuickWinRequest } from "@shared/proto/cline/task";
+import type { Controller } from "../index";
 
 /**
  * Executes a quick win task with command and title
@@ -22,14 +22,19 @@ import type { Controller } from "../index"
  *   .then(() => console.log("Quick win executed successfully"))
  *   .catch(error => console.error("Failed to execute quick win:", error))
  */
-export async function executeQuickWin(controller: Controller, request: ExecuteQuickWinRequest): Promise<Empty> {
+export async function executeQuickWin(
+	controller: Controller,
+	request: ExecuteQuickWinRequest,
+): Promise<Empty> {
 	try {
-		const { command, title } = request
-		console.log(`Received executeQuickWin: command='${command}', title='${title}'`)
-		await controller.initTask(title)
-		return Empty.create({})
+		const { command, title } = request;
+		console.log(
+			`Received executeQuickWin: command='${command}', title='${title}'`,
+		);
+		await controller.initTask(title);
+		return Empty.create({});
 	} catch (error) {
-		console.error("Failed to execute quick win:", error)
-		throw error
+		console.error("Failed to execute quick win:", error);
+		throw error;
 	}
 }

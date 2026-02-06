@@ -1,9 +1,11 @@
-import { Empty, EmptyRequest } from "@shared/proto/cline/common"
-import { getRequestRegistry, StreamingResponseHandler } from "../grpc-handler"
-import { Controller } from "../index"
+import { Empty, EmptyRequest } from "@shared/proto/cline/common";
+import { getRequestRegistry, StreamingResponseHandler } from "../grpc-handler";
+import { Controller } from "../index";
 
 // Keep track of active chatButtonClicked subscriptions
-const activeChatButtonClickedSubscriptions = new Set<StreamingResponseHandler<Empty>>()
+const activeChatButtonClickedSubscriptions = new Set<
+	StreamingResponseHandler<Empty>
+>();
 
 /**
  * Subscribe to chatButtonClicked events
@@ -18,19 +20,24 @@ export async function subscribeToChatButtonClicked(
 	responseStream: StreamingResponseHandler<Empty>,
 	requestId?: string,
 ): Promise<void> {
-	console.log(`[DEBUG] set up chatButtonClicked subscription`)
+	console.log(`[DEBUG] set up chatButtonClicked subscription`);
 
 	// Add this subscription to the active subscriptions
-	activeChatButtonClickedSubscriptions.add(responseStream)
+	activeChatButtonClickedSubscriptions.add(responseStream);
 
 	// Register cleanup when the connection is closed
 	const cleanup = () => {
-		activeChatButtonClickedSubscriptions.delete(responseStream)
-	}
+		activeChatButtonClickedSubscriptions.delete(responseStream);
+	};
 
 	// Register the cleanup function with the request registry if we have a requestId
 	if (requestId) {
-		getRequestRegistry().registerRequest(requestId, cleanup, { type: "chatButtonClicked_subscription" }, responseStream)
+		getRequestRegistry().registerRequest(
+			requestId,
+			cleanup,
+			{ type: "chatButtonClicked_subscription" },
+			responseStream,
+		);
 	}
 }
 
@@ -39,19 +46,21 @@ export async function subscribeToChatButtonClicked(
  */
 export async function sendChatButtonClickedEvent(): Promise<void> {
 	// Send the event to all active subscribers
-	const promises = Array.from(activeChatButtonClickedSubscriptions).map(async (responseStream) => {
-		try {
-			const event = Empty.create({})
-			await responseStream(
-				event,
-				false, // Not the last message
-			)
-		} catch (error) {
-			console.error("Error sending chatButtonClicked event:", error)
-			// Remove the subscription if there was an error
-			activeChatButtonClickedSubscriptions.delete(responseStream)
-		}
-	})
+	const promises = Array.from(activeChatButtonClickedSubscriptions).map(
+		async (responseStream) => {
+			try {
+				const event = Empty.create({});
+				await responseStream(
+					event,
+					false, // Not the last message
+				);
+			} catch (error) {
+				console.error("Error sending chatButtonClicked event:", error);
+				// Remove the subscription if there was an error
+				activeChatButtonClickedSubscriptions.delete(responseStream);
+			}
+		},
+	);
 
-	await Promise.all(promises)
+	await Promise.all(promises);
 }

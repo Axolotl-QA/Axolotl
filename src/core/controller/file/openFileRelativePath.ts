@@ -1,8 +1,8 @@
-import { workspaceResolver } from "@core/workspace"
-import { openFile as openFileIntegration } from "@integrations/misc/open-file"
-import { Empty, StringRequest } from "@shared/proto/cline/common"
-import { getWorkspacePath } from "@utils/path"
-import { Controller } from ".."
+import { workspaceResolver } from "@core/workspace";
+import { openFile as openFileIntegration } from "@integrations/misc/open-file";
+import { Empty, StringRequest } from "@shared/proto/cline/common";
+import { getWorkspacePath } from "@utils/path";
+import { Controller } from "..";
 
 /**
  * Opens a file in the editor by a relative path
@@ -10,12 +10,15 @@ import { Controller } from ".."
  * @param request The request message containing the relative file path in the 'value' field
  * @returns Empty response
  */
-export async function openFileRelativePath(_controller: Controller, request: StringRequest): Promise<Empty> {
-	const workspacePath = await getWorkspacePath()
+export async function openFileRelativePath(
+	_controller: Controller,
+	request: StringRequest,
+): Promise<Empty> {
+	const workspacePath = await getWorkspacePath();
 
 	if (!workspacePath) {
-		console.error("Error in openFileRelativePath: No workspace path available")
-		return Empty.create()
+		console.error("Error in openFileRelativePath: No workspace path available");
+		return Empty.create();
 	}
 
 	if (request.value) {
@@ -24,12 +27,15 @@ export async function openFileRelativePath(_controller: Controller, request: Str
 			workspacePath,
 			request.value,
 			"Controller.openFileRelativePath",
-		)
-		const absolutePath = typeof resolvedPath === "string" ? resolvedPath : resolvedPath.absolutePath
+		);
+		const absolutePath =
+			typeof resolvedPath === "string"
+				? resolvedPath
+				: resolvedPath.absolutePath;
 
 		// Open the file using the existing integration
-		openFileIntegration(absolutePath)
+		openFileIntegration(absolutePath);
 	}
 
-	return Empty.create()
+	return Empty.create();
 }

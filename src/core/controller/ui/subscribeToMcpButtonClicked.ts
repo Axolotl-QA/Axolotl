@@ -1,9 +1,11 @@
-import { Empty, EmptyRequest } from "@shared/proto/cline/common"
-import { getRequestRegistry, StreamingResponseHandler } from "../grpc-handler"
-import { Controller } from "../index"
+import { Empty, EmptyRequest } from "@shared/proto/cline/common";
+import { getRequestRegistry, StreamingResponseHandler } from "../grpc-handler";
+import { Controller } from "../index";
 
 // Keep track of active mcpButtonClicked subscriptions
-const activeMcpButtonClickedSubscriptions = new Set<StreamingResponseHandler<Empty>>()
+const activeMcpButtonClickedSubscriptions = new Set<
+	StreamingResponseHandler<Empty>
+>();
 
 /**
  * Subscribe to mcpButtonClicked events
@@ -18,19 +20,24 @@ export async function subscribeToMcpButtonClicked(
 	responseStream: StreamingResponseHandler<Empty>,
 	requestId?: string,
 ): Promise<void> {
-	console.log(`[DEBUG] set up mcpButtonClicked subscription`)
+	console.log(`[DEBUG] set up mcpButtonClicked subscription`);
 
 	// Add this subscription to the active subscriptions
-	activeMcpButtonClickedSubscriptions.add(responseStream)
+	activeMcpButtonClickedSubscriptions.add(responseStream);
 
 	// Register cleanup when the connection is closed
 	const cleanup = () => {
-		activeMcpButtonClickedSubscriptions.delete(responseStream)
-	}
+		activeMcpButtonClickedSubscriptions.delete(responseStream);
+	};
 
 	// Register the cleanup function with the request registry if we have a requestId
 	if (requestId) {
-		getRequestRegistry().registerRequest(requestId, cleanup, { type: "mcpButtonClicked_subscription" }, responseStream)
+		getRequestRegistry().registerRequest(
+			requestId,
+			cleanup,
+			{ type: "mcpButtonClicked_subscription" },
+			responseStream,
+		);
 	}
 }
 
@@ -39,19 +46,21 @@ export async function subscribeToMcpButtonClicked(
  */
 export async function sendMcpButtonClickedEvent(): Promise<void> {
 	// Send the event to all active subscribers
-	const promises = Array.from(activeMcpButtonClickedSubscriptions).map(async (responseStream) => {
-		try {
-			const event = Empty.create({})
-			await responseStream(
-				event,
-				false, // Not the last message
-			)
-		} catch (error) {
-			console.error("Error sending mcpButtonClicked event:", error)
-			// Remove the subscription if there was an error
-			activeMcpButtonClickedSubscriptions.delete(responseStream)
-		}
-	})
+	const promises = Array.from(activeMcpButtonClickedSubscriptions).map(
+		async (responseStream) => {
+			try {
+				const event = Empty.create({});
+				await responseStream(
+					event,
+					false, // Not the last message
+				);
+			} catch (error) {
+				console.error("Error sending mcpButtonClicked event:", error);
+				// Remove the subscription if there was an error
+				activeMcpButtonClickedSubscriptions.delete(responseStream);
+			}
+		},
+	);
 
-	await Promise.all(promises)
+	await Promise.all(promises);
 }

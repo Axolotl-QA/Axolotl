@@ -1,5 +1,9 @@
-import { GetOrganizationCreditsRequest, OrganizationCreditsData, OrganizationUsageTransaction } from "@shared/proto/cline/account"
-import type { Controller } from "../index"
+import {
+	GetOrganizationCreditsRequest,
+	OrganizationCreditsData,
+	OrganizationUsageTransaction,
+} from "@shared/proto/cline/account";
+import type { Controller } from "../index";
 
 /**
  * Handles fetching all organization credits data (balance, usage, payments)
@@ -13,22 +17,28 @@ export async function getOrganizationCredits(
 ): Promise<OrganizationCreditsData> {
 	try {
 		if (!controller.accountService) {
-			throw new Error("Account service not available")
+			throw new Error("Account service not available");
 		}
 
 		// Call the individual RPC variants in parallel
 		const [balanceData, usageTransactions] = await Promise.all([
-			controller.accountService.fetchOrganizationCreditsRPC(request.organizationId),
-			controller.accountService.fetchOrganizationUsageTransactionsRPC(request.organizationId),
-		])
+			controller.accountService.fetchOrganizationCreditsRPC(
+				request.organizationId,
+			),
+			controller.accountService.fetchOrganizationUsageTransactionsRPC(
+				request.organizationId,
+			),
+		]);
 
 		// If balance call fails (returns undefined), throw an error
 		if (!balanceData) {
-			throw new Error("Failed to fetch organization credits data")
+			throw new Error("Failed to fetch organization credits data");
 		}
 
 		return OrganizationCreditsData.create({
-			balance: balanceData ? { currentBalance: balanceData.balance / 100 } : { currentBalance: 0 },
+			balance: balanceData
+				? { currentBalance: balanceData.balance / 100 }
+				: { currentBalance: 0 },
 			organizationId: balanceData?.organizationId || "",
 			usageTransactions:
 				usageTransactions?.map((tx) =>
@@ -48,9 +58,9 @@ export async function getOrganizationCredits(
 						operation: tx.operation,
 					}),
 				) || [],
-		})
+		});
 	} catch (error) {
-		console.error(`Failed to fetch organization credits data: ${error}`)
-		throw error
+		console.error(`Failed to fetch organization credits data: ${error}`);
+		throw error;
 	}
 }

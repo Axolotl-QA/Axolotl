@@ -1,8 +1,8 @@
-import { WebviewProvider } from "@/core/webview"
-import { CommentReviewController } from "@/integrations/editor/CommentReviewController"
-import { DiffViewProvider } from "@/integrations/editor/DiffViewProvider"
-import { ITerminalManager } from "@/integrations/terminal/types"
-import { HostBridgeClientProvider } from "./host-provider-types"
+import { WebviewProvider } from "@/core/webview";
+import { CommentReviewController } from "@/integrations/editor/CommentReviewController";
+import { DiffViewProvider } from "@/integrations/editor/DiffViewProvider";
+import { ITerminalManager } from "@/integrations/terminal/types";
+import { HostBridgeClientProvider } from "./host-provider-types";
 /**
  * Singleton class that manages host-specific providers for dependency injection.
  *
@@ -17,32 +17,32 @@ import { HostBridgeClientProvider } from "./host-provider-types"
  * - Access Host Provider factories: HostProvider.get().createDiffViewProvider()
  */
 export class HostProvider {
-	private static instance: HostProvider | null = null
+	private static instance: HostProvider | null = null;
 
-	createWebviewProvider: WebviewProviderCreator
-	createDiffViewProvider: DiffViewProviderCreator
-	createCommentReviewController: CommentReviewControllerCreator
-	createTerminalManager: TerminalManagerCreator
-	hostBridge: HostBridgeClientProvider
+	createWebviewProvider: WebviewProviderCreator;
+	createDiffViewProvider: DiffViewProviderCreator;
+	createCommentReviewController: CommentReviewControllerCreator;
+	createTerminalManager: TerminalManagerCreator;
+	hostBridge: HostBridgeClientProvider;
 
 	// Logs to a user-visible output channel.
-	logToChannel: LogToChannel
+	logToChannel: LogToChannel;
 
 	// Returns a callback URL that will redirect to Cline.
-	getCallbackUrl: () => Promise<string>
+	getCallbackUrl: () => Promise<string>;
 
 	// Returns the location of the binary `name`.
 	// Use `getBinaryLocation()` from utils/ts.ts instead of using
 	// this directly. The helper function correctly handles the file
 	// extension on Windows.
-	getBinaryLocation: (name: string) => Promise<string>
+	getBinaryLocation: (name: string) => Promise<string>;
 
 	// The absolute file system path where the extension is installed.
 	// Use to this to get the location of extension assets.
-	extensionFsPath: string
+	extensionFsPath: string;
 
 	// The absolute file system path where the extension can store global state.
-	globalStorageFsPath: string
+	globalStorageFsPath: string;
 
 	// Private constructor to enforce singleton pattern
 	private constructor(
@@ -57,16 +57,16 @@ export class HostProvider {
 		extensionFsPath: string,
 		globalStorageFsPath: string,
 	) {
-		this.createWebviewProvider = createWebviewProvider
-		this.createDiffViewProvider = createDiffViewProvider
-		this.createCommentReviewController = createCommentReviewController
-		this.createTerminalManager = createTerminalManager
-		this.hostBridge = hostBridge
-		this.logToChannel = logToChannel
-		this.getCallbackUrl = getCallbackUrl
-		this.getBinaryLocation = getBinaryLocation
-		this.extensionFsPath = extensionFsPath
-		this.globalStorageFsPath = globalStorageFsPath
+		this.createWebviewProvider = createWebviewProvider;
+		this.createDiffViewProvider = createDiffViewProvider;
+		this.createCommentReviewController = createCommentReviewController;
+		this.createTerminalManager = createTerminalManager;
+		this.hostBridge = hostBridge;
+		this.logToChannel = logToChannel;
+		this.getCallbackUrl = getCallbackUrl;
+		this.getBinaryLocation = getBinaryLocation;
+		this.extensionFsPath = extensionFsPath;
+		this.globalStorageFsPath = globalStorageFsPath;
 	}
 
 	public static initialize(
@@ -82,7 +82,7 @@ export class HostProvider {
 		globalStorageFsPath: string,
 	): HostProvider {
 		if (HostProvider.instance) {
-			throw new Error("Host provider has already been initialized.")
+			throw new Error("Host provider has already been initialized.");
 		}
 		HostProvider.instance = new HostProvider(
 			webviewProviderCreator,
@@ -95,8 +95,8 @@ export class HostProvider {
 			getBinaryLocation,
 			extensionFsPath,
 			globalStorageFsPath,
-		)
-		return HostProvider.instance
+		);
+		return HostProvider.instance;
 	}
 
 	/**
@@ -104,13 +104,15 @@ export class HostProvider {
 	 */
 	public static get(): HostProvider {
 		if (!HostProvider.instance) {
-			throw new Error("HostProvider not setup. Call HostProvider.initialize() first.")
+			throw new Error(
+				"HostProvider not setup. Call HostProvider.initialize() first.",
+			);
 		}
-		return HostProvider.instance
+		return HostProvider.instance;
 	}
 
 	public static isInitialized(): boolean {
-		return !!HostProvider.instance
+		return !!HostProvider.instance;
 	}
 
 	/**
@@ -118,45 +120,45 @@ export class HostProvider {
 	 * This allows tests to reinitialize the HostProvider with different configurations
 	 */
 	public static reset(): void {
-		HostProvider.instance = null
+		HostProvider.instance = null;
 	}
 
 	public static get workspace() {
-		return HostProvider.get().hostBridge.workspaceClient
+		return HostProvider.get().hostBridge.workspaceClient;
 	}
 
 	public static get env() {
-		return HostProvider.get().hostBridge.envClient
+		return HostProvider.get().hostBridge.envClient;
 	}
 
 	public static get window() {
-		return HostProvider.get().hostBridge.windowClient
+		return HostProvider.get().hostBridge.windowClient;
 	}
 
 	public static get diff() {
-		return HostProvider.get().hostBridge.diffClient
+		return HostProvider.get().hostBridge.diffClient;
 	}
 }
 
 /**
  * A function that creates WebviewProvider instances
  */
-export type WebviewProviderCreator = () => WebviewProvider
+export type WebviewProviderCreator = () => WebviewProvider;
 
 /**
  * A function that creates DiffViewProvider instances
  */
-export type DiffViewProviderCreator = () => DiffViewProvider
+export type DiffViewProviderCreator = () => DiffViewProvider;
 
 /**
  * A function that creates CommentReviewController instances
  */
-export type CommentReviewControllerCreator = () => CommentReviewController
+export type CommentReviewControllerCreator = () => CommentReviewController;
 
-export type LogToChannel = (message: string) => void
+export type LogToChannel = (message: string) => void;
 
 /**
  * A function that creates TerminalManager instances
  * Returns the platform-appropriate terminal manager (VSCode TerminalManager or StandaloneTerminalManager)
  */
-export type TerminalManagerCreator = () => ITerminalManager
+export type TerminalManagerCreator = () => ITerminalManager;

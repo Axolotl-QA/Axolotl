@@ -1,7 +1,7 @@
-import { BannerService } from "@/services/banner/BannerService"
-import type { StringRequest } from "@/shared/proto/cline/common"
-import { Empty } from "@/shared/proto/cline/common"
-import type { Controller } from ".."
+import { BannerService } from "@/services/banner/BannerService";
+import type { StringRequest } from "@/shared/proto/cline/common";
+import { Empty } from "@/shared/proto/cline/common";
+import type { Controller } from "..";
 
 /**
  * Dismisses a banner and sends telemetry
@@ -9,17 +9,20 @@ import type { Controller } from ".."
  * @param request The request containing the banner ID to dismiss
  * @returns Empty response
  */
-export async function dismissBanner(controller: Controller, request: StringRequest): Promise<Empty> {
-	const bannerId = request.value
+export async function dismissBanner(
+	controller: Controller,
+	request: StringRequest,
+): Promise<Empty> {
+	const bannerId = request.value;
 
 	if (!bannerId) {
-		return {}
+		return {};
 	}
 	try {
-		await BannerService.get().dismissBanner(bannerId)
-		await controller.postStateToWebview()
+		await BannerService.get().dismissBanner(bannerId);
+		await controller.postStateToWebview();
 	} catch (error) {
-		console.error("Failed to dismiss banner:", error)
+		console.error("Failed to dismiss banner:", error);
 	}
-	return {}
+	return {};
 }
