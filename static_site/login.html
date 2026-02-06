@@ -306,15 +306,15 @@
       <div class="links">
         <a href="#" id="forgot-password-link">Forgot your password?</a>
         <div class="signup-link">
-          Don't have an account? <a href="#" id="signup-link">Sign up</a>
+          Don't have an account? <a href="signup.html" id="signup-link">Sign up</a>
         </div>
       </div>
 
       <div class="status-msg" id="status-msg"></div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
+      // ── Config ──
       const SUPABASE_URL = "https://cxoizjoeozrtjpybgicc.supabase.co"
       const SUPABASE_ANON_KEY = "6EB4753E-E919-4691-B6E4-65A6B6E38A04"
       const API_BASE_URL = "https://whale-app-ae67c.ondigitalocean.app"
@@ -323,9 +323,7 @@
       const state = params.get("state")
       const registered = params.get("registered")
 
-      const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
-
-      // DOM elements
+      // ── DOM elements ──
       const emailInput = document.getElementById("email")
       const passwordInput = document.getElementById("password")
       const signInBtn = document.getElementById("sign-in-btn")
@@ -339,15 +337,38 @@
       const forgotPasswordLink = document.getElementById("forgot-password-link")
       const signupLink = document.getElementById("signup-link")
 
-      // Show registered success banner
-      if (registered === "true") {
-        successBanner.style.display = "block"
+      // ── Utility functions (defined first so they can be used anywhere) ──
+      function showError(msg) {
+        errorMsg.textContent = msg
+        errorMsg.style.display = "block"
       }
 
-      // Show missing state warning
-      if (!state) {
-        showError("Missing state in URL. Please start login from VS Code.")
+      function hideError() {
+        errorMsg.style.display = "none"
       }
+
+      function showStatus(msg) {
+        statusMsg.innerHTML = '<span class="spinner"></span>' + msg
+        statusMsg.style.display = "block"
+      }
+
+      function hideStatus() {
+        statusMsg.style.display = "none"
+      }
+
+      function setLoading(loading) {
+        signInBtn.disabled = loading
+        googleBtn.disabled = loading
+      }
+
+      // ── Navigation links (set up BEFORE Supabase so they always work) ──
+      signupLink.addEventListener("click", (e) => {
+        e.preventDefault()
+        const signupUrl = state
+          ? "signup.html?state=" + encodeURIComponent(state)
+          : "signup.html"
+        window.location.href = signupUrl
+      })
 
       // Password visibility toggle
       togglePasswordBtn.addEventListener("click", () => {
@@ -357,15 +378,28 @@
         eyeOffIcon.style.display = isPassword ? "block" : "none"
       })
 
-      // Navigation links
-      signupLink.addEventListener("click", (e) => {
-        e.preventDefault()
-        const signupUrl = state
-          ? `signup.html?state=${encodeURIComponent(state)}`
-          : "signup.html"
-        window.location.href = signupUrl
-      })
+      // Show registered success banner
+      if (registered === "true") {
+        successBanner.style.display = "block"
+      }
 
+      // Show missing state warning
+      if (!state) {
+        showError("Missing state in URL. Please start login from VS Code.")
+      }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+      // ── Supabase initialization (separate script block so navigation always works) ──
+      let supabase
+      try {
+        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+      } catch (err) {
+        console.error("Failed to initialize Supabase client:", err)
+        showError("Failed to initialize authentication. Please try again later.")
+      }
+
+      // ── Forgot password ──
       forgotPasswordLink.addEventListener("click", async (e) => {
         e.preventDefault()
         const email = emailInput.value.trim()
@@ -373,6 +407,7 @@
           showError("Please enter your email address first.")
           return
         }
+        if (!supabase) { showError("Authentication service unavailable."); return }
         hideError()
         showStatus("Sending password reset email...")
         const { error } = await supabase.auth.resetPasswordForEmail(email)
@@ -386,18 +421,13 @@
         successBanner.style.display = "block"
       })
 
-      // Sign in with email/password
+      // ── Sign in with email/password ──
       signInBtn.addEventListener("click", signIn)
-
-      // Allow Enter key to submit
-      passwordInput.addEventListener("keydown", (e) => {
-        if (e.key === "Enter") signIn()
-      })
-      emailInput.addEventListener("keydown", (e) => {
-        if (e.key === "Enter") passwordInput.focus()
-      })
+      passwordInput.addEventListener("keydown", (e) => { if (e.key === "Enter") signIn() })
+      emailInput.addEventListener("keydown", (e) => { if (e.key === "Enter") passwordInput.focus() })
 
       async function signIn() {
+        if (!supabase) { showError("Authentication service unavailable."); return }
         const email = emailInput.value.trim()
         const password = passwordInput.value
         if (!email || !password) {
@@ -424,15 +454,16 @@
         }
       }
 
-      // Sign in with Google
+      // ── Sign in with Google ──
       googleBtn.addEventListener("click", async () => {
+        if (!supabase) { showError("Authentication service unavailable."); return }
         if (!state) {
           showError("Missing state. Please start login from VS Code.")
           return
         }
         hideError()
         showStatus("Redirecting to Google...")
-        const redirectTo = `${window.location.origin}${window.location.pathname}?state=${encodeURIComponent(state)}`
+        const redirectTo = window.location.origin + window.location.pathname + "?state=" + encodeURIComponent(state)
         const { error } = await supabase.auth.signInWithOAuth({
           provider: "google",
           options: { redirectTo },
@@ -443,7 +474,7 @@
         }
       })
 
-      // Exchange supabase session with backend for authorization code
+      // ── Exchange supabase session with backend ──
       async function exchangeWithBackend(session) {
         if (!state) {
           setLoading(false)
@@ -459,7 +490,7 @@
         showStatus("Completing authentication...")
 
         try {
-          const res = await fetch(`${API_BASE_URL}/v1/auth/code`, {
+          const res = await fetch(API_BASE_URL + "/v1/auth/code", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -483,45 +514,25 @@
 
           setLoading(false)
           hideStatus()
-          showError(`Authentication failed: ${data.error || `Server returned ${res.status}`}`)
+          showError("Authentication failed: " + (data.error || "Server returned " + res.status))
         } catch (err) {
           setLoading(false)
           hideStatus()
-          showError(`Network error: ${err.message}`)
+          showError("Network error: " + err.message)
         }
       }
 
-      // Utility functions
-      function showError(msg) {
-        errorMsg.textContent = msg
-        errorMsg.style.display = "block"
+      // ── Auto-detect OAuth callback session ──
+      if (supabase) {
+        supabase.auth.getSession().then(({ data }) => {
+          if (data?.session?.access_token && state) {
+            setLoading(true)
+            exchangeWithBackend(data.session)
+          }
+        }).catch((err) => {
+          console.error("Error checking session:", err)
+        })
       }
-
-      function hideError() {
-        errorMsg.style.display = "none"
-      }
-
-      function showStatus(msg) {
-        statusMsg.innerHTML = `<span class="spinner"></span>${msg}`
-        statusMsg.style.display = "block"
-      }
-
-      function hideStatus() {
-        statusMsg.style.display = "none"
-      }
-
-      function setLoading(loading) {
-        signInBtn.disabled = loading
-        googleBtn.disabled = loading
-      }
-
-      // If coming back from OAuth redirect, check for existing session
-      supabase.auth.getSession().then(({ data }) => {
-        if (data?.session?.access_token && state) {
-          setLoading(true)
-          exchangeWithBackend(data.session)
-        }
-      })
     </script>
   </body>
 </html>
