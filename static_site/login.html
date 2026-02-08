@@ -391,9 +391,9 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
       // ── Supabase initialization (separate script block so navigation always works) ──
-      let supabase
+      var supabaseClient = null
       try {
-        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+        supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
       } catch (err) {
         console.error("Failed to initialize Supabase client:", err)
         showError("Failed to initialize authentication. Please try again later.")
@@ -407,10 +407,10 @@
           showError("Please enter your email address first.")
           return
         }
-        if (!supabase) { showError("Authentication service unavailable."); return }
+        if (!supabaseClient) { showError("Authentication service unavailable."); return }
         hideError()
         showStatus("Sending password reset email...")
-        const { error } = await supabase.auth.resetPasswordForEmail(email)
+        const { error } = await supabaseClient.auth.resetPasswordForEmail(email)
         if (error) {
           hideStatus()
           showError(error.message)
@@ -427,7 +427,7 @@
       emailInput.addEventListener("keydown", (e) => { if (e.key === "Enter") passwordInput.focus() })
 
       async function signIn() {
-        if (!supabase) { showError("Authentication service unavailable."); return }
+        if (!supabaseClient) { showError("Authentication service unavailable."); return }
         const email = emailInput.value.trim()
         const password = passwordInput.value
         if (!email || !password) {
@@ -439,7 +439,7 @@
         showStatus("Signing in...")
 
         try {
-          const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+          const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password })
           if (error) {
             setLoading(false)
             hideStatus()
@@ -456,7 +456,7 @@
 
       // ── Sign in with Google ──
       googleBtn.addEventListener("click", async () => {
-        if (!supabase) { showError("Authentication service unavailable."); return }
+        if (!supabaseClient) { showError("Authentication service unavailable."); return }
         if (!state) {
           showError("Missing state. Please start login from VS Code.")
           return
@@ -464,7 +464,7 @@
         hideError()
         showStatus("Redirecting to Google...")
         const redirectTo = window.location.origin + window.location.pathname + "?state=" + encodeURIComponent(state)
-        const { error } = await supabase.auth.signInWithOAuth({
+        const { error } = await supabaseClient.auth.signInWithOAuth({
           provider: "google",
           options: { redirectTo },
         })
@@ -523,8 +523,8 @@
       }
 
       // ── Auto-detect OAuth callback session ──
-      if (supabase) {
-        supabase.auth.getSession().then(({ data }) => {
+      if (supabaseClient) {
+        supabaseClient.auth.getSession().then(({ data }) => {
           if (data?.session?.access_token && state) {
             setLoading(true)
             exchangeWithBackend(data.session)
