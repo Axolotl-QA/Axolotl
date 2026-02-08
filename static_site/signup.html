@@ -578,56 +578,30 @@
 
       initSupabase()
 
-      // ── Send code (uses signUp to create account + send one confirmation email) ──
+      // ── Send code (only requires email — sends 8-digit OTP) ──
       sendCodeBtn.addEventListener("click", sendCode)
 
       async function sendCode() {
         if (!supabaseClient) { showError("Authentication service unavailable."); return }
         const email = emailInput.value.trim()
-        const fullName = fullnameInput.value.trim()
-        const password = passwordInput.value
-        const confirmPw = confirmPasswordInput.value
-
         if (!email) {
           showError("Please enter your email address.")
           return
         }
-        if (!fullName) {
-          showError("Please enter your full name.")
-          return
-        }
-        if (!allPasswordRulesPassed()) {
-          showError("Please create a password that meets all requirements.")
-          return
-        }
-        if (password !== confirmPw) {
-          showError("Passwords do not match.")
-          return
-        }
-
         hideError()
         sendCodeBtn.disabled = true
-        showStatus("Creating account and sending verification code...")
+        showStatus("Sending verification code...")
 
         try {
-          const { data, error } = await supabaseClient.auth.signUp({
+          const { error } = await supabaseClient.auth.signInWithOtp({
             email,
-            password,
-            options: { data: { full_name: fullName } },
+            options: { shouldCreateUser: true },
           })
 
           if (error) {
             sendCodeBtn.disabled = false
             hideStatus()
             showError(error.message)
-            return
-          }
-
-          // Supabase returns identities:[] for already-registered emails (privacy-safe)
-          if (!data.user?.identities?.length) {
-            sendCodeBtn.disabled = false
-            hideStatus()
-            showError("This email is already registered. Please log in instead.")
             return
           }
 
@@ -644,23 +618,32 @@
         }
       }
 
-      // ── Create account (verify OTP only — password already set by signUp) ──
+      // ── Create account (verify OTP, then set password and name) ──
       createBtn.addEventListener("click", createAccount)
 
       async function createAccount() {
         if (!supabaseClient) { showError("Authentication service unavailable."); return }
         const email = emailInput.value.trim()
+        const fullName = fullnameInput.value.trim()
+        const password = passwordInput.value
+        const confirmPw = confirmPasswordInput.value
         const otpCode = getOtpCode()
+
+        if (password !== confirmPw) {
+          showError("Passwords do not match.")
+          return
+        }
 
         hideError()
         createBtn.disabled = true
-        showStatus("Verifying code...")
+        showStatus("Creating your account...")
 
         try {
+          // Step 1: Verify OTP
           const { data, error } = await supabaseClient.auth.verifyOtp({
             email,
             token: otpCode,
-            type: "signup",
+            type: "email",
           })
 
           if (error) {
@@ -670,10 +653,23 @@
             return
           }
 
-          // Sign out so user logs in with password through the full auth flow
+          // Step 2: Set password and full name
+          const { error: updateError } = await supabaseClient.auth.updateUser({
+            password,
+            data: { full_name: fullName },
+          })
+
+          if (updateError) {
+            createBtn.disabled = false
+            hideStatus()
+            showError(updateError.message)
+            return
+          }
+
+          // Step 3: Sign out so user logs in with password through the full auth flow
           await supabaseClient.auth.signOut()
 
-          // Redirect to login page
+          // Step 4: Redirect to login page
           hideStatus()
           const loginUrl = state
             ? "login.html?state=" + encodeURIComponent(state) + "&registered=true"
@@ -682,7 +678,7 @@
         } catch (err) {
           createBtn.disabled = false
           hideStatus()
-          showError(err.message || "Failed to verify code.")
+          showError(err.message || "Failed to create account.")
         }
       }
     </script>

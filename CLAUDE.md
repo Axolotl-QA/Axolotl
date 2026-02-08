@@ -52,17 +52,14 @@
 - [ ] Validation: `otp.length === N`
 - [ ] CSS: Input box width may need adjustment to fit N boxes in card width
 
-### 4. Signup flow: use `signUp()` not `signInWithOtp()` for registration
+### 4. Signup flow: use `signInWithOtp` for OTP-first registration
 
-**Problem**: Using `signInWithOtp({ shouldCreateUser: true })` for registration causes two issues:
-1. It sends an OTP email, then `updateUser()` may trigger a second email
-2. It cannot detect already-registered emails (it succeeds for both new and existing users)
+**Flow**: The signup flow is OTP-first: user enters email → receives 8-digit code → enters code + password → account created.
 
-**Rule**: Use `supabaseClient.auth.signUp({ email, password })` for registration:
-- Creates the user and sends ONE confirmation email
-- Returns `identities: []` for already-confirmed emails (lets you show "already registered")
-- Sets the password at signup time (no separate `updateUser` needed)
-- Use `verifyOtp({ type: "signup" })` (not `"email"`) to verify the signup code
+- `signInWithOtp({ email, shouldCreateUser: true })` sends the 8-digit OTP code
+- `verifyOtp({ email, token, type: "email" })` verifies the code (type is `"email"`, not `"signup"`)
+- `updateUser({ password, data: { full_name } })` sets the password after verification
+- Do NOT use `signUp()` here — it sends a confirmation link email, not an OTP code
 
 ### 5. Always verify deployed code matches your changes
 
