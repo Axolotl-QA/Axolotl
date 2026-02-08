@@ -1,6 +1,7 @@
 import type { Boolean, EmptyRequest } from "@shared/proto/cline/common"
 import { useEffect } from "react"
 import AccountView from "./components/account/AccountView"
+import { AuthGateView } from "./components/auth/AuthGateView"
 import ChatView from "./components/chat/ChatView"
 import HistoryView from "./components/history/HistoryView"
 import McpView from "./components/mcp/configuration/McpConfigurationView"
@@ -58,6 +59,11 @@ const AppContent = () => {
 
 	if (showWelcome) {
 		return onboardingModels ? <OnboardingView onboardingModels={onboardingModels} /> : <WelcomeView />
+	}
+
+	// Auth gate: block access to the main UI until the user signs in
+	if (!clineUser?.uid) {
+		return <AuthGateView />
 	}
 
 	return (
