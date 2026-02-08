@@ -548,9 +548,9 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
       // ── Supabase initialization (separate block so UI always works) ──
-      let supabase
+      var supabaseClient = null
       try {
-        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+        supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
       } catch (err) {
         console.error("Failed to initialize Supabase client:", err)
         showError("Failed to initialize authentication. Please try again later.")
@@ -560,7 +560,7 @@
       sendCodeBtn.addEventListener("click", sendCode)
 
       async function sendCode() {
-        if (!supabase) { showError("Authentication service unavailable."); return }
+        if (!supabaseClient) { showError("Authentication service unavailable."); return }
         const email = emailInput.value.trim()
         if (!email) {
           showError("Please enter your email address.")
@@ -571,7 +571,7 @@
         showStatus("Sending verification code...")
 
         try {
-          const { error } = await supabase.auth.signInWithOtp({
+          const { error } = await supabaseClient.auth.signInWithOtp({
             email,
             options: { shouldCreateUser: true },
           })
@@ -600,7 +600,7 @@
       createBtn.addEventListener("click", createAccount)
 
       async function createAccount() {
-        if (!supabase) { showError("Authentication service unavailable."); return }
+        if (!supabaseClient) { showError("Authentication service unavailable."); return }
         const email = emailInput.value.trim()
         const fullName = fullnameInput.value.trim()
         const password = passwordInput.value
@@ -618,7 +618,7 @@
 
         try {
           // Step 1: Verify OTP
-          const { data, error } = await supabase.auth.verifyOtp({
+          const { data, error } = await supabaseClient.auth.verifyOtp({
             email,
             token: otpCode,
             type: "email",
@@ -632,7 +632,7 @@
           }
 
           // Step 2: Set password and full name
-          const { error: updateError } = await supabase.auth.updateUser({
+          const { error: updateError } = await supabaseClient.auth.updateUser({
             password,
             data: { full_name: fullName },
           })
@@ -645,7 +645,7 @@
           }
 
           // Step 3: Sign out so user logs in with password through the full auth flow
-          await supabase.auth.signOut()
+          await supabaseClient.auth.signOut()
 
           // Step 4: Redirect to login page
           hideStatus()
