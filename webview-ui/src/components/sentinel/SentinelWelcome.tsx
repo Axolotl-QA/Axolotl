@@ -241,7 +241,7 @@ const SentinelWelcome = ({ showHistoryView }: SentinelWelcomeProps) => {
 					<SentinelLogo className="size-16" environment={environment} />
 				</div>
 				<h1 style={{ fontSize: "1.25rem", fontWeight: "bold", color: "var(--vscode-foreground)", margin: 0 }}>
-					Sentinel QA
+					Axolotl QA
 				</h1>
 				<p
 					style={{
