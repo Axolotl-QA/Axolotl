@@ -68,6 +68,12 @@ const jwtExpToIso = (token) => {
 
 fastify.get("/health", async () => ({ ok: true }))
 
+// Public config endpoint — serves non-secret values so static pages work without build-time env injection
+fastify.get("/v1/config", async () => ({
+  supabaseUrl: SUPABASE_URL,
+  supabaseAnonKey: SUPABASE_ANON_KEY,
+}))
+
 // Step 1: request auth URL
 fastify.get("/v1/auth/authorize", async (request, reply) => {
   const { redirect_uri, state, code_challenge } = request.query

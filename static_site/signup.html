@@ -382,8 +382,10 @@
 
     <script>
       // ── Config ──
-      const SUPABASE_URL = "https://cxoizjoeozrtjpybgicc.supabase.co"
-      const SUPABASE_ANON_KEY = "6EB4753E-E919-4691-B6E4-65A6B6E38A04"
+      // Placeholders — will be replaced by build.sh or fetched from /v1/config at runtime
+      var SUPABASE_URL = "https://cxoizjoeozrtjpybgicc.supabase.co"
+      var SUPABASE_ANON_KEY = "6EB4753E-E919-4691-B6E4-65A6B6E38A04"
+      const API_BASE_URL = "https://whale-app-ae67c.ondigitalocean.app"
 
       const params = new URLSearchParams(window.location.search)
       const state = params.get("state")
@@ -549,12 +551,31 @@
     <script>
       // ── Supabase initialization (separate block so UI always works) ──
       var supabaseClient = null
-      try {
-        supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
-      } catch (err) {
-        console.error("Failed to initialize Supabase client:", err)
-        showError("Failed to initialize authentication. Please try again later.")
+      const PLACEHOLDER_KEY = "6EB4753E-E919-4691-B6E4-65A6B6E38A04"
+
+      async function initSupabase() {
+        // If build.sh didn't replace the placeholder, fetch config from the server
+        if (SUPABASE_ANON_KEY === PLACEHOLDER_KEY) {
+          try {
+            const res = await fetch(API_BASE_URL + "/v1/config")
+            const cfg = await res.json()
+            SUPABASE_URL = cfg.supabaseUrl
+            SUPABASE_ANON_KEY = cfg.supabaseAnonKey
+          } catch (err) {
+            console.error("Failed to fetch config:", err)
+            showError("Failed to load configuration. Please try again later.")
+            return
+          }
+        }
+        try {
+          supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+        } catch (err) {
+          console.error("Failed to initialize Supabase client:", err)
+          showError("Failed to initialize authentication. Please try again later.")
+        }
       }
+
+      initSupabase()
 
       // ── Send code ──
       sendCodeBtn.addEventListener("click", sendCode)
