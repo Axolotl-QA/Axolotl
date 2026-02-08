@@ -551,11 +551,10 @@
     <script>
       // ── Supabase initialization (separate block so UI always works) ──
       var supabaseClient = null
-      const PLACEHOLDER_KEY = "6EB4753E-E919-4691-B6E4-65A6B6E38A04"
 
       async function initSupabase() {
-        // If build.sh didn't replace the placeholder, fetch config from the server
-        if (SUPABASE_ANON_KEY === PLACEHOLDER_KEY) {
+        // If build.sh didn't replace the placeholder (UUID is 36 chars, real JWT is 200+), fetch from server
+        if (SUPABASE_ANON_KEY.length < 100) {
           try {
             const res = await fetch(API_BASE_URL + "/v1/config")
             const cfg = await res.json()
