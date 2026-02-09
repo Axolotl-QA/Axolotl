@@ -1,23 +1,28 @@
-import { UpdateSettingsRequest } from "@shared/proto/cline/state"
-import { Mode } from "@shared/storage/types"
-import { VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react"
-import { useState } from "react"
-import { useExtensionState } from "@/context/ExtensionStateContext"
-import { StateServiceClient } from "@/services/grpc-client"
-import { TabButton } from "../../mcp/configuration/McpConfigurationView"
-import ApiOptions from "../ApiOptions"
-import Section from "../Section"
-import { syncModeConfigurations } from "../utils/providerUtils"
-import { useApiConfigurationHandlers } from "../utils/useApiConfigurationHandlers"
+import { UpdateSettingsRequest } from "@shared/proto/cline/state";
+import type { Mode } from "@shared/storage/types";
+import { VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react";
+import { useState } from "react";
+import { useExtensionState } from "@/context/ExtensionStateContext";
+import { StateServiceClient } from "@/services/grpc-client";
+import { TabButton } from "../../mcp/configuration/McpConfigurationView";
+import ApiOptions from "../ApiOptions";
+import { ApiKeyField } from "../common/ApiKeyField";
+import Section from "../Section";
+import { syncModeConfigurations } from "../utils/providerUtils";
+import { useApiConfigurationHandlers } from "../utils/useApiConfigurationHandlers";
 
 interface ApiConfigurationSectionProps {
-	renderSectionHeader?: (tabId: string) => JSX.Element | null
+	renderSectionHeader?: (tabId: string) => JSX.Element | null;
 }
 
-const ApiConfigurationSection = ({ renderSectionHeader }: ApiConfigurationSectionProps) => {
-	const { planActSeparateModelsSetting, mode, apiConfiguration } = useExtensionState()
-	const [currentTab, setCurrentTab] = useState<Mode>(mode)
-	const { handleFieldsChange } = useApiConfigurationHandlers()
+const ApiConfigurationSection = ({
+	renderSectionHeader,
+}: ApiConfigurationSectionProps) => {
+	const { planActSeparateModelsSetting, mode, apiConfiguration } =
+		useExtensionState();
+	const [currentTab, setCurrentTab] = useState<Mode>(mode);
+	const { handleFieldChange, handleFieldsChange } =
+		useApiConfigurationHandlers();
 	return (
 		<div>
 			{renderSectionHeader?.("api-config")}
@@ -33,7 +38,8 @@ const ApiConfigurationSection = ({ renderSectionHeader }: ApiConfigurationSectio
 								style={{
 									opacity: 1,
 									cursor: "pointer",
-								}}>
+								}}
+							>
 								Plan Mode
 							</TabButton>
 							<TabButton
@@ -43,7 +49,8 @@ const ApiConfigurationSection = ({ renderSectionHeader }: ApiConfigurationSectio
 								style={{
 									opacity: 1,
 									cursor: "pointer",
-								}}>
+								}}
+							>
 								Act Mode
 							</TabButton>
 						</div>
@@ -57,36 +64,53 @@ const ApiConfigurationSection = ({ renderSectionHeader }: ApiConfigurationSectio
 					<ApiOptions currentMode={mode} showModelOptions={true} />
 				)}
 
+				<ApiKeyField
+					initialValue={apiConfiguration?.youApiKey || ""}
+					onChange={(value) => handleFieldChange("youApiKey", value)}
+					providerName="You.com (Sentinel Web Search)"
+					signupUrl="https://api.you.com"
+				/>
+
 				<div className="mb-[5px]">
 					<VSCodeCheckbox
 						checked={planActSeparateModelsSetting}
 						className="mb-[5px]"
 						onChange={async (e: any) => {
-							const checked = e.target.checked === true
+							const checked = e.target.checked === true;
 							try {
 								// If unchecking the toggle, wait a bit for state to update, then sync configurations
 								if (!checked) {
-									await syncModeConfigurations(apiConfiguration, currentTab, handleFieldsChange)
+									await syncModeConfigurations(
+										apiConfiguration,
+										currentTab,
+										handleFieldsChange,
+									);
 								}
 								await StateServiceClient.updateSettings(
 									UpdateSettingsRequest.create({
 										planActSeparateModelsSetting: checked,
 									}),
-								)
+								);
 							} catch (error) {
-								console.error("Failed to update separate models setting:", error)
+								console.error(
+									"Failed to update separate models setting:",
+									error,
+								);
 							}
-						}}>
+						}}
+					>
 						Use different models for Plan and Act modes
 					</VSCodeCheckbox>
 					<p className="text-xs mt-[5px] text-(--vscode-descriptionForeground)">
-						Switching between Plan and Act mode will persist the API and model used in the previous mode. This may be
-						helpful e.g. when using a strong reasoning model to architect a plan for a cheaper coding model to act on.
+						Switching between Plan and Act mode will persist the API and model
+						used in the previous mode. This may be helpful e.g. when using a
+						strong reasoning model to architect a plan for a cheaper coding
+						model to act on.
 					</p>
 				</div>
 			</Section>
 		</div>
-	)
-}
+	);
+};
 
-export default ApiConfigurationSection
+export default ApiConfigurationSection;
