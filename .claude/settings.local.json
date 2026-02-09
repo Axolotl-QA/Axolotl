@@ -5,7 +5,9 @@
       "Bash(do rm -f \"$file\")",
       "Bash(echo:*)",
       "Bash(done)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(find:*)",
+      "Bash(curl:*)"
     ]
   }
 }

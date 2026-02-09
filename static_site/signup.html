@@ -161,17 +161,17 @@
 
       .otp-inputs {
         display: flex;
-        gap: 8px;
+        gap: 6px;
         justify-content: center;
       }
 
       .otp-inputs input {
-        width: 48px;
-        height: 52px;
+        width: 40px;
+        height: 44px;
         border: 1px solid #d1d5db;
         border-radius: 10px;
         text-align: center;
-        font-size: 20px;
+        font-size: 18px;
         font-weight: 600;
         outline: none;
         transition: border-color 0.2s;
@@ -313,7 +313,7 @@
           </div>
           <button class="btn-send-code" id="send-code-btn">Send code</button>
         </div>
-        <div class="email-hint">We'll send a 6-digit code to verify your email.</div>
+        <div class="email-hint">We'll send an 8-digit code to verify your email.</div>
       </div>
 
       <!-- OTP verification code -->
@@ -326,6 +326,8 @@
           <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" data-index="3" />
           <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" data-index="4" />
           <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" data-index="5" />
+          <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" data-index="6" />
+          <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" data-index="7" />
         </div>
       </div>
 
@@ -382,8 +384,10 @@
 
     <script>
       // ── Config ──
-      const SUPABASE_URL = "https://cxoizjoeozrtjpybgicc.supabase.co"
-      const SUPABASE_ANON_KEY = "6EB4753E-E919-4691-B6E4-65A6B6E38A04"
+      // Placeholders — will be replaced by build.sh or fetched from /v1/config at runtime
+      var SUPABASE_URL = "https://cxoizjoeozrtjpybgicc.supabase.co"
+      var SUPABASE_ANON_KEY = "6EB4753E-E919-4691-B6E4-65A6B6E38A04"
+      const API_BASE_URL = "https://whale-app-ae67c.ondigitalocean.app"
 
       const params = new URLSearchParams(window.location.search)
       const state = params.get("state")
@@ -472,7 +476,7 @@
             e.target.value = ""
             return
           }
-          if (value && index < 5) {
+          if (value && index < 7) {
             otpInputs[index + 1].focus()
           }
           updateCreateButton()
@@ -486,13 +490,13 @@
 
         input.addEventListener("paste", (e) => {
           e.preventDefault()
-          const pastedData = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6)
+          const pastedData = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 8)
           pastedData.split("").forEach((char, i) => {
             if (otpInputs[i]) {
               otpInputs[i].value = char
             }
           })
-          const focusIndex = Math.min(pastedData.length, 5)
+          const focusIndex = Math.min(pastedData.length, 7)
           otpInputs[focusIndex].focus()
           updateCreateButton()
         })
@@ -519,7 +523,7 @@
 
         const valid =
           codeSent &&
-          otp.length === 6 &&
+          otp.length === 8 &&
           name.length > 0 &&
           allPasswordRulesPassed() &&
           pw === confirmPw &&
@@ -548,19 +552,37 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
       // ── Supabase initialization (separate block so UI always works) ──
-      let supabase
-      try {
-        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
-      } catch (err) {
-        console.error("Failed to initialize Supabase client:", err)
-        showError("Failed to initialize authentication. Please try again later.")
+      var supabaseClient = null
+
+      async function initSupabase() {
+        // If build.sh didn't replace the placeholder (UUID is 36 chars, real JWT is 200+), fetch from server
+        if (SUPABASE_ANON_KEY.length < 100) {
+          try {
+            const res = await fetch(API_BASE_URL + "/v1/config")
+            const cfg = await res.json()
+            SUPABASE_URL = cfg.supabaseUrl
+            SUPABASE_ANON_KEY = cfg.supabaseAnonKey
+          } catch (err) {
+            console.error("Failed to fetch config:", err)
+            showError("Failed to load configuration. Please try again later.")
+            return
+          }
+        }
+        try {
+          supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+        } catch (err) {
+          console.error("Failed to initialize Supabase client:", err)
+          showError("Failed to initialize authentication. Please try again later.")
+        }
       }
 
-      // ── Send code ──
+      initSupabase()
+
+      // ── Send code (only requires email — sends 8-digit OTP) ──
       sendCodeBtn.addEventListener("click", sendCode)
 
       async function sendCode() {
-        if (!supabase) { showError("Authentication service unavailable."); return }
+        if (!supabaseClient) { showError("Authentication service unavailable."); return }
         const email = emailInput.value.trim()
         if (!email) {
           showError("Please enter your email address.")
@@ -571,7 +593,7 @@
         showStatus("Sending verification code...")
 
         try {
-          const { error } = await supabase.auth.signInWithOtp({
+          const { error } = await supabaseClient.auth.signInWithOtp({
             email,
             options: { shouldCreateUser: true },
           })
@@ -596,11 +618,11 @@
         }
       }
 
-      // ── Create account ──
+      // ── Create account (verify OTP, then set password and name) ──
       createBtn.addEventListener("click", createAccount)
 
       async function createAccount() {
-        if (!supabase) { showError("Authentication service unavailable."); return }
+        if (!supabaseClient) { showError("Authentication service unavailable."); return }
         const email = emailInput.value.trim()
         const fullName = fullnameInput.value.trim()
         const password = passwordInput.value
@@ -618,7 +640,7 @@
 
         try {
           // Step 1: Verify OTP
-          const { data, error } = await supabase.auth.verifyOtp({
+          const { data, error } = await supabaseClient.auth.verifyOtp({
             email,
             token: otpCode,
             type: "email",
@@ -632,7 +654,7 @@
           }
 
           // Step 2: Set password and full name
-          const { error: updateError } = await supabase.auth.updateUser({
+          const { error: updateError } = await supabaseClient.auth.updateUser({
             password,
             data: { full_name: fullName },
           })
@@ -645,7 +667,7 @@
           }
 
           // Step 3: Sign out so user logs in with password through the full auth flow
-          await supabase.auth.signOut()
+          await supabaseClient.auth.signOut()
 
           // Step 4: Redirect to login page
           hideStatus()

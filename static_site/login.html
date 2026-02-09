@@ -315,9 +315,10 @@
 
     <script>
       // ── Config ──
-      const SUPABASE_URL = "https://cxoizjoeozrtjpybgicc.supabase.co"
-      const SUPABASE_ANON_KEY = "6EB4753E-E919-4691-B6E4-65A6B6E38A04"
-      const API_BASE_URL = "https://whale-app-ae67c.ondigitalocean.app"
+      // Placeholders — will be replaced by build.sh or fetched from /v1/config at runtime
+      var SUPABASE_URL = "https://cxoizjoeozrtjpybgicc.supabase.co"
+      var SUPABASE_ANON_KEY = "6EB4753E-E919-4691-B6E4-65A6B6E38A04"
+      var API_BASE_URL = "https://whale-app-ae67c.ondigitalocean.app"
 
       const params = new URLSearchParams(window.location.search)
       const state = params.get("state")
@@ -383,21 +384,48 @@
         successBanner.style.display = "block"
       }
 
-      // Show missing state warning
-      if (!state) {
-        showError("Missing state in URL. Please start login from VS Code.")
-      }
+      // Direct browser access (no state) is allowed — user just won't redirect back to VS Code
     </script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
       // ── Supabase initialization (separate script block so navigation always works) ──
-      let supabase
-      try {
-        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
-      } catch (err) {
-        console.error("Failed to initialize Supabase client:", err)
-        showError("Failed to initialize authentication. Please try again later.")
+      var supabaseClient = null
+
+      async function initSupabase() {
+        // If build.sh didn't replace the placeholder (UUID is 36 chars, real JWT is 200+), fetch from server
+        if (SUPABASE_ANON_KEY.length < 100) {
+          try {
+            const res = await fetch(API_BASE_URL + "/v1/config")
+            const cfg = await res.json()
+            SUPABASE_URL = cfg.supabaseUrl
+            SUPABASE_ANON_KEY = cfg.supabaseAnonKey
+          } catch (err) {
+            console.error("Failed to fetch config:", err)
+            showError("Failed to load configuration. Please try again later.")
+            return
+          }
+        }
+        try {
+          supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+        } catch (err) {
+          console.error("Failed to initialize Supabase client:", err)
+          showError("Failed to initialize authentication. Please try again later.")
+        }
+
+        // Auto-detect OAuth callback session (moved here so supabaseClient is ready)
+        if (supabaseClient) {
+          supabaseClient.auth.getSession().then(({ data }) => {
+            if (data?.session?.access_token && state) {
+              setLoading(true)
+              exchangeWithBackend(data.session)
+            }
+          }).catch((err) => {
+            console.error("Error checking session:", err)
+          })
+        }
       }
+
+      initSupabase()
 
       // ── Forgot password ──
       forgotPasswordLink.addEventListener("click", async (e) => {
@@ -407,10 +435,10 @@
           showError("Please enter your email address first.")
           return
         }
-        if (!supabase) { showError("Authentication service unavailable."); return }
+        if (!supabaseClient) { showError("Authentication service unavailable."); return }
         hideError()
         showStatus("Sending password reset email...")
-        const { error } = await supabase.auth.resetPasswordForEmail(email)
+        const { error } = await supabaseClient.auth.resetPasswordForEmail(email)
         if (error) {
           hideStatus()
           showError(error.message)
@@ -427,7 +455,7 @@
       emailInput.addEventListener("keydown", (e) => { if (e.key === "Enter") passwordInput.focus() })
 
       async function signIn() {
-        if (!supabase) { showError("Authentication service unavailable."); return }
+        if (!supabaseClient) { showError("Authentication service unavailable."); return }
         const email = emailInput.value.trim()
         const password = passwordInput.value
         if (!email || !password) {
@@ -439,14 +467,24 @@
         showStatus("Signing in...")
 
         try {
-          const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+          const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password })
           if (error) {
             setLoading(false)
             hideStatus()
             showError(error.message)
             return
           }
-          await exchangeWithBackend(data.session)
+
+          if (state) {
+            // Extension flow: exchange token with backend for redirect
+            await exchangeWithBackend(data.session)
+          } else {
+            // Direct browser access: just show success
+            setLoading(false)
+            hideStatus()
+            successBanner.textContent = "Signed in successfully! You can now use the VS Code extension."
+            successBanner.style.display = "block"
+          }
         } catch (err) {
           setLoading(false)
           hideStatus()
@@ -456,15 +494,13 @@
 
       // ── Sign in with Google ──
       googleBtn.addEventListener("click", async () => {
-        if (!supabase) { showError("Authentication service unavailable."); return }
-        if (!state) {
-          showError("Missing state. Please start login from VS Code.")
-          return
-        }
+        if (!supabaseClient) { showError("Authentication service unavailable."); return }
         hideError()
         showStatus("Redirecting to Google...")
-        const redirectTo = window.location.origin + window.location.pathname + "?state=" + encodeURIComponent(state)
-        const { error } = await supabase.auth.signInWithOAuth({
+        const redirectTo = state
+          ? window.location.origin + window.location.pathname + "?state=" + encodeURIComponent(state)
+          : window.location.origin + window.location.pathname
+        const { error } = await supabaseClient.auth.signInWithOAuth({
           provider: "google",
           options: { redirectTo },
         })
@@ -522,17 +558,6 @@
         }
       }
 
-      // ── Auto-detect OAuth callback session ──
-      if (supabase) {
-        supabase.auth.getSession().then(({ data }) => {
-          if (data?.session?.access_token && state) {
-            setLoading(true)
-            exchangeWithBackend(data.session)
-          }
-        }).catch((err) => {
-          console.error("Error checking session:", err)
-        })
-      }
     </script>
   </body>
 </html>
