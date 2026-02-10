@@ -64,11 +64,9 @@
 			"script": "build:webview",
 			"group": "build",
 			"problemMatcher": [],
-			"isBackground": true,
+			"isBackground": false,
 			"label": "npm: build:webview",
-			"dependsOn": [
-				"npm: protos"
-			],
+			"dependsOn": ["npm: protos"],
 			"presentation": {
 				"group": "watch",
 				"reveal": "always"
@@ -84,11 +82,9 @@
 			"script": "build:webview:test",
 			"group": "build",
 			"problemMatcher": [],
-			"isBackground": true,
+			"isBackground": false,
 			"label": "npm: build:webview:test",
-			"dependsOn": [
-				"npm: protos"
-			],
+			"dependsOn": ["npm: protos"],
 			"presentation": {
 				"group": "watch",
 				"reveal": "always"
@@ -123,9 +119,7 @@
 			],
 			"isBackground": true,
 			"label": "npm: dev:webview",
-			"dependsOn": [
-				"npm: protos"
-			],
+			"dependsOn": ["npm: protos"],
 			"presentation": {
 				"group": "watch",
 				"reveal": "always"
@@ -161,9 +155,7 @@
 			},
 			"isBackground": true,
 			"label": "npm: watch:esbuild",
-			"dependsOn": [
-				"npm: protos"
-			],
+			"dependsOn": ["npm: protos"],
 			"presentation": {
 				"group": "watch",
 				"reveal": "always"
@@ -199,9 +191,7 @@
 			},
 			"isBackground": true,
 			"label": "npm: watch:esbuild:test",
-			"dependsOn": [
-				"npm: protos"
-			],
+			"dependsOn": ["npm: protos"],
 			"presentation": {
 				"group": "watch",
 				"reveal": "always"
@@ -220,9 +210,7 @@
 			"problemMatcher": "$tsc-watch",
 			"isBackground": true,
 			"label": "npm: watch:tsc",
-			"dependsOn": [
-				"npm: protos"
-			],
+			"dependsOn": ["npm: protos"],
 			"presentation": {
 				"group": "watch",
 				"reveal": "always"
@@ -233,9 +221,7 @@
 			"script": "watch-tests",
 			"problemMatcher": "$tsc-watch",
 			"isBackground": true,
-			"dependsOn": [
-				"npm: protos"
-			],
+			"dependsOn": ["npm: protos"],
 			"presentation": {
 				"reveal": "always",
 				"group": "watchers"
@@ -244,11 +230,7 @@
 		},
 		{
 			"label": "tasks: watch-tests",
-			"dependsOn": [
-				"npm: protos",
-				"npm: watch",
-				"npm: watch-tests"
-			],
+			"dependsOn": ["npm: protos", "npm: watch", "npm: watch-tests"],
 			"problemMatcher": []
 		},
 		{
@@ -259,9 +241,7 @@
 		{
 			"label": "clean-tmp-user",
 			"type": "shell",
-			"dependsOn": [
-				"watch"
-			],
+			"dependsOn": ["watch"],
 			"command": "rm -rf ${workspaceFolder}/dist/tmp/user && mkdir -p ${workspaceFolder}/dist/tmp/user"
 		},
 		{
@@ -271,10 +251,7 @@
 			"problemMatcher": [],
 			"isBackground": false,
 			"label": "npm: storybook",
-			"dependsOn": [
-				"npm: protos",
-				"npm: build:webview"
-			],
+			"dependsOn": ["npm: protos", "npm: build:webview"],
 			"presentation": {
 				"reveal": "always"
 			},
