@@ -61,7 +61,7 @@ export class SharedUriHandler {
 
 					Logger.info(`SharedUriHandler - Auth callback received for ${provider} - ${path}`)
 
-					const token = query.get("refreshToken") || query.get("idToken") || query.get("code")
+					const token = query.get("insforge_code") || query.get("access_token") || query.get("refreshToken") || query.get("idToken") || query.get("code")
 					if (token) {
 						await visibleWebview.controller.handleAuthCallback(token, state)
 						return true

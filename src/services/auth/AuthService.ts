@@ -257,10 +257,11 @@ export class AuthService {
 		}
 
 		const callbackHost = await HostProvider.get().getCallbackUrl()
-		const callbackUrl = `${callbackHost}/auth`
 		const state = generateAuthState()
 		const codeVerifier = generateCodeVerifier()
 		const codeChallenge = generateCodeChallenge(codeVerifier)
+		// Don't include state in redirect URL — InsForge double-encodes query params in the redirect
+		const callbackUrl = `${callbackHost}/auth`
 
 		this._controller.stateManager.setSecret("sentinelAuthState", state)
 		this._controller.stateManager.setSecret("sentinelAuthCodeVerifier", codeVerifier)
@@ -292,14 +293,12 @@ export class AuthService {
 
 	async handleAuthCallback(authorizationCode: string, state?: string | null): Promise<void> {
 		try {
+			// State check is optional — InsForge hosted sign-in may not return state
 			const expectedState = this._controller.stateManager.getSecretKey("sentinelAuthState")
-			if (expectedState && state !== expectedState) {
+			if (expectedState && state && state !== expectedState) {
 				throw new Error("Auth state mismatch")
 			}
 			const codeVerifier = this._controller.stateManager.getSecretKey("sentinelAuthCodeVerifier")
-			if (!codeVerifier) {
-				throw new Error("Missing code verifier")
-			}
 
 			this._clineAuthInfo = await this._provider.signIn(this._controller, authorizationCode, codeVerifier)
 			this._authenticated = this._clineAuthInfo?.idToken !== undefined

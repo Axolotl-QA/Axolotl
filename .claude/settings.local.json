@@ -7,7 +7,19 @@
       "Bash(done)",
       "Bash(git push:*)",
       "Bash(find:*)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "mcp__insforge__fetch-docs",
+      "mcp__insforge__get-backend-metadata",
+      "mcp__insforge__get-anon-key",
+      "mcp__insforge__fetch-sdk-docs",
+      "mcp__insforge__run-raw-sql",
+      "Bash(npm run build:*)",
+      "Bash(npm run:*)",
+      "Bash(node esbuild.mjs:*)",
+      "Bash(node:*)"
     ]
-  }
+  },
+  "enabledMcpjsonServers": [
+    "insforge"
+  ]
 }

@@ -315,30 +315,28 @@
 
     <script>
       // ── Config ──
-      // Placeholders — will be replaced by build.sh or fetched from /v1/config at runtime
-      var SUPABASE_URL = "https://cxoizjoeozrtjpybgicc.supabase.co"
-      var SUPABASE_ANON_KEY = "6EB4753E-E919-4691-B6E4-65A6B6E38A04"
+      var INSFORGE_BASE_URL = "https://4zxsfry3.us-west.insforge.app"
       var API_BASE_URL = "https://whale-app-ae67c.ondigitalocean.app"
 
-      const params = new URLSearchParams(window.location.search)
-      const state = params.get("state")
-      const registered = params.get("registered")
+      var params = new URLSearchParams(window.location.search)
+      var state = params.get("state")
+      var registered = params.get("registered")
 
       // ── DOM elements ──
-      const emailInput = document.getElementById("email")
-      const passwordInput = document.getElementById("password")
-      const signInBtn = document.getElementById("sign-in-btn")
-      const googleBtn = document.getElementById("google-btn")
-      const errorMsg = document.getElementById("error-msg")
-      const statusMsg = document.getElementById("status-msg")
-      const successBanner = document.getElementById("success-banner")
-      const togglePasswordBtn = document.getElementById("toggle-password")
-      const eyeIcon = document.getElementById("eye-icon")
-      const eyeOffIcon = document.getElementById("eye-off-icon")
-      const forgotPasswordLink = document.getElementById("forgot-password-link")
-      const signupLink = document.getElementById("signup-link")
+      var emailInput = document.getElementById("email")
+      var passwordInput = document.getElementById("password")
+      var signInBtn = document.getElementById("sign-in-btn")
+      var googleBtn = document.getElementById("google-btn")
+      var errorMsg = document.getElementById("error-msg")
+      var statusMsg = document.getElementById("status-msg")
+      var successBanner = document.getElementById("success-banner")
+      var togglePasswordBtn = document.getElementById("toggle-password")
+      var eyeIcon = document.getElementById("eye-icon")
+      var eyeOffIcon = document.getElementById("eye-off-icon")
+      var forgotPasswordLink = document.getElementById("forgot-password-link")
+      var signupLink = document.getElementById("signup-link")
 
-      // ── Utility functions (defined first so they can be used anywhere) ──
+      // ── Utility functions ──
       function showError(msg) {
         errorMsg.textContent = msg
         errorMsg.style.display = "block"
@@ -362,18 +360,39 @@
         googleBtn.disabled = loading
       }
 
-      // ── Navigation links (set up BEFORE Supabase so they always work) ──
-      signupLink.addEventListener("click", (e) => {
+      // ── PKCE helpers for OAuth ──
+      function generateRandomString(length) {
+        var array = new Uint8Array(length)
+        crypto.getRandomValues(array)
+        return btoa(String.fromCharCode.apply(null, array))
+          .replace(/\+/g, "-")
+          .replace(/\//g, "_")
+          .replace(/=+$/, "")
+      }
+
+      function sha256Base64Url(str) {
+        var encoder = new TextEncoder()
+        var data = encoder.encode(str)
+        return crypto.subtle.digest("SHA-256", data).then(function (hash) {
+          return btoa(String.fromCharCode.apply(null, new Uint8Array(hash)))
+            .replace(/\+/g, "-")
+            .replace(/\//g, "_")
+            .replace(/=+$/, "")
+        })
+      }
+
+      // ── Navigation links ──
+      signupLink.addEventListener("click", function (e) {
         e.preventDefault()
-        const signupUrl = state
+        var signupUrl = state
           ? "signup.html?state=" + encodeURIComponent(state)
           : "signup.html"
         window.location.href = signupUrl
       })
 
       // Password visibility toggle
-      togglePasswordBtn.addEventListener("click", () => {
-        const isPassword = passwordInput.type === "password"
+      togglePasswordBtn.addEventListener("click", function () {
+        var isPassword = passwordInput.type === "password"
         passwordInput.type = isPassword ? "text" : "password"
         eyeIcon.style.display = isPassword ? "none" : "block"
         eyeOffIcon.style.display = isPassword ? "block" : "none"
@@ -384,80 +403,42 @@
         successBanner.style.display = "block"
       }
 
-      // Direct browser access (no state) is allowed — user just won't redirect back to VS Code
-    </script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script>
-      // ── Supabase initialization (separate script block so navigation always works) ──
-      var supabaseClient = null
-
-      async function initSupabase() {
-        // If build.sh didn't replace the placeholder (UUID is 36 chars, real JWT is 200+), fetch from server
-        if (SUPABASE_ANON_KEY.length < 100) {
-          try {
-            const res = await fetch(API_BASE_URL + "/v1/config")
-            const cfg = await res.json()
-            SUPABASE_URL = cfg.supabaseUrl
-            SUPABASE_ANON_KEY = cfg.supabaseAnonKey
-          } catch (err) {
-            console.error("Failed to fetch config:", err)
-            showError("Failed to load configuration. Please try again later.")
-            return
-          }
-        }
-        try {
-          supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
-        } catch (err) {
-          console.error("Failed to initialize Supabase client:", err)
-          showError("Failed to initialize authentication. Please try again later.")
-        }
-
-        // Auto-detect OAuth callback session (moved here so supabaseClient is ready)
-        if (supabaseClient) {
-          supabaseClient.auth.getSession().then(({ data }) => {
-            if (data?.session?.access_token && state) {
-              setLoading(true)
-              exchangeWithBackend(data.session)
-            }
-          }).catch((err) => {
-            console.error("Error checking session:", err)
-          })
-        }
-      }
-
-      initSupabase()
-
       // ── Forgot password ──
-      forgotPasswordLink.addEventListener("click", async (e) => {
+      forgotPasswordLink.addEventListener("click", function (e) {
         e.preventDefault()
-        const email = emailInput.value.trim()
+        var email = emailInput.value.trim()
         if (!email) {
           showError("Please enter your email address first.")
           return
         }
-        if (!supabaseClient) { showError("Authentication service unavailable."); return }
         hideError()
         showStatus("Sending password reset email...")
-        const { error } = await supabaseClient.auth.resetPasswordForEmail(email)
-        if (error) {
-          hideStatus()
-          showError(error.message)
-          return
-        }
-        hideStatus()
-        successBanner.textContent = "Password reset email sent! Check your inbox."
-        successBanner.style.display = "block"
+
+        fetch(INSFORGE_BASE_URL + "/api/auth/email/send-reset-password", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: email }),
+        })
+          .then(function (res) { return res.json() })
+          .then(function (data) {
+            hideStatus()
+            successBanner.textContent = "Password reset email sent! Check your inbox."
+            successBanner.style.display = "block"
+          })
+          .catch(function (err) {
+            hideStatus()
+            showError(err.message || "Failed to send reset email.")
+          })
       })
 
       // ── Sign in with email/password ──
       signInBtn.addEventListener("click", signIn)
-      passwordInput.addEventListener("keydown", (e) => { if (e.key === "Enter") signIn() })
-      emailInput.addEventListener("keydown", (e) => { if (e.key === "Enter") passwordInput.focus() })
+      passwordInput.addEventListener("keydown", function (e) { if (e.key === "Enter") signIn() })
+      emailInput.addEventListener("keydown", function (e) { if (e.key === "Enter") passwordInput.focus() })
 
-      async function signIn() {
-        if (!supabaseClient) { showError("Authentication service unavailable."); return }
-        const email = emailInput.value.trim()
-        const password = passwordInput.value
+      function signIn() {
+        var email = emailInput.value.trim()
+        var password = passwordInput.value
         if (!email || !password) {
           showError("Please enter both email and password.")
           return
@@ -466,98 +447,181 @@
         setLoading(true)
         showStatus("Signing in...")
 
-        try {
-          const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password })
-          if (error) {
-            setLoading(false)
-            hideStatus()
-            showError(error.message)
-            return
-          }
+        fetch(INSFORGE_BASE_URL + "/api/auth/sessions?client_type=desktop", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: email, password: password }),
+        })
+          .then(function (res) {
+            return res.json().then(function (data) { return { ok: res.ok, status: res.status, data: data } })
+          })
+          .then(function (result) {
+            if (!result.ok) {
+              setLoading(false)
+              hideStatus()
+              if (result.data.error === "EMAIL_NOT_VERIFIED") {
+                showError("Please verify your email before signing in. Check your inbox.")
+              } else {
+                showError(result.data.message || "Sign in failed.")
+              }
+              return
+            }
 
-          if (state) {
-            // Extension flow: exchange token with backend for redirect
-            await exchangeWithBackend(data.session)
-          } else {
-            // Direct browser access: just show success
+            if (state) {
+              exchangeWithBackend(result.data.accessToken, result.data.refreshToken)
+            } else {
+              setLoading(false)
+              hideStatus()
+              successBanner.textContent = "Signed in successfully! You can now use the VS Code extension."
+              successBanner.style.display = "block"
+            }
+          })
+          .catch(function (err) {
             setLoading(false)
             hideStatus()
-            successBanner.textContent = "Signed in successfully! You can now use the VS Code extension."
-            successBanner.style.display = "block"
-          }
-        } catch (err) {
-          setLoading(false)
-          hideStatus()
-          showError(err.message || "An unexpected error occurred.")
-        }
+            showError(err.message || "An unexpected error occurred.")
+          })
       }
 
-      // ── Sign in with Google ──
-      googleBtn.addEventListener("click", async () => {
-        if (!supabaseClient) { showError("Authentication service unavailable."); return }
+      // ── Sign in with Google (InsForge OAuth PKCE) ──
+      googleBtn.addEventListener("click", function () {
         hideError()
         showStatus("Redirecting to Google...")
-        const redirectTo = state
-          ? window.location.origin + window.location.pathname + "?state=" + encodeURIComponent(state)
-          : window.location.origin + window.location.pathname
-        const { error } = await supabaseClient.auth.signInWithOAuth({
-          provider: "google",
-          options: { redirectTo },
+
+        var oauthCodeVerifier = generateRandomString(32)
+        sha256Base64Url(oauthCodeVerifier).then(function (oauthCodeChallenge) {
+          sessionStorage.setItem("insforge_oauth_code_verifier", oauthCodeVerifier)
+          if (state) {
+            sessionStorage.setItem("insforge_oauth_state", state)
+          }
+
+          var redirectUri = window.location.origin + window.location.pathname
+          if (state) {
+            redirectUri += "?state=" + encodeURIComponent(state)
+          }
+
+          var oauthParams = new URLSearchParams({
+            redirect_uri: redirectUri,
+            code_challenge: oauthCodeChallenge,
+          })
+
+          return fetch(INSFORGE_BASE_URL + "/api/auth/oauth/google?" + oauthParams.toString())
         })
-        if (error) {
-          hideStatus()
-          showError(error.message)
-        }
+          .then(function (res) { return res.json() })
+          .then(function (data) {
+            if (data.authUrl) {
+              window.location.href = data.authUrl
+            } else {
+              hideStatus()
+              showError("Failed to start Google sign-in.")
+            }
+          })
+          .catch(function (err) {
+            hideStatus()
+            showError(err.message || "Failed to start Google sign-in.")
+          })
       })
 
-      // ── Exchange supabase session with backend ──
-      async function exchangeWithBackend(session) {
+      // ── Handle OAuth callback (check for insforge_code on page load) ──
+      ;(function handleOAuthCallback() {
+        var insforgeCode = params.get("insforge_code")
+        if (!insforgeCode) return
+
+        var codeVerifier = sessionStorage.getItem("insforge_oauth_code_verifier")
+        var savedState = state || sessionStorage.getItem("insforge_oauth_state")
+
+        if (!codeVerifier) {
+          showError("OAuth session expired. Please try again.")
+          return
+        }
+
+        sessionStorage.removeItem("insforge_oauth_code_verifier")
+        sessionStorage.removeItem("insforge_oauth_state")
+
+        setLoading(true)
+        showStatus("Completing Google sign-in...")
+
+        fetch(INSFORGE_BASE_URL + "/api/auth/oauth/exchange?client_type=desktop", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ code: insforgeCode, code_verifier: codeVerifier }),
+        })
+          .then(function (res) {
+            return res.json().then(function (data) { return { ok: res.ok, data: data } })
+          })
+          .then(function (result) {
+            if (!result.ok) {
+              setLoading(false)
+              hideStatus()
+              showError(result.data.message || "Google sign-in failed.")
+              return
+            }
+
+            if (savedState) {
+              exchangeWithBackend(result.data.accessToken, result.data.refreshToken)
+            } else {
+              setLoading(false)
+              hideStatus()
+              successBanner.textContent = "Signed in with Google successfully!"
+              successBanner.style.display = "block"
+            }
+          })
+          .catch(function (err) {
+            setLoading(false)
+            hideStatus()
+            showError(err.message || "Failed to complete Google sign-in.")
+          })
+      })()
+
+      // ── Exchange tokens with backend ──
+      function exchangeWithBackend(accessToken, refreshToken) {
         if (!state) {
           setLoading(false)
           showError("Missing state parameter. Please start login from VS Code.")
           return
         }
-        if (!session?.access_token) {
+        if (!accessToken) {
           setLoading(false)
-          showError("No session token found.")
+          showError("No access token found.")
           return
         }
 
         showStatus("Completing authentication...")
 
-        try {
-          const res = await fetch(API_BASE_URL + "/v1/auth/code", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              state,
-              supabaseAccessToken: session.access_token,
-              supabaseRefreshToken: session.refresh_token,
-            }),
+        fetch(API_BASE_URL + "/v1/auth/code", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            state: state,
+            accessToken: accessToken,
+            refreshToken: refreshToken,
+          }),
+        })
+          .then(function (res) {
+            if (res.redirected) {
+              window.location.href = res.url
+              return null
+            }
+            return res.json().catch(function () { return {} })
           })
+          .then(function (data) {
+            if (!data) return
+            if (data.redirect_url) {
+              showStatus("Redirecting back to VS Code...")
+              window.location.href = data.redirect_url
+              return
+            }
 
-          if (res.redirected) {
-            window.location.href = res.url
-            return
-          }
-
-          const data = await res.json().catch(() => ({}))
-          if (data.redirect_url) {
-            showStatus("Redirecting back to VS Code...")
-            window.location.href = data.redirect_url
-            return
-          }
-
-          setLoading(false)
-          hideStatus()
-          showError("Authentication failed: " + (data.error || "Server returned " + res.status))
-        } catch (err) {
-          setLoading(false)
-          hideStatus()
-          showError("Network error: " + err.message)
-        }
+            setLoading(false)
+            hideStatus()
+            showError("Authentication failed: " + (data.error || "Unknown error"))
+          })
+          .catch(function (err) {
+            setLoading(false)
+            hideStatus()
+            showError("Network error: " + err.message)
+          })
       }
-
     </script>
   </body>
 </html>

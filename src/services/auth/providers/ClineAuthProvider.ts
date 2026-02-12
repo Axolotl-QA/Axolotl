@@ -1,64 +1,66 @@
-import axios from "axios"
-import { type JwtPayload } from "jwt-decode"
-import { ClineEnv, EnvironmentConfig } from "@/config"
-import { Controller } from "@/core/controller"
-import { HostProvider } from "@/hosts/host-provider"
-import { buildBasicClineHeaders } from "@/services/EnvUtils"
+import type { JwtPayload } from "jwt-decode"
+import { type EnvironmentConfig, ClineEnv } from "@/config"
+import type { Controller } from "@/core/controller"
 import { AuthInvalidTokenError, AuthNetworkError } from "@/services/error/ClineError"
 import { Logger } from "@/services/logging/Logger"
 import { telemetryService } from "@/services/telemetry"
-import { CLINE_API_ENDPOINT } from "@/shared/cline/api"
-import { fetch, getAxiosSettings } from "@/shared/net"
-import { type ClineAccountUserInfo, type ClineAuthInfo } from "../AuthService"
+import { fetch } from "@/shared/net"
+import type { ClineAccountUserInfo, ClineAuthInfo } from "../AuthService"
 import { parseJwtPayload } from "../oca/utils/utils"
 
-interface ClineAuthApiUser {
-	subject: string | null
+// InsForge API response shapes
+interface InsForgeUser {
+	id: string
 	email: string
-	name: string
-	clineUserId: string | null
-	accounts: string[] | null
+	emailVerified?: boolean
+	providers?: string[]
+	createdAt?: string
+	updatedAt?: string
+	role?: string
 }
 
-// Unified API response data shape for token exchange/refresh
-interface ClineAuthResponseData {
-	/**
-	 * Auth token to be used for authenticated requests
-	 */
+interface InsForgeAuthResponse {
+	user: InsForgeUser
 	accessToken: string
-	/**
-	 * Refresh token to be used for refreshing the access token
-	 */
 	refreshToken?: string
-	/**
-	 * Token type
-	 * E.g. "Bearer"
-	 */
-	tokenType: string
-	/**
-	 * Access token expiration time in ISO 8601 format
-	 * E.g. "2025-09-17T04:32:24.842636548Z"
-	 */
-	expiresAt: string
-	/**
-	 * User information associated with the token
-	 */
-	userInfo: ClineAuthApiUser
+	redirectTo?: string
+}
+
+interface InsForgeProfile {
+	id: string
+	name?: string
+	avatar_url?: string
+	createdAt?: string
+	updatedAt?: string
 }
 
 type TokenData = JwtPayload & {
 	sid?: string
 	external_id?: string
+	exp?: number
+	email?: string
 }
 
 export interface ClineAuthApiTokenExchangeResponse {
 	success: boolean
-	data: ClineAuthResponseData
+	data: {
+		accessToken: string
+		refreshToken?: string
+		tokenType: string
+		expiresAt: string
+		userInfo: { subject: string | null; email: string; name: string; clineUserId: string | null; accounts: string[] | null }
+	}
 }
 
 export interface ClineAuthApiTokenRefreshResponse {
 	success: boolean
-	data: ClineAuthResponseData
+	data: {
+		accessToken: string
+		refreshToken?: string
+		tokenType: string
+		expiresAt: string
+		userInfo: { subject: string | null; email: string; name: string; clineUserId: string | null; accounts: string[] | null }
+	}
 }
 
 export class ClineAuthProvider {
@@ -183,11 +185,15 @@ export class ClineAuthProvider {
 				return this.clearSession(controller, "Failed to parse stored auth data")
 			}
 
-			if (!storedAuthData.refreshToken || !storedAuthData?.idToken) {
-				return this.clearSession(controller, "No refresh token or ID token found in store", storedAuthData)
+			if (!storedAuthData?.idToken) {
+				return this.clearSession(controller, "No ID token found in store", storedAuthData)
 			}
 
-			if (await this.shouldRefreshIdToken(storedAuthData.refreshToken, storedAuthData.expiresAt)) {
+			if (await this.shouldRefreshIdToken(storedAuthData.refreshToken || "", storedAuthData.expiresAt)) {
+				// If no refresh token available, return stored data as-is (will re-auth on expiry)
+				if (!storedAuthData.refreshToken) {
+					return storedAuthData
+				}
 				// If the token hasn't expired yet,
 				// and it failed the first refresh attempt
 				// with something other than invalid token
@@ -258,7 +264,7 @@ export class ClineAuthProvider {
 			this.lastRefreshAttempt = 0
 
 			// Is the token valid?
-			if (storedAuthData.idToken && storedAuthData.refreshToken && storedAuthData.userInfo.id) {
+			if (storedAuthData.idToken && storedAuthData.userInfo.id) {
 				return storedAuthData
 			}
 
@@ -292,14 +298,13 @@ export class ClineAuthProvider {
 	 */
 	async refreshToken(refreshToken: string, storedData: ClineAuthInfo): Promise<ClineAuthInfo> {
 		try {
-			const endpoint = new URL(CLINE_API_ENDPOINT.REFRESH_TOKEN, this.config.apiBaseUrl)
+			const endpoint = new URL("/api/auth/refresh", this.config.apiBaseUrl)
+			endpoint.searchParams.set("client_type", "desktop")
+
 			const response = await fetch(endpoint.toString(), {
 				method: "POST",
-				headers: await this.headers(),
-				body: JSON.stringify({
-					refreshToken: storedData.refreshToken,
-					grantType: "refresh_token",
-				}),
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ refreshToken: storedData.refreshToken }),
 			})
 
 			if (!response.ok) {
@@ -308,7 +313,7 @@ export class ClineAuthProvider {
 				// 400/401 = Invalid/expired token (permanent failure)
 				if (response.status === 400 || response.status === 401) {
 					const errorData = await response.json().catch(() => ({}))
-					const errorMessage = errorData?.error || "Invalid or expired token"
+					const errorMessage = errorData?.message || errorData?.error || "Invalid or expired token"
 					throw new AuthInvalidTokenError(errorMessage)
 				}
 				// 5xx, 429, network errors = transient failures
@@ -316,19 +321,31 @@ export class ClineAuthProvider {
 				throw new AuthNetworkError(`status: ${response.status}`, errorData)
 			}
 
-			const data: ClineAuthApiTokenExchangeResponse = await response.json()
+			const data: InsForgeAuthResponse = await response.json()
 
-			if (!data.success || !data.data.refreshToken || !data.data.accessToken) {
-				throw new Error("Failed to exchange authorization code for access token")
+			if (!data.accessToken || !data.user) {
+				throw new Error("Failed to refresh access token")
 			}
 
-			const userInfo = await this.fetchRemoteUserInfo(data.data)
+			// Extract expiry from JWT payload
+			const tokenPayload = parseJwtPayload<TokenData>(data.accessToken) || {}
+			const expiresAt = tokenPayload.exp || Date.now() / 1000 + 15 * 60
+
+			// Fetch profile for display name
+			const profileName = await this.fetchInsForgeProfileName(data.accessToken, data.user.id)
+
+			const userInfo: ClineAccountUserInfo = {
+				id: data.user.id,
+				email: data.user.email,
+				displayName: profileName || data.user.email,
+				createdAt: data.user.createdAt || storedData.userInfo?.createdAt || new Date().toISOString(),
+				organizations: [],
+			}
 
 			return {
-				idToken: data.data.accessToken,
-				// data.data.expiresAt example: "2025-09-17T03:43:57Z"; store in seconds
-				expiresAt: new Date(data.data.expiresAt).getTime() / 1000,
-				refreshToken: data.data.refreshToken || refreshToken,
+				idToken: data.accessToken,
+				expiresAt,
+				refreshToken: data.refreshToken || refreshToken,
 				userInfo,
 				provider: this.name,
 				startedAt: storedData.startedAt || Date.now(),
@@ -346,96 +363,68 @@ export class ClineAuthProvider {
 		callbackUrl: string,
 		options?: { state?: string; codeChallenge?: string; codeChallengeMethod?: string },
 	): Promise<string> {
-		const authUrl = new URL(CLINE_API_ENDPOINT.AUTH, this.config.apiBaseUrl)
-		authUrl.searchParams.set("client_type", "extension")
-		authUrl.searchParams.set("callback_url", callbackUrl)
-		// Ensure the redirect_uri is properly encoded and included
-		authUrl.searchParams.set("redirect_uri", callbackUrl)
-		if (options?.state) {
-			authUrl.searchParams.set("state", options.state)
-		}
+		// Construct InsForge hosted sign-in URL directly (no server needed)
+		const signInUrl = new URL("/auth/sign-in", this.config.apiBaseUrl)
+		signInUrl.searchParams.set("redirect", callbackUrl)
+		signInUrl.searchParams.set("client_type", "desktop")
 		if (options?.codeChallenge) {
-			authUrl.searchParams.set("code_challenge", options.codeChallenge)
-			authUrl.searchParams.set("code_challenge_method", options.codeChallengeMethod || "S256")
+			signInUrl.searchParams.set("code_challenge", options.codeChallenge)
 		}
-
-		// The server will respond with a 302 redirect to the OAuth provider
-		// We need to follow the redirect and get the final URL
-		let response: Response
-		try {
-			// Set redirect: 'manual' to handle the redirect manually
-			response = await fetch(authUrl.toString(), {
-				method: "GET",
-				redirect: "manual",
-				credentials: "include", // Important for cookies if needed
-				headers: await this.headers(),
-			})
-
-			// If we get a redirect status (3xx), get the Location header
-			if (response.status >= 300 && response.status < 400) {
-				const redirectUrl = response.headers.get("Location")
-				if (!redirectUrl) {
-					throw new Error("No redirect URL found in the response")
-				}
-
-				return redirectUrl
-			}
-
-			// If we didn't get a redirect, try to parse the response as JSON
-			const responseData = await response.json()
-			if (responseData.redirect_url) {
-				return responseData.redirect_url
-			}
-
-			throw new Error("Unexpected response from auth server")
-		} catch (error) {
-			Logger.error("Error during authentication request:", error)
-			throw new Error(`Authentication failed: ${error instanceof Error ? error.message : "Unknown error"}`)
-		}
+		return signInUrl.toString()
 	}
 
 	async signIn(controller: Controller, authorizationCode: string, codeVerifier?: string): Promise<ClineAuthInfo | null> {
 		try {
-			// Get the callback URL that was used during the initial auth request
-			const callbackHost = await HostProvider.get().getCallbackUrl()
-			const callbackUrl = `${callbackHost}/auth`
+			// If the auth code is already a JWT (starts with "eyJ"), it's a direct access token
+			// from InsForge's hosted sign-in page — no exchange needed
+			if (authorizationCode.startsWith("eyJ")) {
+				return this.handleDirectToken(controller, authorizationCode)
+			}
 
-			// Exchange the authorization code for tokens
-			const tokenUrl = new URL(CLINE_API_ENDPOINT.TOKEN_EXCHANGE, this.config.apiBaseUrl)
+			// Otherwise, exchange the InsForge authorization code for tokens
+			const exchangeUrl = new URL("/api/auth/oauth/exchange", this.config.apiBaseUrl)
+			exchangeUrl.searchParams.set("client_type", "desktop")
 
-			const response = await fetch(tokenUrl.toString(), {
+			const response = await fetch(exchangeUrl.toString(), {
 				method: "POST",
-				headers: await this.headers(),
+				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({
-					grant_type: "authorization_code",
 					code: authorizationCode,
-					client_type: "extension",
-					redirect_uri: callbackUrl,
 					code_verifier: codeVerifier,
 				}),
 			})
 
 			if (!response.ok) {
 				const errorData = await response.json().catch(() => ({}))
-				throw new Error(errorData.error_description || "Failed to exchange authorization code for tokens")
+				throw new Error(errorData.message || "Failed to exchange authorization code for tokens")
 			}
 
-			const responseJSON = await response.json()
-			const responseType: ClineAuthApiTokenExchangeResponse = responseJSON
-			const tokenData = responseType.data
+			const data: InsForgeAuthResponse = await response.json()
 
-			if (!tokenData.accessToken || !tokenData.refreshToken || !tokenData.userInfo) {
-				throw new Error("Invalid token response from server")
+			if (!data.accessToken || !data.user) {
+				throw new Error("Invalid token response from InsForge")
 			}
 
-			const userInfo = await this.fetchRemoteUserInfo(tokenData)
+			// Extract expiry from JWT payload
+			const tokenPayload = parseJwtPayload<TokenData>(data.accessToken) || {}
+			const expiresAt = tokenPayload.exp || Date.now() / 1000 + 15 * 60
 
-			// Store the tokens and user info
-			const clineAuthInfo = {
-				idToken: tokenData.accessToken,
-				refreshToken: tokenData.refreshToken,
+			// Fetch profile for display name
+			const profileName = await this.fetchInsForgeProfileName(data.accessToken, data.user.id)
+
+			const userInfo: ClineAccountUserInfo = {
+				id: data.user.id,
+				email: data.user.email,
+				displayName: profileName || data.user.email,
+				createdAt: data.user.createdAt || new Date().toISOString(),
+				organizations: [],
+			}
+
+			const clineAuthInfo: ClineAuthInfo = {
+				idToken: data.accessToken,
+				refreshToken: data.refreshToken,
 				userInfo,
-				expiresAt: new Date(tokenData.expiresAt).getTime() / 1000, // "2025-09-17T04:32:24.842636548Z"
+				expiresAt,
 				provider: this.name,
 				startedAt: Date.now(),
 			}
@@ -449,37 +438,53 @@ export class ClineAuthProvider {
 		}
 	}
 
-	private async fetchRemoteUserInfo(tokenData: ClineAuthApiTokenExchangeResponse["data"]): Promise<ClineAccountUserInfo> {
-		try {
-			const userInfoUrl = new URL(CLINE_API_ENDPOINT.USER_INFO, ClineEnv.config().apiBaseUrl).toString()
-			const userResponse = await axios.get(userInfoUrl, {
-				headers: {
-					Authorization: `Bearer ${tokenData.accessToken}`,
-					...(await this.headers()),
-				},
-				...getAxiosSettings(),
-			})
+	/**
+	 * Handle a direct access token from InsForge's hosted sign-in page.
+	 * This happens when InsForge returns access_token directly instead of insforge_code.
+	 */
+	private async handleDirectToken(controller: Controller, accessToken: string): Promise<ClineAuthInfo> {
+		const tokenPayload = parseJwtPayload<TokenData>(accessToken) || {}
+		const expiresAt = tokenPayload.exp || Date.now() / 1000 + 15 * 60
+		const userId = tokenPayload.sub || ""
+		const email = tokenPayload.email || ""
 
-			return userResponse.data.data
-		} catch (error) {
-			Logger.error("Error fetching user info:", error)
+		// Fetch profile for display name
+		const profileName = userId ? await this.fetchInsForgeProfileName(accessToken, userId) : null
 
-			// If fetching user info fail for whatever reason, fallback to the token data and refetch on token expiry (10 minutes)
-			return {
-				id: tokenData.userInfo.clineUserId || "",
-				email: tokenData.userInfo.email || "",
-				displayName: tokenData.userInfo.name || "",
-				createdAt: new Date().toISOString(),
-				organizations: [],
-			}
+		const userInfo: ClineAccountUserInfo = {
+			id: userId,
+			email,
+			displayName: profileName || email,
+			createdAt: new Date().toISOString(),
+			organizations: [],
 		}
+
+		const clineAuthInfo: ClineAuthInfo = {
+			idToken: accessToken,
+			// No refresh token in direct token flow — will re-authenticate on expiry
+			refreshToken: undefined,
+			userInfo,
+			expiresAt,
+			provider: this.name,
+			startedAt: Date.now(),
+		}
+
+		controller.stateManager.setSecret("cline:clineAccountId", JSON.stringify(clineAuthInfo))
+
+		return clineAuthInfo
 	}
 
-	private async headers() {
-		return {
-			Accept: "application/json",
-			"Content-Type": "application/json",
-			...(await buildBasicClineHeaders()),
+	private async fetchInsForgeProfileName(accessToken: string, userId: string): Promise<string | null> {
+		try {
+			const profileUrl = new URL(`/api/auth/profiles/${userId}`, this.config.apiBaseUrl)
+			const res = await fetch(profileUrl.toString(), {
+				headers: { Authorization: `Bearer ${accessToken}` },
+			})
+			if (!res.ok) return null
+			const data: InsForgeProfile = await res.json()
+			return data?.name || null
+		} catch {
+			return null
 		}
 	}
 }

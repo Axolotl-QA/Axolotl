@@ -106,82 +106,6 @@
         height: 20px;
       }
 
-      /* Email row with Send code button */
-      .email-row {
-        display: flex;
-        gap: 8px;
-      }
-
-      .email-row .input-wrapper {
-        flex: 1;
-      }
-
-      .btn-send-code {
-        background: #111827;
-        color: #ffffff;
-        border: none;
-        border-radius: 10px;
-        padding: 12px 16px;
-        font-size: 13px;
-        font-weight: 600;
-        cursor: pointer;
-        white-space: nowrap;
-        transition: background-color 0.2s;
-        min-width: 90px;
-      }
-
-      .btn-send-code:hover {
-        background: #1f2937;
-      }
-
-      .btn-send-code:disabled {
-        background: #9ca3af;
-        cursor: not-allowed;
-      }
-
-      .email-hint {
-        font-size: 12px;
-        color: #9ca3af;
-        margin-top: 6px;
-      }
-
-      /* OTP input */
-      .otp-section {
-        display: none;
-        margin-bottom: 16px;
-      }
-
-      .otp-section label {
-        display: block;
-        font-size: 14px;
-        font-weight: 500;
-        color: #374151;
-        margin-bottom: 8px;
-      }
-
-      .otp-inputs {
-        display: flex;
-        gap: 6px;
-        justify-content: center;
-      }
-
-      .otp-inputs input {
-        width: 40px;
-        height: 44px;
-        border: 1px solid #d1d5db;
-        border-radius: 10px;
-        text-align: center;
-        font-size: 18px;
-        font-weight: 600;
-        outline: none;
-        transition: border-color 0.2s;
-      }
-
-      .otp-inputs input:focus {
-        border-color: #111827;
-        box-shadow: 0 0 0 3px rgba(17, 24, 39, 0.08);
-      }
-
       /* Password rules */
       .password-rules {
         margin-top: 8px;
@@ -207,7 +131,60 @@
         text-align: center;
       }
 
-      /* Create account button */
+      /* OTP verification section (shown after signup) */
+      .verify-section {
+        display: none;
+      }
+
+      .otp-inputs {
+        display: flex;
+        gap: 8px;
+        justify-content: center;
+        margin-bottom: 16px;
+      }
+
+      .otp-inputs input {
+        width: 44px;
+        height: 48px;
+        border: 1px solid #d1d5db;
+        border-radius: 10px;
+        text-align: center;
+        font-size: 20px;
+        font-weight: 600;
+        outline: none;
+        transition: border-color 0.2s;
+      }
+
+      .otp-inputs input:focus {
+        border-color: #111827;
+        box-shadow: 0 0 0 3px rgba(17, 24, 39, 0.08);
+      }
+
+      .resend-row {
+        text-align: center;
+        margin-bottom: 16px;
+      }
+
+      .resend-row button {
+        background: none;
+        border: none;
+        color: #6b7280;
+        font-size: 13px;
+        cursor: pointer;
+        text-decoration: underline;
+      }
+
+      .resend-row button:hover {
+        color: #111827;
+      }
+
+      .resend-row button:disabled {
+        color: #d1d5db;
+        cursor: not-allowed;
+        text-decoration: none;
+      }
+
+      /* Buttons */
       .btn-create {
         width: 100%;
         background: #059669;
@@ -229,6 +206,28 @@
       .btn-create:disabled {
         background: #d1d5db;
         color: #9ca3af;
+        cursor: not-allowed;
+      }
+
+      .btn-verify {
+        width: 100%;
+        background: #111827;
+        color: #ffffff;
+        border: none;
+        border-radius: 10px;
+        padding: 12px 16px;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color 0.2s;
+      }
+
+      .btn-verify:hover {
+        background: #1f2937;
+      }
+
+      .btn-verify:disabled {
+        background: #9ca3af;
         cursor: not-allowed;
       }
 
@@ -291,34 +290,84 @@
   </head>
   <body>
     <div class="card">
-      <h1>Sign up</h1>
-      <p class="subtitle">Create your account to get started</p>
+      <!-- Phase 1: Registration form -->
+      <div id="signup-phase">
+        <h1>Sign up</h1>
+        <p class="subtitle">Create your account to get started</p>
 
-      <div class="error-msg" id="error-msg"></div>
+        <div class="error-msg" id="error-msg"></div>
 
-      <!-- Full Name -->
-      <div class="form-group">
-        <label for="fullname">Full Name</label>
-        <div class="input-wrapper">
-          <input id="fullname" type="text" placeholder="Jane Doe" autocomplete="name" />
+        <!-- Full Name -->
+        <div class="form-group">
+          <label for="fullname">Full Name</label>
+          <div class="input-wrapper">
+            <input id="fullname" type="text" placeholder="Jane Doe" autocomplete="name" />
+          </div>
         </div>
-      </div>
 
-      <!-- Email + Send code -->
-      <div class="form-group">
-        <label for="email">Email</label>
-        <div class="email-row">
+        <!-- Email -->
+        <div class="form-group">
+          <label for="email">Email</label>
           <div class="input-wrapper">
             <input id="email" type="email" placeholder="you@example.com" autocomplete="email" />
           </div>
-          <button class="btn-send-code" id="send-code-btn">Send code</button>
         </div>
-        <div class="email-hint">We'll send an 8-digit code to verify your email.</div>
+
+        <!-- Password -->
+        <div class="form-group">
+          <label for="password">Password</label>
+          <div class="input-wrapper has-toggle">
+            <input id="password" type="password" placeholder="Create a strong password" autocomplete="new-password" />
+            <button type="button" class="toggle-password" id="toggle-password" aria-label="Toggle password visibility">
+              <svg class="eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                <circle cx="12" cy="12" r="3"/>
+              </svg>
+              <svg class="eye-off-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none">
+                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+                <line x1="1" y1="1" x2="23" y2="23"/>
+              </svg>
+            </button>
+          </div>
+          <div class="password-rules" id="password-rules">
+            <div class="rule" id="rule-length"><span class="icon">&#x2715;</span> At least 6 characters</div>
+          </div>
+        </div>
+
+        <!-- Confirm Password -->
+        <div class="form-group">
+          <label for="confirm-password">Confirm password</label>
+          <div class="input-wrapper has-toggle">
+            <input id="confirm-password" type="password" placeholder="Re-enter your password" autocomplete="new-password" />
+            <button type="button" class="toggle-password" id="toggle-confirm-password" aria-label="Toggle password visibility">
+              <svg class="eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                <circle cx="12" cy="12" r="3"/>
+              </svg>
+              <svg class="eye-off-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none">
+                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+                <line x1="1" y1="1" x2="23" y2="23"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <button class="btn-create" id="create-btn" disabled>Create account</button>
+
+        <div class="links">
+          Already have an account? <a href="login.html" id="login-link">Log in</a>
+        </div>
+
+        <div class="status-msg" id="status-msg"></div>
       </div>
 
-      <!-- OTP verification code -->
-      <div class="otp-section" id="otp-section">
-        <label>Verification code</label>
+      <!-- Phase 2: Email verification -->
+      <div id="verify-phase" class="verify-section">
+        <h1>Verify your email</h1>
+        <p class="subtitle" id="verify-subtitle">We sent a 6-digit code to your email. Enter it below.</p>
+
+        <div class="error-msg" id="verify-error-msg"></div>
+
         <div class="otp-inputs" id="otp-inputs">
           <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" data-index="0" />
           <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" data-index="1" />
@@ -326,86 +375,52 @@
           <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" data-index="3" />
           <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" data-index="4" />
           <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" data-index="5" />
-          <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" data-index="6" />
-          <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" data-index="7" />
         </div>
-      </div>
 
-      <!-- Password -->
-      <div class="form-group">
-        <label for="password">Password</label>
-        <div class="input-wrapper has-toggle">
-          <input id="password" type="password" placeholder="Create a strong password" autocomplete="new-password" />
-          <button type="button" class="toggle-password" id="toggle-password" aria-label="Toggle password visibility">
-            <svg class="eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-              <circle cx="12" cy="12" r="3"/>
-            </svg>
-            <svg class="eye-off-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none">
-              <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
-              <line x1="1" y1="1" x2="23" y2="23"/>
-            </svg>
-          </button>
+        <div class="resend-row">
+          <button id="resend-btn" disabled>Resend code (60s)</button>
         </div>
-        <div class="password-rules" id="password-rules">
-          <div class="rule" id="rule-length"><span class="icon">&#x2715;</span> At least 8 characters</div>
-          <div class="rule" id="rule-lower"><span class="icon">&#x2715;</span> Has a lowercase letter</div>
-          <div class="rule" id="rule-upper"><span class="icon">&#x2715;</span> Has a capital letter</div>
-          <div class="rule" id="rule-number"><span class="icon">&#x2715;</span> Has a number</div>
+
+        <button class="btn-verify" id="verify-btn" disabled>Verify email</button>
+
+        <div class="links" style="margin-top: 16px">
+          <a href="#" id="back-to-signup-link">Back to signup</a>
         </div>
+
+        <div class="status-msg" id="verify-status-msg"></div>
       </div>
-
-      <!-- Confirm Password -->
-      <div class="form-group">
-        <label for="confirm-password">Confirm password</label>
-        <div class="input-wrapper has-toggle">
-          <input id="confirm-password" type="password" placeholder="Re-enter your password" autocomplete="new-password" />
-          <button type="button" class="toggle-password" id="toggle-confirm-password" aria-label="Toggle password visibility">
-            <svg class="eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-              <circle cx="12" cy="12" r="3"/>
-            </svg>
-            <svg class="eye-off-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none">
-              <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
-              <line x1="1" y1="1" x2="23" y2="23"/>
-            </svg>
-          </button>
-        </div>
-      </div>
-
-      <button class="btn-create" id="create-btn" disabled>Create account</button>
-
-      <div class="links">
-        Already have an account? <a href="login.html" id="login-link">Log in</a>
-      </div>
-
-      <div class="status-msg" id="status-msg"></div>
     </div>
 
     <script>
       // ── Config ──
-      // Placeholders — will be replaced by build.sh or fetched from /v1/config at runtime
-      var SUPABASE_URL = "https://cxoizjoeozrtjpybgicc.supabase.co"
-      var SUPABASE_ANON_KEY = "6EB4753E-E919-4691-B6E4-65A6B6E38A04"
-      const API_BASE_URL = "https://whale-app-ae67c.ondigitalocean.app"
+      var INSFORGE_BASE_URL = "https://4zxsfry3.us-west.insforge.app"
 
-      const params = new URLSearchParams(window.location.search)
-      const state = params.get("state")
+      var params = new URLSearchParams(window.location.search)
+      var state = params.get("state")
+      var signupEmail = ""
 
-      // ── DOM elements ──
-      const fullnameInput = document.getElementById("fullname")
-      const emailInput = document.getElementById("email")
-      const passwordInput = document.getElementById("password")
-      const confirmPasswordInput = document.getElementById("confirm-password")
-      const sendCodeBtn = document.getElementById("send-code-btn")
-      const otpSection = document.getElementById("otp-section")
-      const otpInputs = document.querySelectorAll("#otp-inputs input")
-      const createBtn = document.getElementById("create-btn")
-      const errorMsg = document.getElementById("error-msg")
-      const statusMsg = document.getElementById("status-msg")
-      const loginLink = document.getElementById("login-link")
+      // ── DOM elements (Phase 1) ──
+      var fullnameInput = document.getElementById("fullname")
+      var emailInput = document.getElementById("email")
+      var passwordInput = document.getElementById("password")
+      var confirmPasswordInput = document.getElementById("confirm-password")
+      var createBtn = document.getElementById("create-btn")
+      var errorMsg = document.getElementById("error-msg")
+      var statusMsg = document.getElementById("status-msg")
+      var loginLink = document.getElementById("login-link")
+      var signupPhase = document.getElementById("signup-phase")
+      var verifyPhase = document.getElementById("verify-phase")
 
-      // ── Utility functions (defined first) ──
+      // ── DOM elements (Phase 2) ──
+      var otpInputs = document.querySelectorAll("#otp-inputs input")
+      var verifyBtn = document.getElementById("verify-btn")
+      var resendBtn = document.getElementById("resend-btn")
+      var verifyErrorMsg = document.getElementById("verify-error-msg")
+      var verifyStatusMsg = document.getElementById("verify-status-msg")
+      var verifySubtitle = document.getElementById("verify-subtitle")
+      var backToSignupLink = document.getElementById("back-to-signup-link")
+
+      // ── Utility functions ──
       function showError(msg) {
         errorMsg.textContent = msg
         errorMsg.style.display = "block"
@@ -424,20 +439,44 @@
         statusMsg.style.display = "none"
       }
 
-      // ── Navigation (set up BEFORE Supabase so it always works) ──
-      loginLink.addEventListener("click", (e) => {
+      function showVerifyError(msg) {
+        verifyErrorMsg.textContent = msg
+        verifyErrorMsg.style.display = "block"
+      }
+
+      function hideVerifyError() {
+        verifyErrorMsg.style.display = "none"
+      }
+
+      function showVerifyStatus(msg) {
+        verifyStatusMsg.innerHTML = '<span class="spinner"></span>' + msg
+        verifyStatusMsg.style.display = "block"
+      }
+
+      function hideVerifyStatus() {
+        verifyStatusMsg.style.display = "none"
+      }
+
+      // ── Navigation ──
+      loginLink.addEventListener("click", function (e) {
         e.preventDefault()
-        const loginUrl = state
+        var loginUrl = state
           ? "login.html?state=" + encodeURIComponent(state)
           : "login.html"
         window.location.href = loginUrl
       })
 
+      backToSignupLink.addEventListener("click", function (e) {
+        e.preventDefault()
+        verifyPhase.style.display = "none"
+        signupPhase.style.display = "block"
+      })
+
       // ── Password toggle ──
       function setupPasswordToggle(btnId, input) {
-        const btn = document.getElementById(btnId)
-        btn.addEventListener("click", () => {
-          const isPassword = input.type === "password"
+        var btn = document.getElementById(btnId)
+        btn.addEventListener("click", function () {
+          var isPassword = input.type === "password"
           input.type = isPassword ? "text" : "password"
           btn.querySelector(".eye-icon").style.display = isPassword ? "none" : "block"
           btn.querySelector(".eye-off-icon").style.display = isPassword ? "block" : "none"
@@ -446,19 +485,16 @@
       setupPasswordToggle("toggle-password", passwordInput)
       setupPasswordToggle("toggle-confirm-password", confirmPasswordInput)
 
-      // ── Password strength validation ──
-      const rules = {
-        length: (pw) => pw.length >= 8,
-        lower: (pw) => /[a-z]/.test(pw),
-        upper: (pw) => /[A-Z]/.test(pw),
-        number: (pw) => /[0-9]/.test(pw),
+      // ── Password strength validation (InsForge: min 6 chars) ──
+      var rules = {
+        length: function (pw) { return pw.length >= 6 },
       }
 
-      passwordInput.addEventListener("input", () => {
-        const pw = passwordInput.value
-        Object.entries(rules).forEach(([key, check]) => {
-          const ruleEl = document.getElementById("rule-" + key)
-          const passed = check(pw)
+      passwordInput.addEventListener("input", function () {
+        var pw = passwordInput.value
+        Object.keys(rules).forEach(function (key) {
+          var ruleEl = document.getElementById("rule-" + key)
+          var passed = rules[key](pw)
           ruleEl.classList.toggle("passed", passed)
           ruleEl.querySelector(".icon").innerHTML = passed ? "&#x2713;" : "&#x2715;"
         })
@@ -467,64 +503,22 @@
 
       confirmPasswordInput.addEventListener("input", updateCreateButton)
       fullnameInput.addEventListener("input", updateCreateButton)
-
-      // ── OTP input handling ──
-      otpInputs.forEach((input, index) => {
-        input.addEventListener("input", (e) => {
-          const value = e.target.value
-          if (!/^\d*$/.test(value)) {
-            e.target.value = ""
-            return
-          }
-          if (value && index < 7) {
-            otpInputs[index + 1].focus()
-          }
-          updateCreateButton()
-        })
-
-        input.addEventListener("keydown", (e) => {
-          if (e.key === "Backspace" && !e.target.value && index > 0) {
-            otpInputs[index - 1].focus()
-          }
-        })
-
-        input.addEventListener("paste", (e) => {
-          e.preventDefault()
-          const pastedData = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 8)
-          pastedData.split("").forEach((char, i) => {
-            if (otpInputs[i]) {
-              otpInputs[i].value = char
-            }
-          })
-          const focusIndex = Math.min(pastedData.length, 7)
-          otpInputs[focusIndex].focus()
-          updateCreateButton()
-        })
-      })
-
-      // ── State & validation helpers ──
-      let codeSent = false
-      let countdownTimer = null
-
-      function getOtpCode() {
-        return Array.from(otpInputs).map((i) => i.value).join("")
-      }
+      emailInput.addEventListener("input", updateCreateButton)
 
       function allPasswordRulesPassed() {
-        const pw = passwordInput.value
-        return Object.values(rules).every((check) => check(pw))
+        var pw = passwordInput.value
+        return Object.keys(rules).every(function (key) { return rules[key](pw) })
       }
 
       function updateCreateButton() {
-        const otp = getOtpCode()
-        const pw = passwordInput.value
-        const confirmPw = confirmPasswordInput.value
-        const name = fullnameInput.value.trim()
+        var pw = passwordInput.value
+        var confirmPw = confirmPasswordInput.value
+        var name = fullnameInput.value.trim()
+        var email = emailInput.value.trim()
 
-        const valid =
-          codeSent &&
-          otp.length === 8 &&
+        var valid =
           name.length > 0 &&
+          email.length > 0 &&
           allPasswordRulesPassed() &&
           pw === confirmPw &&
           confirmPw.length > 0
@@ -532,102 +526,76 @@
         createBtn.disabled = !valid
       }
 
-      function startCountdown(seconds) {
-        let remaining = seconds
-        sendCodeBtn.disabled = true
-        sendCodeBtn.textContent = remaining + "s"
+      // ── OTP input handling (6 digits) ──
+      otpInputs.forEach(function (input, index) {
+        input.addEventListener("input", function (e) {
+          var value = e.target.value
+          if (!/^\d*$/.test(value)) {
+            e.target.value = ""
+            return
+          }
+          if (value && index < 5) {
+            otpInputs[index + 1].focus()
+          }
+          updateVerifyButton()
+        })
 
-        countdownTimer = setInterval(() => {
+        input.addEventListener("keydown", function (e) {
+          if (e.key === "Backspace" && !e.target.value && index > 0) {
+            otpInputs[index - 1].focus()
+          }
+        })
+
+        input.addEventListener("paste", function (e) {
+          e.preventDefault()
+          var pastedData = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6)
+          pastedData.split("").forEach(function (char, i) {
+            if (otpInputs[i]) {
+              otpInputs[i].value = char
+            }
+          })
+          var focusIndex = Math.min(pastedData.length, 5)
+          otpInputs[focusIndex].focus()
+          updateVerifyButton()
+        })
+      })
+
+      function getOtpCode() {
+        return Array.from(otpInputs).map(function (i) { return i.value }).join("")
+      }
+
+      function updateVerifyButton() {
+        verifyBtn.disabled = getOtpCode().length !== 6
+      }
+
+      // ── Countdown for resend ──
+      var countdownTimer = null
+
+      function startCountdown(seconds) {
+        var remaining = seconds
+        resendBtn.disabled = true
+        resendBtn.textContent = "Resend code (" + remaining + "s)"
+
+        countdownTimer = setInterval(function () {
           remaining--
           if (remaining <= 0) {
             clearInterval(countdownTimer)
-            sendCodeBtn.disabled = false
-            sendCodeBtn.textContent = "Resend"
+            resendBtn.disabled = false
+            resendBtn.textContent = "Resend code"
           } else {
-            sendCodeBtn.textContent = remaining + "s"
+            resendBtn.textContent = "Resend code (" + remaining + "s)"
           }
         }, 1000)
       }
-    </script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script>
-      // ── Supabase initialization (separate block so UI always works) ──
-      var supabaseClient = null
 
-      async function initSupabase() {
-        // If build.sh didn't replace the placeholder (UUID is 36 chars, real JWT is 200+), fetch from server
-        if (SUPABASE_ANON_KEY.length < 100) {
-          try {
-            const res = await fetch(API_BASE_URL + "/v1/config")
-            const cfg = await res.json()
-            SUPABASE_URL = cfg.supabaseUrl
-            SUPABASE_ANON_KEY = cfg.supabaseAnonKey
-          } catch (err) {
-            console.error("Failed to fetch config:", err)
-            showError("Failed to load configuration. Please try again later.")
-            return
-          }
-        }
-        try {
-          supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
-        } catch (err) {
-          console.error("Failed to initialize Supabase client:", err)
-          showError("Failed to initialize authentication. Please try again later.")
-        }
-      }
-
-      initSupabase()
-
-      // ── Send code (only requires email — sends 8-digit OTP) ──
-      sendCodeBtn.addEventListener("click", sendCode)
-
-      async function sendCode() {
-        if (!supabaseClient) { showError("Authentication service unavailable."); return }
-        const email = emailInput.value.trim()
-        if (!email) {
-          showError("Please enter your email address.")
-          return
-        }
-        hideError()
-        sendCodeBtn.disabled = true
-        showStatus("Sending verification code...")
-
-        try {
-          const { error } = await supabaseClient.auth.signInWithOtp({
-            email,
-            options: { shouldCreateUser: true },
-          })
-
-          if (error) {
-            sendCodeBtn.disabled = false
-            hideStatus()
-            showError(error.message)
-            return
-          }
-
-          codeSent = true
-          hideStatus()
-          otpSection.style.display = "block"
-          otpInputs[0].focus()
-          startCountdown(60)
-          updateCreateButton()
-        } catch (err) {
-          sendCodeBtn.disabled = false
-          hideStatus()
-          showError(err.message || "Failed to send verification code.")
-        }
-      }
-
-      // ── Create account (verify OTP, then set password and name) ──
+      // ── Create account ──
       createBtn.addEventListener("click", createAccount)
 
-      async function createAccount() {
-        if (!supabaseClient) { showError("Authentication service unavailable."); return }
-        const email = emailInput.value.trim()
-        const fullName = fullnameInput.value.trim()
-        const password = passwordInput.value
-        const confirmPw = confirmPasswordInput.value
-        const otpCode = getOtpCode()
+      function createAccount() {
+        var email = emailInput.value.trim()
+        var password = passwordInput.value
+        var confirmPw = confirmPasswordInput.value
+        var fullName = fullnameInput.value.trim()
 
         if (password !== confirmPw) {
           showError("Passwords do not match.")
@@ -638,48 +606,107 @@
         createBtn.disabled = true
         showStatus("Creating your account...")
 
-        try {
-          // Step 1: Verify OTP
-          const { data, error } = await supabaseClient.auth.verifyOtp({
-            email,
-            token: otpCode,
-            type: "email",
+        fetch(INSFORGE_BASE_URL + "/api/auth/users?client_type=desktop", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: email, password: password, name: fullName }),
+        })
+          .then(function (res) {
+            return res.json().then(function (data) { return { ok: res.ok, status: res.status, data: data } })
           })
-
-          if (error) {
-            createBtn.disabled = false
+          .then(function (result) {
             hideStatus()
-            showError(error.message)
-            return
-          }
 
-          // Step 2: Set password and full name
-          const { error: updateError } = await supabaseClient.auth.updateUser({
-            password,
-            data: { full_name: fullName },
+            if (!result.ok) {
+              createBtn.disabled = false
+              showError(result.data.message || "Failed to create account.")
+              return
+            }
+
+            signupEmail = email
+
+            if (result.data.requireEmailVerification) {
+              // Show verification phase
+              verifySubtitle.textContent = "We sent a 6-digit code to " + email + ". Enter it below."
+              signupPhase.style.display = "none"
+              verifyPhase.style.display = "block"
+              otpInputs[0].focus()
+              startCountdown(60)
+            } else {
+              // No verification needed, redirect to login
+              var loginUrl = state
+                ? "login.html?state=" + encodeURIComponent(state) + "&registered=true"
+                : "login.html?registered=true"
+              window.location.href = loginUrl
+            }
           })
-
-          if (updateError) {
-            createBtn.disabled = false
+          .catch(function (err) {
             hideStatus()
-            showError(updateError.message)
-            return
-          }
+            createBtn.disabled = false
+            showError(err.message || "Failed to create account.")
+          })
+      }
 
-          // Step 3: Sign out so user logs in with password through the full auth flow
-          await supabaseClient.auth.signOut()
+      // ── Resend verification code ──
+      resendBtn.addEventListener("click", function () {
+        if (!signupEmail) return
+        hideVerifyError()
+        resendBtn.disabled = true
 
-          // Step 4: Redirect to login page
-          hideStatus()
-          const loginUrl = state
-            ? "login.html?state=" + encodeURIComponent(state) + "&registered=true"
-            : "login.html?registered=true"
-          window.location.href = loginUrl
-        } catch (err) {
-          createBtn.disabled = false
-          hideStatus()
-          showError(err.message || "Failed to create account.")
-        }
+        fetch(INSFORGE_BASE_URL + "/api/auth/email/send-verification", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: signupEmail }),
+        })
+          .then(function (res) { return res.json() })
+          .then(function () {
+            startCountdown(60)
+          })
+          .catch(function (err) {
+            resendBtn.disabled = false
+            showVerifyError(err.message || "Failed to resend code.")
+          })
+      })
+
+      // ── Verify email ──
+      verifyBtn.addEventListener("click", verifyEmail)
+
+      function verifyEmail() {
+        var otpCode = getOtpCode()
+        if (otpCode.length !== 6) return
+
+        hideVerifyError()
+        verifyBtn.disabled = true
+        showVerifyStatus("Verifying your email...")
+
+        fetch(INSFORGE_BASE_URL + "/api/auth/email/verify?client_type=desktop", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: signupEmail, otp: otpCode }),
+        })
+          .then(function (res) {
+            return res.json().then(function (data) { return { ok: res.ok, data: data } })
+          })
+          .then(function (result) {
+            hideVerifyStatus()
+
+            if (!result.ok) {
+              verifyBtn.disabled = false
+              showVerifyError(result.data.message || "Invalid verification code.")
+              return
+            }
+
+            // Verification successful — redirect to login
+            var loginUrl = state
+              ? "login.html?state=" + encodeURIComponent(state) + "&registered=true"
+              : "login.html?registered=true"
+            window.location.href = loginUrl
+          })
+          .catch(function (err) {
+            hideVerifyStatus()
+            verifyBtn.disabled = false
+            showVerifyError(err.message || "Failed to verify email.")
+          })
       }
     </script>
   </body>
