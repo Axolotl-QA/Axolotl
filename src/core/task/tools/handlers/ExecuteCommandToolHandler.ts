@@ -180,7 +180,7 @@ export class ExecuteCommandToolHandler implements IFullyManagedTool {
 		} else {
 			// Manual approval flow
 			showNotificationForApproval(
-				`Sentinel wants to execute a command: ${actualCommand}`,
+				`Axolotl wants to execute a command: ${actualCommand}`,
 				config.autoApprovalSettings.enableNotifications,
 			)
 

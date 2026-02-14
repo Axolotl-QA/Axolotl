@@ -103,7 +103,7 @@ export class WebSearchToolHandler implements IFullyManagedTool {
 			} else {
 				// Manual approval flow
 				showNotificationForApproval(
-					`Sentinel wants to search for: ${query}`,
+					`Axolotl wants to search for: ${query}`,
 					config.autoApprovalSettings.enableNotifications,
 				)
 				await config.callbacks.removeLastPartialMessageIfExistsWithType("say", "tool")

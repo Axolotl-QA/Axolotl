@@ -38,8 +38,8 @@ export class NewTaskHandler implements IToolHandler, IPartialBlockHandler {
 		// Show notification if enabled
 		if (config.autoApprovalSettings.enableNotifications) {
 			showSystemNotification({
-				subtitle: "Sentinel wants to start a new task...",
-				message: `Sentinel is suggesting to start a new task with: ${context}`,
+				subtitle: "Axolotl wants to start a new task...",
+				message: `Axolotl is suggesting to start a new task with: ${context}`,
 			})
 		}
 

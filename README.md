@@ -1,12 +1,12 @@
-# Sentinel
+# Axolotl
 
 <p align="center">
-  <img src="./assets/docs/sentinel-banner.png" width="100%" alt="Sentinel - AI QA Agent for VS Code" />
+  <img src="./assets/docs/axolotl-banner.png" width="100%" alt="Axolotl - AI QA Agent for VS Code" />
 </p>
 
-**Sentinel is an AI-powered QA Agent that lives in your VS Code workspace.**
+**Axolotl is an AI-powered QA Agent that lives in your VS Code workspace.**
 
-Unlike traditional testing frameworks, Sentinel acts as your automated QA engineer during the PR review phase. It doesn't aim for 100% test coverage—instead, it focuses on **evidence-driven validation** of main flows to help you decide: **"Is this PR functional?"**
+Unlike traditional testing frameworks, Axolotl acts as your automated QA engineer during the PR review phase. It doesn't aim for 100% test coverage—instead, it focuses on **evidence-driven validation** of main flows to help you decide: **"Is this PR functional?"**
 
 ## 🎯 Product Positioning
 
@@ -15,9 +15,9 @@ Unlike traditional testing frameworks, Sentinel acts as your automated QA engine
 - **Main flow focused**: Validates critical paths, not exhaustive edge cases
 - **Merge confidence**: Final output is a clear recommendation on merge safety
 
-> **Sentinel ≠ Test Framework**
-> **Sentinel ≠ CI/CD Pipeline**
-> **Sentinel = Your QA teammate during PR review**
+> **Axolotl ≠ Test Framework**
+> **Axolotl ≠ CI/CD Pipeline**
+> **Axolotl = Your QA teammate during PR review**
 
 ---
 
@@ -32,7 +32,7 @@ Unlike traditional testing frameworks, Sentinel acts as your automated QA engine
            │
            ▼
 ┌─────────────────────────┐
-│ Sentinel Orchestrator   │  ← Core Intelligence
+│ Axolotl Orchestrator   │  ← Core Intelligence
 │  - State Machine / DAG  │
 │  - QA Rules Engine      │
 │  - Evidence Aggregation │
@@ -64,8 +64,8 @@ Unlike traditional testing frameworks, Sentinel acts as your automated QA engine
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/sentinel.git
-cd sentinel
+git clone https://github.com/yourusername/axolotl.git
+cd axolotl
 
 # Install dependencies
 npm run install:all
@@ -92,9 +92,9 @@ npm run package
 ### First Run
 
 1. Open VS Code Command Palette (`Cmd+Shift+P` or `Ctrl+Shift+P`)
-2. Run: `Sentinel: Run QA for this PR`
+2. Run: `Axolotl: Run QA for this PR`
 3. Configure your AI model provider (OpenAI, Anthropic, etc.) when prompted
-4. Let Sentinel analyze your changes and generate a test plan
+4. Let Axolotl analyze your changes and generate a test plan
 
 ---
 
@@ -102,7 +102,7 @@ npm run package
 
 ### 1. **Test Context Selection**
 
-Sentinel supports two ways to understand what to test:
+Axolotl supports two ways to understand what to test:
 
 **Option A: Current PR (Recommended)**
 - Automatically reads `git diff`
@@ -116,23 +116,23 @@ Sentinel supports two ways to understand what to test:
 
 ### 2. **Intelligent Log Injection**
 
-One of Sentinel's key differentiators:
+One of Axolotl's key differentiators:
 
 - Automatically identifies critical functions in your main flow
 - Injects test-specific logging statements when needed
 - Uses logs as **behavioral evidence** during test execution
-- Marks injected logs with `// SENTINEL_TEST_LOG` for easy cleanup
+- Marks injected logs with `// AXOLOTL_TEST_LOG` for easy cleanup
 
 Example:
 ```typescript
-console.log("[SENTINEL] submitForm called", payload)
+console.log("[AXOLOTL] submitForm called", payload)
 ```
 
 **Philosophy**: Success isn't just about UI feedback—it's about proving the right code path executed.
 
 ### 3. **Build & Environment Validation**
 
-Before running tests, Sentinel:
+Before running tests, Axolotl:
 - Installs dependencies (`npm install`)
 - Starts your dev server (`npm run dev`)
 - Validates process health (port listening, HTTP 200 responses)
@@ -142,7 +142,7 @@ Before running tests, Sentinel:
 
 ### 4. **Test Plan Generation**
 
-Sentinel creates an executable test plan based on your changes:
+Axolotl creates an executable test plan based on your changes:
 
 ```json
 [
@@ -160,7 +160,7 @@ Sentinel creates an executable test plan based on your changes:
       "click submit button"
     ],
     "expected_logs": [
-      "[SENTINEL] submitForm called"
+      "[AXOLOTL] submitForm called"
     ]
   }
 ]
@@ -173,7 +173,7 @@ Each test includes:
 
 ### 5. **Execution with Evidence Collection**
 
-For each test, Sentinel:
+For each test, Axolotl:
 - Launches browser and performs UI interactions
 - Monitors terminal output and application logs
 - Compares actual logs against expected behavior
@@ -203,7 +203,7 @@ Final output: `report.json`
       "id": "main_flow_submit",
       "result": "pass",
       "evidence": {
-        "logs": ["[SENTINEL] submitForm called"],
+        "logs": ["[AXOLOTL] submitForm called"],
         "ui_actions": ["click submit"],
         "screenshots": ["screenshot-001.png"]
       }
@@ -216,30 +216,30 @@ Final output: `report.json`
 ```
 
 This report is:
-- Displayed in the Sentinel Side Panel
+- Displayed in the Axolotl Side Panel
 - Can be posted as PR comment
 - Machine-readable for future trend analysis
 
 ---
 
-## 🎮 Using Sentinel
+## 🎮 Using Axolotl
 
 ### Command Palette Commands
 
 ```
-Sentinel: Run QA for this PR
-Sentinel: Run QA (manual context)
-Sentinel: Re-run last QA
-Sentinel: Open QA Report
+Axolotl: Run QA for this PR
+Axolotl: Run QA (manual context)
+Axolotl: Re-run last QA
+Axolotl: Open QA Report
 ```
 
 ### Side Panel Interface
 
-The Sentinel Side Panel is your QA control center:
+The Axolotl Side Panel is your QA control center:
 
 ```
 ┌──────────────────────────────┐
-│ Sentinel QA                  │
+│ Axolotl QA                  │
 ├──────────────────────────────┤
 │ [1] Test Context             │
 │  ○ Current PR: #123          │
@@ -265,9 +265,9 @@ The Sentinel Side Panel is your QA control center:
 ### Typical Workflow
 
 1. **Create a PR** with your changes
-2. **Run Sentinel** via Command Palette
+2. **Run Axolotl** via Command Palette
 3. **Review generated test plan** in Side Panel
-4. **Watch execution** as Sentinel:
+4. **Watch execution** as Axolotl:
    - Injects logs if needed
    - Builds and starts your app
    - Runs UI tests
@@ -345,10 +345,10 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
 
 [Apache 2.0](./LICENSE)
 
-**Sentinel** is a derivative work based on [Cline](https://github.com/cline/cline), originally developed by Cline Bot Inc.
+**Axolotl** is a derivative work based on [Cline](https://github.com/cline/cline), originally developed by Cline Bot Inc.
 
 - Original work: Copyright 2025 Cline Bot Inc.
-- Modifications for Sentinel: Copyright 2025 Sentinel Contributors
+- Modifications for Axolotl: Copyright 2025 Axolotl Contributors
 
 This project is licensed under the Apache License, Version 2.0. See [LICENSE](./LICENSE) for the full license text.
 
@@ -356,28 +356,28 @@ This project is licensed under the Apache License, Version 2.0. See [LICENSE](./
 
 ## 🙋 FAQ
 
-**Q: Does Sentinel replace my existing test suite?**
-A: No. Sentinel is a **PR-stage QA assistant**, not a replacement for unit/integration tests. Use it to validate main flows before merging.
+**Q: Does Axolotl replace my existing test suite?**
+A: No. Axolotl is a **PR-stage QA assistant**, not a replacement for unit/integration tests. Use it to validate main flows before merging.
 
-**Q: Can Sentinel fix bugs automatically?**
-A: Not in the MVP. Sentinel focuses on **detection and reporting**. Auto-fixing may come in future versions.
+**Q: Can Axolotl fix bugs automatically?**
+A: Not in the MVP. Axolotl focuses on **detection and reporting**. Auto-fixing may come in future versions.
 
-**Q: Which AI models does Sentinel support?**
+**Q: Which AI models does Axolotl support?**
 A: Any model compatible with OpenAI API format, including:
 - OpenAI (GPT-4, GPT-4 Turbo)
 - Anthropic (Claude Sonnet, Opus)
 - OpenRouter (access to multiple providers)
 - Local models via LM Studio/Ollama
 
-**Q: Can I use Sentinel on private repositories?**
-A: Yes. Sentinel runs entirely in your local VS Code environment. Your code never leaves your machine (except API calls to your chosen LLM provider).
+**Q: Can I use Axolotl on private repositories?**
+A: Yes. Axolotl runs entirely in your local VS Code environment. Your code never leaves your machine (except API calls to your chosen LLM provider).
 
 **Q: How is this different from Playwright or Cypress?**
-A: Traditional frameworks require you to **write** tests. Sentinel **generates and executes** tests based on PR changes, then gives you a merge recommendation.
+A: Traditional frameworks require you to **write** tests. Axolotl **generates and executes** tests based on PR changes, then gives you a merge recommendation.
 
 ---
 
-## 🌟 Why Sentinel?
+## 🌟 Why Axolotl?
 
 Traditional QA approaches:
 - ❌ Manual testing is slow and error-prone
@@ -385,11 +385,11 @@ Traditional QA approaches:
 - ❌ CI only catches issues after merge
 - ❌ No holistic "should I merge?" answer
 
-**Sentinel approach:**
+**Axolotl approach:**
 - ✅ Automatically understands what changed
 - ✅ Generates relevant tests on-the-fly
 - ✅ Validates before merge, not after
 - ✅ Evidence-driven merge decisions
 
-**Sentinel brings QA into your development flow, not as an afterthought.**
+**Axolotl brings QA into your development flow, not as an afterthought.**
 

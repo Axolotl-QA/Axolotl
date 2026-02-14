@@ -2,15 +2,15 @@ import { ModelFamily } from "@/shared/prompts"
 import { ClineDefaultTool } from "@/shared/tools"
 import type { ClineToolSpec } from "../spec"
 
-const id = ClineDefaultTool.SENTINEL_DETECT_CHANGES
+const id = ClineDefaultTool.AXOLOTL_DETECT_CHANGES
 
 const GENERIC: ClineToolSpec = {
 	variant: ModelFamily.GENERIC,
 	id,
-	name: "sentinel_detect_changes",
-	description: `Detect and analyze code changes for Sentinel QA testing. This tool identifies files that have been modified based on the specified source (uncommitted changes, PR, or specific files) and prepares them for testing.
+	name: "axolotl_detect_changes",
+	description: `Detect and analyze code changes for Axolotl QA testing. This tool identifies files that have been modified based on the specified source (uncommitted changes, PR, or specific files) and prepares them for testing.
 
-Use this tool as the FIRST step in a Sentinel QA workflow to:
+Use this tool as the FIRST step in a Axolotl QA workflow to:
 1. Detect which files have changed
 2. Get the diff content for analysis
 3. Allow the user to confirm the test scope before proceeding
@@ -49,4 +49,4 @@ Example: ["src/auth/login.ts", "src/components/LoginForm.tsx"]`,
 	],
 }
 
-export const sentinel_detect_changes_variants = [GENERIC]
+export const axolotl_detect_changes_variants = [GENERIC]

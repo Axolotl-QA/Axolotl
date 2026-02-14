@@ -110,8 +110,8 @@ export const BUTTON_CONFIGS: Record<string, ButtonConfig> = {
 		secondaryAction: undefined,
 	},
 
-	// Sentinel QA plan confirmation
-	sentinel_confirm_plan: {
+	// Axolotl QA plan confirmation
+	axolotl_confirm_plan: {
 		sendingDisabled: false,
 		enableButtons: true,
 		primaryText: "Approve Plan",
@@ -119,7 +119,7 @@ export const BUTTON_CONFIGS: Record<string, ButtonConfig> = {
 		primaryAction: "approve",
 		secondaryAction: "reject",
 	},
-	sentinel_confirm_changes: {
+	axolotl_confirm_changes: {
 		sendingDisabled: false,
 		enableButtons: true,
 		primaryText: "Proceed",
@@ -272,11 +272,11 @@ export function getButtonConfig(message: ClineMessage | undefined, _mode: Mode =
 			case "command_output":
 				return BUTTON_CONFIGS.command_output
 
-			// Sentinel QA approvals
-			case "sentinel_confirm_plan":
-				return BUTTON_CONFIGS.sentinel_confirm_plan
-			case "sentinel_confirm_changes":
-				return BUTTON_CONFIGS.sentinel_confirm_changes
+			// Axolotl QA approvals
+			case "axolotl_confirm_plan":
+				return BUTTON_CONFIGS.axolotl_confirm_plan
+			case "axolotl_confirm_changes":
+				return BUTTON_CONFIGS.axolotl_confirm_changes
 
 			// Standard approvals
 			case "followup":

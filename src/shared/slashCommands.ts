@@ -52,7 +52,7 @@ export const VSCODE_ONLY_COMMANDS: SlashCommand[] = [
 		section: "default",
 	},
 	{
-		name: "sentinel-qa",
+		name: "type",
 		description: "Run automated QA testing on selected files with PRD/spec",
 		section: "default",
 	},

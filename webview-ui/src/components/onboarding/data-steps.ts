@@ -12,11 +12,11 @@ type UserTypeSelection = {
 
 export const STEP_CONFIG = {
 	0: {
-		title: "How will you use Sentinel?",
+		title: "How will you use Axolotl?",
 		description: "Select an option below to get started.",
 		buttons: [
 			{ text: "Continue", action: "next", variant: "default" },
-			{ text: "Login to Sentinel", action: "signin", variant: "secondary" },
+			{ text: "Login to Axolotl", action: "signin", variant: "secondary" },
 		],
 	},
 	[NEW_USER_TYPE.FREE]: {
@@ -50,5 +50,5 @@ export const STEP_CONFIG = {
 export const USER_TYPE_SELECTIONS: UserTypeSelection[] = [
 	{ title: "Absolutely Free", description: "Get started at no cost", type: NEW_USER_TYPE.FREE },
 	{ title: "Frontier Model", description: "Claude 4.5, GPT-5 Codex, etc", type: NEW_USER_TYPE.POWER },
-	{ title: "Bring my own API key", description: "Use Sentinel with your provider of choice", type: NEW_USER_TYPE.BYOK },
+	{ title: "Bring my own API key", description: "Use Axolotl with your provider of choice", type: NEW_USER_TYPE.BYOK },
 ]

@@ -1,6 +1,6 @@
 import type { ToolUse } from "@core/assistant-message"
 import { formatResponse } from "@core/prompts/responses"
-import type { ClineSaySentinelDetectChanges } from "@/shared/ExtensionMessage"
+import type { ClineSayAxolotlDetectChanges } from "@/shared/ExtensionMessage"
 import { ClineDefaultTool } from "@/shared/tools"
 import type { ToolResponse } from "../../index"
 import type { IPartialBlockHandler, IToolHandler } from "../ToolExecutorCoordinator"
@@ -28,14 +28,14 @@ interface DetectionResult {
 }
 
 /**
- * Helper to create a stringified ClineSaySentinelDetectChanges message
+ * Helper to create a stringified ClineSayAxolotlDetectChanges message
  */
 function createDetectionMessage(
-	status: ClineSaySentinelDetectChanges["status"],
+	status: ClineSayAxolotlDetectChanges["status"],
 	result?: DetectionResult,
 	error?: string,
 ): string {
-	const message: ClineSaySentinelDetectChanges = { status }
+	const message: ClineSayAxolotlDetectChanges = { status }
 	if (result) {
 		message.result = result
 	}
@@ -45,8 +45,8 @@ function createDetectionMessage(
 	return JSON.stringify(message)
 }
 
-export class SentinelDetectChangesHandler implements IToolHandler, IPartialBlockHandler {
-	readonly name = ClineDefaultTool.SENTINEL_DETECT_CHANGES
+export class AxolotlDetectChangesHandler implements IToolHandler, IPartialBlockHandler {
+	readonly name = ClineDefaultTool.AXOLOTL_DETECT_CHANGES
 
 	getDescription(block: ToolUse): string {
 		const source = block.params.source || "unknown"
@@ -56,7 +56,7 @@ export class SentinelDetectChangesHandler implements IToolHandler, IPartialBlock
 	async handlePartialBlock(_block: ToolUse, uiHelpers: StronglyTypedUIHelpers): Promise<void> {
 		// Show loading message for partial blocks
 		const messageText = createDetectionMessage("detecting")
-		await uiHelpers.say("sentinel_detect_changes", messageText, undefined, undefined, true)
+		await uiHelpers.say("axolotl_detect_changes", messageText, undefined, undefined, true)
 	}
 
 	async execute(config: TaskConfig, block: ToolUse): Promise<ToolResponse> {
@@ -92,7 +92,7 @@ export class SentinelDetectChangesHandler implements IToolHandler, IPartialBlock
 
 		// Show loading message
 		await config.callbacks.say(
-			"sentinel_detect_changes",
+			"axolotl_detect_changes",
 			createDetectionMessage("detecting"),
 			undefined,
 			undefined,
@@ -124,7 +124,7 @@ export class SentinelDetectChangesHandler implements IToolHandler, IPartialBlock
 			// Check if any changes were found
 			if (result.changes.length === 0) {
 				await config.callbacks.say(
-					"sentinel_detect_changes",
+					"axolotl_detect_changes",
 					createDetectionMessage("no_changes", result),
 					undefined,
 					undefined,
@@ -140,7 +140,7 @@ export class SentinelDetectChangesHandler implements IToolHandler, IPartialBlock
 			const confirmMessage = this.buildConfirmationMessage(result, prdDescription)
 
 			const { response, text: userFeedback } = await config.callbacks.ask(
-				"sentinel_confirm_changes",
+				"axolotl_confirm_changes",
 				JSON.stringify({
 					message: confirmMessage,
 					result: result,
@@ -155,18 +155,18 @@ export class SentinelDetectChangesHandler implements IToolHandler, IPartialBlock
 				(userFeedback?.toLowerCase().includes("cancel"))
 			) {
 				await config.callbacks.say(
-					"sentinel_detect_changes",
+					"axolotl_detect_changes",
 					createDetectionMessage("cancelled", result),
 					undefined,
 					undefined,
 					false,
 				)
-				return formatResponse.toolResult("User cancelled the Sentinel QA test.")
+				return formatResponse.toolResult("User cancelled the Axolotl QA test.")
 			}
 
 			// User confirmed, show completion message
 			await config.callbacks.say(
-				"sentinel_detect_changes",
+				"axolotl_detect_changes",
 				createDetectionMessage("confirmed", result),
 				undefined,
 				undefined,
@@ -175,7 +175,7 @@ export class SentinelDetectChangesHandler implements IToolHandler, IPartialBlock
 
 			// Return the result for the next tool in the workflow
 			return formatResponse.toolResult(
-				`Sentinel QA: Changes Detected and Confirmed
+				`Axolotl QA: Changes Detected and Confirmed
 
 Source: ${result.source}
 Total Files: ${result.totalFiles}
@@ -189,14 +189,14 @@ ${prdDescription ? `PRD Description: ${prdDescription}` : ""}
 
 ${result.diff ? `\nDiff Summary:\n${result.diff.substring(0, 2000)}${result.diff.length > 2000 ? "\n... (truncated)" : ""}` : ""}
 
-User has confirmed. Proceed to generate a test plan using sentinel_generate_plan tool.`,
+User has confirmed. Proceed to generate a test plan using axolotl_generate_plan tool.`,
 			)
 		} catch (error) {
 			const errorMessage = error instanceof Error ? error.message : "Unknown error"
-			console.error("Error in sentinel_detect_changes:", errorMessage)
+			console.error("Error in axolotl_detect_changes:", errorMessage)
 
 			await config.callbacks.say(
-				"sentinel_detect_changes",
+				"axolotl_detect_changes",
 				createDetectionMessage("error", undefined, errorMessage),
 				undefined,
 				undefined,
@@ -372,7 +372,7 @@ User has confirmed. Proceed to generate a test plan using sentinel_generate_plan
 		const moreFiles =
 			result.changes.length > 10 ? `\n  ... and ${result.changes.length - 10} more files` : ""
 
-		return `🔍 **Sentinel QA: Changes Detected**
+		return `🔍 **Axolotl QA: Changes Detected**
 
 **Source:** ${result.source}
 **Total Files:** ${result.totalFiles}

@@ -50,7 +50,7 @@ export const toolParamNames = [
 	"to_ref",
 	"skill_name",
 	"report_json",
-	// Sentinel QA tool parameters
+	// Axolotl QA tool parameters
 	"source",
 	"pr_identifier",
 	"file_paths",
@@ -63,7 +63,7 @@ export const toolParamNames = [
 	"analysis_type",
 	"search_pattern",
 	"focus_areas",
-	// Sentinel web search parameters
+	// Axolotl web search parameters
 	"search_query",
 ] as const
 

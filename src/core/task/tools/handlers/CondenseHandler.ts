@@ -33,8 +33,8 @@ export class CondenseHandler implements IToolHandler, IPartialBlockHandler {
 		// Show notification if enabled
 		if (config.autoApprovalSettings.enableNotifications) {
 			showSystemNotification({
-				subtitle: "Sentinel wants to condense the conversation...",
-				message: `Sentinel is suggesting to condense your conversation with: ${context}`,
+				subtitle: "Axolotl wants to condense the conversation...",
+				message: `Axolotl is suggesting to condense your conversation with: ${context}`,
 			})
 		}
 

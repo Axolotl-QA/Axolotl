@@ -95,7 +95,7 @@ export class WebFetchToolHandler implements IFullyManagedTool {
 			} else {
 				// Manual approval flow
 				showNotificationForApproval(
-					`Sentinel wants to fetch content from ${url}`,
+					`Axolotl wants to fetch content from ${url}`,
 					config.autoApprovalSettings.enableNotifications,
 				)
 				await config.callbacks.removeLastPartialMessageIfExistsWithType("say", "tool")

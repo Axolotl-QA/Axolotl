@@ -26,7 +26,7 @@ export class TerminalRegistry {
 	): TerminalInfo {
 		const terminalOptions: vscode.TerminalOptions = {
 			cwd,
-			name: "Sentinel",
+			name: "Axolotl",
 			iconPath: new vscode.ThemeIcon("cline-icon"),
 			env: {
 				CLINE_ACTIVE: "true",

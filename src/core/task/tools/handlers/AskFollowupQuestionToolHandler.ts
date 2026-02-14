@@ -56,7 +56,7 @@ export class AskFollowupQuestionToolHandler implements IToolHandler, IPartialBlo
 		// Show notification if enabled
 		if (config.autoApprovalSettings.enableNotifications) {
 			showSystemNotification({
-				subtitle: "Sentinel has a question...",
+				subtitle: "Axolotl has a question...",
 				message: question.replace(/\n/g, " "),
 			})
 		}

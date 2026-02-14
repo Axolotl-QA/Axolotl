@@ -107,7 +107,7 @@ export class UseMcpToolHandler implements IFullyManagedTool {
 			)
 		} else {
 			// Manual approval flow
-			const notificationMessage = `Sentinel wants to use ${tool_name || "unknown tool"} on ${server_name || "unknown server"}`
+			const notificationMessage = `Axolotl wants to use ${tool_name || "unknown tool"} on ${server_name || "unknown server"}`
 
 			// Show notification
 			showNotificationForApproval(notificationMessage, config.autoApprovalSettings.enableNotifications)

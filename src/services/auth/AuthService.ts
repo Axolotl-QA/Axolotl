@@ -263,8 +263,8 @@ export class AuthService {
 		// Don't include state in redirect URL — InsForge double-encodes query params in the redirect
 		const callbackUrl = `${callbackHost}/auth`
 
-		this._controller.stateManager.setSecret("sentinelAuthState", state)
-		this._controller.stateManager.setSecret("sentinelAuthCodeVerifier", codeVerifier)
+		this._controller.stateManager.setSecret("axolotlAuthState", state)
+		this._controller.stateManager.setSecret("axolotlAuthCodeVerifier", codeVerifier)
 
 		const authUrl = await this._provider.getAuthRequest(callbackUrl, {
 			state,
@@ -294,11 +294,11 @@ export class AuthService {
 	async handleAuthCallback(authorizationCode: string, state?: string | null): Promise<void> {
 		try {
 			// State check is optional — InsForge hosted sign-in may not return state
-			const expectedState = this._controller.stateManager.getSecretKey("sentinelAuthState")
+			const expectedState = this._controller.stateManager.getSecretKey("axolotlAuthState")
 			if (expectedState && state && state !== expectedState) {
 				throw new Error("Auth state mismatch")
 			}
-			const codeVerifier = this._controller.stateManager.getSecretKey("sentinelAuthCodeVerifier")
+			const codeVerifier = this._controller.stateManager.getSecretKey("axolotlAuthCodeVerifier")
 
 			this._clineAuthInfo = await this._provider.signIn(this._controller, authorizationCode, codeVerifier)
 			this._authenticated = this._clineAuthInfo?.idToken !== undefined
@@ -310,8 +310,8 @@ export class AuthService {
 			telemetryService.captureAuthFailed(this._provider.name)
 			throw error
 		} finally {
-			this._controller.stateManager.setSecret("sentinelAuthState", undefined)
-			this._controller.stateManager.setSecret("sentinelAuthCodeVerifier", undefined)
+			this._controller.stateManager.setSecret("axolotlAuthState", undefined)
+			this._controller.stateManager.setSecret("axolotlAuthCodeVerifier", undefined)
 			await this.sendAuthStatusUpdate()
 		}
 	}
@@ -442,7 +442,7 @@ export class AuthService {
 	private destroyTokens() {
 		this._controller.stateManager.setSecret("clineAccountId", undefined)
 		this._controller.stateManager.setSecret("cline:clineAccountId", undefined)
-		this._controller.stateManager.setSecret("sentinelAuthState", undefined)
-		this._controller.stateManager.setSecret("sentinelAuthCodeVerifier", undefined)
+		this._controller.stateManager.setSecret("axolotlAuthState", undefined)
+		this._controller.stateManager.setSecret("axolotlAuthCodeVerifier", undefined)
 	}
 }

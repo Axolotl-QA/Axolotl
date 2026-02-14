@@ -1,4 +1,4 @@
-# Sentinel Project - Claude Instructions
+# Axolotl Project - Claude Instructions
 
 ## Project Structure
 
@@ -14,7 +14,7 @@
   - `build.sh` uses `sed` to replace placeholder values with environment variables
 - **Server**: DigitalOcean App Platform service component
   - Reads env vars: `INSFORGE_BASE_URL`, `INSFORGE_API_KEY`, `INSFORGE_ANON_KEY`, `APP_BASE_URL`
-- **Autodeploy**: Enabled on `sentinel-dev` branch of `Steven-wyf/Sentinel`
+- **Autodeploy**: Enabled on `axolotl-dev` branch of `Steven-wyf/Axolotl`
 - **Git remotes**: `origin` = icecreamlun (Axolotl-QA), `steven` = Steven-wyf
 
 ## InsForge Configuration
@@ -45,7 +45,7 @@
 
 ## Lessons Learned (Anti-Patterns to Avoid)
 
-### 1. `build.sh` sed global replacement destroys sentinel values
+### 1. `build.sh` sed global replacement destroys placeholder values
 
 **Problem**: `build.sh` uses `sed -g` to replace ALL occurrences of a placeholder URL across the entire file. If you store that same placeholder string in a JavaScript constant for comparison, `sed` will replace it too, breaking the detection logic.
 

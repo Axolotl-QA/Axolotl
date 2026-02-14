@@ -17,11 +17,11 @@ import { plan_mode_respond_variants } from "./plan_mode_respond"
 import { read_file_variants } from "./read_file"
 import { replace_in_file_variants } from "./replace_in_file"
 import { search_files_variants } from "./search_files"
-import { sentinel_analyze_code_variants } from "./sentinel_analyze_code"
-import { sentinel_detect_changes_variants } from "./sentinel_detect_changes"
-import { sentinel_generate_plan_variants } from "./sentinel_generate_plan"
-import { sentinel_qa_report_variants } from "./sentinel_qa_report"
-import { sentinel_web_search_variants } from "./sentinel_web_search"
+import { axolotl_analyze_code_variants } from "./axolotl_analyze_code"
+import { axolotl_detect_changes_variants } from "./axolotl_detect_changes"
+import { axolotl_generate_plan_variants } from "./axolotl_generate_plan"
+import { axolotl_qa_report_variants } from "./axolotl_qa_report"
+import { axolotl_web_search_variants } from "./axolotl_web_search"
 import { use_mcp_tool_variants } from "./use_mcp_tool"
 import { use_skill_variants } from "./use_skill"
 import { web_fetch_variants } from "./web_fetch"
@@ -54,11 +54,11 @@ export function registerClineToolSets(): void {
 		...search_files_variants,
 		...use_mcp_tool_variants,
 		...use_skill_variants,
-		...sentinel_qa_report_variants,
-		...sentinel_detect_changes_variants,
-		...sentinel_generate_plan_variants,
-		...sentinel_analyze_code_variants,
-		...sentinel_web_search_variants,
+		...axolotl_qa_report_variants,
+		...axolotl_detect_changes_variants,
+		...axolotl_generate_plan_variants,
+		...axolotl_analyze_code_variants,
+		...axolotl_web_search_variants,
 		...web_fetch_variants,
 		...web_search_variants,
 		...write_to_file_variants,

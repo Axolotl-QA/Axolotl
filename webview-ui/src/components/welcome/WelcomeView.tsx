@@ -1,7 +1,7 @@
 import { BooleanRequest, EmptyRequest } from "@shared/proto/cline/common"
 import { VSCodeButton, VSCodeLink } from "@vscode/webview-ui-toolkit/react"
 import { memo, useEffect, useState } from "react"
-import SentinelLogo from "@/assets/SentinelLogo"
+import AxolotlLogo from "@/assets/AxolotlLogo"
 import ApiOptions from "@/components/settings/ApiOptions"
 import { useExtensionState } from "@/context/ExtensionStateContext"
 import { AccountServiceClient, StateServiceClient } from "@/services/grpc-client"
@@ -39,9 +39,9 @@ const WelcomeView = memo(() => {
 	return (
 		<div className="fixed inset-0 p-0 flex flex-col">
 			<div className="h-full px-5 overflow-auto flex flex-col gap-2.5">
-				<h2 className="text-lg font-semibold">Hi, I'm Sentinel</h2>
+				<h2 className="text-lg font-semibold">Hi, I'm Axolotl</h2>
 				<div className="flex justify-center my-5">
-					<SentinelLogo className="size-16" />
+					<AxolotlLogo className="size-16" />
 				</div>
 				<p>
 					I can do all kinds of tasks thanks to breakthroughs in{" "}

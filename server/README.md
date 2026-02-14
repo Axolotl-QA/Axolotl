@@ -1,4 +1,4 @@
-# Sentinel Backend (Auth)
+# Axolotl Backend (Auth)
 
 This service provides the **auth endpoints** for the VS Code extension login flow.
 

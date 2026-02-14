@@ -2,15 +2,15 @@ import { ModelFamily } from "@/shared/prompts"
 import { ClineDefaultTool } from "@/shared/tools"
 import type { ClineToolSpec } from "../spec"
 
-const id = ClineDefaultTool.SENTINEL_WEB_SEARCH
+const id = ClineDefaultTool.AXOLOTL_WEB_SEARCH
 
 const GENERIC: ClineToolSpec = {
 	variant: ModelFamily.GENERIC,
 	id,
-	name: "sentinel_web_search",
-	description: `Search the web for real-time information to help with Sentinel QA testing. This tool uses the You.com API to search for best practices, testing patterns, documentation, and known issues related to the code being tested.
+	name: "axolotl_web_search",
+	description: `Search the web for real-time information to help with Axolotl QA testing. This tool uses the You.com API to search for best practices, testing patterns, documentation, and known issues related to the code being tested.
 
-**STRONGLY SUGGESTED**: Use this tool AFTER sentinel_analyze_code and BEFORE sentinel_generate_plan. The code analysis tells you WHAT the code does; this tool tells you HOW it should be tested.
+**STRONGLY SUGGESTED**: Use this tool AFTER axolotl_analyze_code and BEFORE axolotl_generate_plan. The code analysis tells you WHAT the code does; this tool tells you HOW it should be tested.
 
 Use this tool to search for:
 1. **Testing best practices**: Recommended testing approaches for specific frameworks or patterns found in the code
@@ -34,4 +34,4 @@ Examples:
 	],
 }
 
-export const sentinel_web_search_variants = [GENERIC]
+export const axolotl_web_search_variants = [GENERIC]

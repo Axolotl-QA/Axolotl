@@ -50,8 +50,8 @@ class ClineEndpoint {
 	}
 
 	public getEnvironment(): EnvironmentConfig {
-		const envAppBaseUrl = process?.env?.SENTINEL_APP_BASE_URL;
-		const envApiBaseUrl = process?.env?.SENTINEL_API_BASE_URL;
+		const envAppBaseUrl = process?.env?.AXOLOTL_APP_BASE_URL;
+		const envApiBaseUrl = process?.env?.AXOLOTL_API_BASE_URL;
 		switch (this.environment) {
 			case Environment.staging:
 				return {

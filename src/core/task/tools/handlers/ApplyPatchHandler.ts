@@ -680,7 +680,7 @@ export class ApplyPatchHandler implements IFullyManagedTool {
 			return true
 		}
 
-		showNotificationForApproval(`Sentinel wants to edit '${message.path}'`, config.autoApprovalSettings.enableNotifications)
+		showNotificationForApproval(`Axolotl wants to edit '${message.path}'`, config.autoApprovalSettings.enableNotifications)
 
 		await config.callbacks.removeLastPartialMessageIfExistsWithType("say", "tool")
 		const { response, text, images, files } = await config.callbacks.ask("tool", completeMessage, false)

@@ -2,18 +2,17 @@ import { StringRequest } from "@shared/proto/cline/common"
 import { NewTaskRequest } from "@shared/proto/cline/task"
 import { ChevronDown, ChevronRight, FileCode, FileText, GitBranch, GitPullRequest, History, Play } from "lucide-react"
 import { memo, useCallback, useState } from "react"
-import SentinelLogo from "@/assets/SentinelLogo"
 import { useExtensionState } from "@/context/ExtensionStateContext"
 import { TaskServiceClient } from "@/services/grpc-client"
 
 type TestSource = "uncommitted" | "pr" | "files"
 
-interface SentinelWelcomeProps {
+interface AxolotlWelcomeProps {
 	showHistoryView: () => void
 }
 
-const SentinelWelcome = ({ showHistoryView }: SentinelWelcomeProps) => {
-	const { taskHistory, environment } = useExtensionState()
+const AxolotlWelcome = ({ showHistoryView }: AxolotlWelcomeProps) => {
+	const { taskHistory } = useExtensionState()
 	const [testSource, setTestSource] = useState<TestSource>("files")
 	const [targetFiles, setTargetFiles] = useState("")
 	const [prInput, setPrInput] = useState("")
@@ -21,7 +20,7 @@ const SentinelWelcome = ({ showHistoryView }: SentinelWelcomeProps) => {
 	const [isHistoryExpanded, setIsHistoryExpanded] = useState(false)
 
 	const handleStartTest = useCallback(async () => {
-		let message = "/sentinel-qa"
+		let message = "/type"
 
 		// Build message based on test source
 		switch (testSource) {
@@ -48,7 +47,7 @@ const SentinelWelcome = ({ showHistoryView }: SentinelWelcomeProps) => {
 			message += ` PRD: ${prdDescription.trim()}`
 		}
 
-		// Create a new task with the sentinel-qa command
+		// Create a new task with the /type command
 		await TaskServiceClient.newTask(
 			NewTaskRequest.create({
 				text: message,
@@ -89,20 +88,12 @@ const SentinelWelcome = ({ showHistoryView }: SentinelWelcomeProps) => {
 		<div className="flex flex-col h-full w-full overflow-y-auto">
 			<style>
 				{`
-					@keyframes sentinel-logo-pop-in {
-						0% { opacity: 0; transform: scale(0.95); }
-						60% { opacity: 1; transform: scale(1.02); }
-						100% { opacity: 1; transform: scale(1); }
-					}
-					.sentinel-logo-animate { 
-						animation: sentinel-logo-pop-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); 
-					}
-					.sentinel-card {
+					.axolotl-card {
 						background-color: color-mix(in srgb, var(--vscode-toolbar-hoverBackground) 50%, transparent);
 						border: 1px solid var(--vscode-panel-border);
 						border-radius: 8px;
 					}
-					.sentinel-input {
+					.axolotl-input {
 						width: 100%;
 						background-color: var(--vscode-input-background);
 						border: 1px solid var(--vscode-input-border);
@@ -112,14 +103,14 @@ const SentinelWelcome = ({ showHistoryView }: SentinelWelcomeProps) => {
 						color: var(--vscode-input-foreground);
 						resize: none;
 					}
-					.sentinel-input:focus {
+					.axolotl-input:focus {
 						outline: none;
 						border-color: var(--vscode-focusBorder);
 					}
-					.sentinel-input::placeholder {
+					.axolotl-input::placeholder {
 						color: var(--vscode-input-placeholderForeground);
 					}
-					.sentinel-btn-start {
+					.axolotl-btn-start {
 						width: 100%;
 						padding: 10px 16px;
 						background-color: var(--vscode-button-background);
@@ -135,14 +126,14 @@ const SentinelWelcome = ({ showHistoryView }: SentinelWelcomeProps) => {
 						gap: 8px;
 						transition: background-color 0.15s;
 					}
-					.sentinel-btn-start:hover:not(:disabled) {
+					.axolotl-btn-start:hover:not(:disabled) {
 						background-color: var(--vscode-button-hoverBackground);
 					}
-					.sentinel-btn-start:disabled {
+					.axolotl-btn-start:disabled {
 						opacity: 0.5;
 						cursor: not-allowed;
 					}
-					.sentinel-history-toggle {
+					.axolotl-history-toggle {
 						width: 100%;
 						display: flex;
 						align-items: center;
@@ -154,22 +145,22 @@ const SentinelWelcome = ({ showHistoryView }: SentinelWelcomeProps) => {
 						cursor: pointer;
 						transition: background-color 0.15s;
 					}
-					.sentinel-history-toggle:hover {
+					.axolotl-history-toggle:hover {
 						background-color: var(--vscode-list-hoverBackground);
 					}
-					.sentinel-history-item {
+					.axolotl-history-item {
 						padding: 10px 12px;
 						border-bottom: 1px solid var(--vscode-panel-border);
 						cursor: pointer;
 						transition: background-color 0.15s;
 					}
-					.sentinel-history-item:last-child {
+					.axolotl-history-item:last-child {
 						border-bottom: none;
 					}
-					.sentinel-history-item:hover {
+					.axolotl-history-item:hover {
 						background-color: var(--vscode-list-hoverBackground);
 					}
-					.sentinel-badge {
+					.axolotl-badge {
 						background-color: var(--vscode-badge-background);
 						color: var(--vscode-badge-foreground);
 						padding: 2px 8px;
@@ -177,13 +168,13 @@ const SentinelWelcome = ({ showHistoryView }: SentinelWelcomeProps) => {
 						font-size: 0.75em;
 						font-weight: 500;
 					}
-					.sentinel-tips {
+					.axolotl-tips {
 						background-color: color-mix(in srgb, var(--vscode-editorInfo-foreground) 10%, transparent);
 						border: 1px solid color-mix(in srgb, var(--vscode-editorInfo-foreground) 30%, transparent);
 						border-radius: 8px;
 						padding: 12px;
 					}
-					.sentinel-source-tabs {
+					.axolotl-source-tabs {
 						display: flex;
 						gap: 4px;
 						padding: 4px;
@@ -191,7 +182,7 @@ const SentinelWelcome = ({ showHistoryView }: SentinelWelcomeProps) => {
 						border-radius: 8px;
 						margin-bottom: 16px;
 					}
-					.sentinel-source-tab {
+					.axolotl-source-tab {
 						flex: 1;
 						padding: 8px 12px;
 						border: none;
@@ -207,14 +198,14 @@ const SentinelWelcome = ({ showHistoryView }: SentinelWelcomeProps) => {
 						gap: 6px;
 						transition: all 0.15s;
 					}
-					.sentinel-source-tab:hover {
+					.axolotl-source-tab:hover {
 						background-color: var(--vscode-list-hoverBackground);
 					}
-					.sentinel-source-tab.active {
+					.axolotl-source-tab.active {
 						background-color: var(--vscode-button-background);
 						color: var(--vscode-button-foreground);
 					}
-					.sentinel-source-description {
+					.axolotl-source-description {
 						font-size: 0.75rem;
 						color: var(--vscode-descriptionForeground);
 						padding: 12px;
@@ -228,36 +219,9 @@ const SentinelWelcome = ({ showHistoryView }: SentinelWelcomeProps) => {
 				`}
 			</style>
 
-			{/* Header */}
-			<div
-				style={{
-					display: "flex",
-					flexDirection: "column",
-					alignItems: "center",
-					paddingTop: "24px",
-					paddingBottom: "16px",
-				}}>
-				<div className="sentinel-logo-animate" style={{ marginTop: "16px", marginBottom: "16px" }}>
-					<SentinelLogo className="size-16" environment={environment} />
-				</div>
-				<h1 style={{ fontSize: "1.25rem", fontWeight: "bold", color: "var(--vscode-foreground)", margin: 0 }}>
-					Axolotl QA
-				</h1>
-				<p
-					style={{
-						fontSize: "0.875rem",
-						color: "var(--vscode-descriptionForeground)",
-						marginTop: "4px",
-						textAlign: "center",
-						padding: "0 16px",
-					}}>
-					AI-powered QA Agent for PR validation
-				</p>
-			</div>
-
 			{/* Start New Test Section */}
 			<div style={{ padding: "0 16px 16px 16px" }}>
-				<div className="sentinel-card" style={{ padding: "16px" }}>
+				<div className="axolotl-card" style={{ padding: "16px" }}>
 					<h2
 						style={{
 							fontSize: "0.875rem",
@@ -273,23 +237,23 @@ const SentinelWelcome = ({ showHistoryView }: SentinelWelcomeProps) => {
 					</h2>
 
 					{/* Test Source Selector */}
-					<div className="sentinel-source-tabs">
+					<div className="axolotl-source-tabs">
 						<button
-							className={`sentinel-source-tab ${testSource === "uncommitted" ? "active" : ""}`}
+							className={`axolotl-source-tab ${testSource === "uncommitted" ? "active" : ""}`}
 							onClick={() => setTestSource("uncommitted")}
 							type="button">
 							<GitBranch size={14} />
 							Uncommitted
 						</button>
 						<button
-							className={`sentinel-source-tab ${testSource === "pr" ? "active" : ""}`}
+							className={`axolotl-source-tab ${testSource === "pr" ? "active" : ""}`}
 							onClick={() => setTestSource("pr")}
 							type="button">
 							<GitPullRequest size={14} />
 							PR
 						</button>
 						<button
-							className={`sentinel-source-tab ${testSource === "files" ? "active" : ""}`}
+							className={`axolotl-source-tab ${testSource === "files" ? "active" : ""}`}
 							onClick={() => setTestSource("files")}
 							type="button">
 							<FileCode size={14} />
@@ -299,25 +263,25 @@ const SentinelWelcome = ({ showHistoryView }: SentinelWelcomeProps) => {
 
 					{/* Source Description */}
 					{testSource === "uncommitted" && (
-						<div className="sentinel-source-description">
+						<div className="axolotl-source-description">
 							<GitBranch size={14} style={{ flexShrink: 0, marginTop: "2px" }} />
 							<span>
-								Test all uncommitted changes in your workspace. Sentinel will automatically detect modified
+								Test all uncommitted changes in your workspace. Axolotl will automatically detect modified
 								files using <code style={{ fontSize: "0.7rem" }}>git diff</code>.
 							</span>
 						</div>
 					)}
 					{testSource === "pr" && (
-						<div className="sentinel-source-description">
+						<div className="axolotl-source-description">
 							<GitPullRequest size={14} style={{ flexShrink: 0, marginTop: "2px" }} />
 							<span>
-								Test changes from a Pull Request. Sentinel will checkout the PR branch, analyze the changes,
+								Test changes from a Pull Request. Axolotl will checkout the PR branch, analyze the changes,
 								and run tests. You'll be asked to confirm before switching branches.
 							</span>
 						</div>
 					)}
 					{testSource === "files" && (
-						<div className="sentinel-source-description">
+						<div className="axolotl-source-description">
 							<FileCode size={14} style={{ flexShrink: 0, marginTop: "2px" }} />
 							<span>Manually select specific files to test. Use @ to mention files or paste paths directly.</span>
 						</div>
@@ -339,7 +303,7 @@ const SentinelWelcome = ({ showHistoryView }: SentinelWelcomeProps) => {
 								PR URL or Number
 							</label>
 							<input
-								className="sentinel-input"
+								className="axolotl-input"
 								onChange={(e) => setPrInput(e.target.value)}
 								placeholder="e.g., https://github.com/owner/repo/pull/123 or #123"
 								type="text"
@@ -364,7 +328,7 @@ const SentinelWelcome = ({ showHistoryView }: SentinelWelcomeProps) => {
 								Target Files (code to test)
 							</label>
 							<textarea
-								className="sentinel-input"
+								className="axolotl-input"
 								onChange={(e) => setTargetFiles(e.target.value)}
 								placeholder="e.g., @/src/auth/login.ts or paste file paths..."
 								rows={2}
@@ -391,7 +355,7 @@ const SentinelWelcome = ({ showHistoryView }: SentinelWelcomeProps) => {
 							PRD / Feature Description {testSource !== "files" && "(optional)"}
 						</label>
 						<textarea
-							className="sentinel-input"
+							className="axolotl-input"
 							onChange={(e) => setPrdDescription(e.target.value)}
 							placeholder="Describe what the feature should do, e.g., 'User can login with email and password, show error on failure'"
 							rows={3}
@@ -401,7 +365,7 @@ const SentinelWelcome = ({ showHistoryView }: SentinelWelcomeProps) => {
 
 					{/* Start Button */}
 					<button
-						className="sentinel-btn-start"
+						className="axolotl-btn-start"
 						disabled={isStartDisabled()}
 						onClick={handleStartTest}
 						type="button">
@@ -416,16 +380,7 @@ const SentinelWelcome = ({ showHistoryView }: SentinelWelcomeProps) => {
 							textAlign: "center",
 							marginTop: "12px",
 						}}>
-						Or type{" "}
-						<code
-							style={{
-								backgroundColor: "var(--vscode-textCodeBlock-background)",
-								padding: "2px 6px",
-								borderRadius: "4px",
-							}}>
-							/sentinel-qa
-						</code>{" "}
-						in the chat below
+						Or type in the chatbox below
 					</p>
 				</div>
 			</div>
@@ -433,7 +388,7 @@ const SentinelWelcome = ({ showHistoryView }: SentinelWelcomeProps) => {
 			{/* Recent Tests Section - Collapsible */}
 			<div style={{ padding: "0 16px 16px 16px" }}>
 				<button
-					className="sentinel-history-toggle"
+					className="axolotl-history-toggle"
 					onClick={() => setIsHistoryExpanded(!isHistoryExpanded)}
 					type="button">
 					<span
@@ -447,7 +402,7 @@ const SentinelWelcome = ({ showHistoryView }: SentinelWelcomeProps) => {
 						}}>
 						<History size={16} />
 						Recent Tests
-						{recentTests.length > 0 && <span className="sentinel-badge">{recentTests.length}</span>}
+						{recentTests.length > 0 && <span className="axolotl-badge">{recentTests.length}</span>}
 					</span>
 					{isHistoryExpanded ? (
 						<ChevronDown size={16} style={{ color: "var(--vscode-descriptionForeground)" }} />
@@ -457,12 +412,12 @@ const SentinelWelcome = ({ showHistoryView }: SentinelWelcomeProps) => {
 				</button>
 
 				{isHistoryExpanded && (
-					<div className="sentinel-card" style={{ marginTop: "8px", overflow: "hidden" }}>
+					<div className="axolotl-card" style={{ marginTop: "8px", overflow: "hidden" }}>
 						{recentTests.length > 0 ? (
 							<>
 								{recentTests.map((item) => (
 									<div
-										className="sentinel-history-item"
+										className="axolotl-history-item"
 										key={item.id}
 										onClick={() => handleHistorySelect(item.id)}>
 										<div
@@ -498,7 +453,7 @@ const SentinelWelcome = ({ showHistoryView }: SentinelWelcomeProps) => {
 													{formatDate(item.ts)}
 												</span>
 												{item.totalCost != null && (
-													<span className="sentinel-badge">${item.totalCost.toFixed(2)}</span>
+													<span className="axolotl-badge">${item.totalCost.toFixed(2)}</span>
 												)}
 											</div>
 										</div>
@@ -536,7 +491,7 @@ const SentinelWelcome = ({ showHistoryView }: SentinelWelcomeProps) => {
 
 			{/* Tips Section */}
 			<div style={{ padding: "0 16px 24px 16px" }}>
-				<div className="sentinel-tips">
+				<div className="axolotl-tips">
 					<h3
 						style={{
 							fontSize: "0.75rem",
@@ -565,4 +520,4 @@ const SentinelWelcome = ({ showHistoryView }: SentinelWelcomeProps) => {
 	)
 }
 
-export default memo(SentinelWelcome)
+export default memo(AxolotlWelcome)

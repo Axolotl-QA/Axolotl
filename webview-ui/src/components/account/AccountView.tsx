@@ -398,7 +398,7 @@ export const ClineAccountView = ({ clineUser, userOrganizations, activeOrganizat
 				{isClineTester && (
 					<div className="w-full gap-1 items-end">
 						<VSCodeDivider className="w-full my-3" />
-						<div className="text-sm font-semibold">Sentinel Environment</div>
+						<div className="text-sm font-semibold">Axolotl Environment</div>
 						<VSCodeDropdown
 							className="w-full mt-1"
 							currentValue={clineEnv}

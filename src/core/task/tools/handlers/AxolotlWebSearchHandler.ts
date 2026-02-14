@@ -28,8 +28,8 @@ interface YouAgentResponse {
 	output: YouOutputItem[];
 }
 
-export class SentinelWebSearchHandler implements IToolHandler {
-	readonly name = ClineDefaultTool.SENTINEL_WEB_SEARCH;
+export class AxolotlWebSearchHandler implements IToolHandler {
+	readonly name = ClineDefaultTool.AXOLOTL_WEB_SEARCH;
 
 	getDescription(block: ToolUse): string {
 		const query = block.params.search_query || "unknown";
@@ -40,7 +40,7 @@ export class SentinelWebSearchHandler implements IToolHandler {
 
 	async execute(config: TaskConfig, block: ToolUse): Promise<ToolResponse> {
 		console.log(
-			"[SentinelWebSearch] Tool called with params:",
+			"[AxolotlWebSearch] Tool called with params:",
 			JSON.stringify(block.params, null, 2),
 		);
 
@@ -68,12 +68,12 @@ export class SentinelWebSearchHandler implements IToolHandler {
 			}
 
 			console.log(
-				`[SentinelWebSearch] Searching You.com API for: "${searchQuery}"`,
+				`[AxolotlWebSearch] Searching You.com API for: "${searchQuery}"`,
 			);
 
 			// Print search query to terminal
 			await config.callbacks.executeCommandTool(
-				`echo "\\n🔍 [SENTINEL WEB SEARCH] Querying You.com API...\\nQuery: ${searchQuery.replace(/"/g, '\\"')}"`,
+				`echo "\\n🔍 [AXOLOTL WEB SEARCH] Querying You.com API...\\nQuery: ${searchQuery.replace(/"/g, '\\"')}"`,
 				10,
 			);
 
@@ -99,7 +99,7 @@ export class SentinelWebSearchHandler implements IToolHandler {
 
 			const data = (await response.json()) as YouAgentResponse;
 			console.log(
-				`[SentinelWebSearch] API response received, output items: ${data.output?.length || 0}`,
+				`[AxolotlWebSearch] API response received, output items: ${data.output?.length || 0}`,
 			);
 
 			// Extract search results and answer
@@ -116,7 +116,7 @@ export class SentinelWebSearchHandler implements IToolHandler {
 			}
 
 			console.log(
-				`[SentinelWebSearch] Results: ${searchResults.length} sources, answer length: ${answerText.length} chars`,
+				`[AxolotlWebSearch] Results: ${searchResults.length} sources, answer length: ${answerText.length} chars`,
 			);
 
 			// Format results for terminal display
@@ -150,11 +150,11 @@ export class SentinelWebSearchHandler implements IToolHandler {
 		} catch (error) {
 			const errorMessage =
 				error instanceof Error ? error.message : "Unknown error";
-			console.error("Error in sentinel_web_search:", errorMessage);
+			console.error("Error in axolotl_web_search:", errorMessage);
 
 			// Print error to terminal
 			await config.callbacks.executeCommandTool(
-				`echo "\\n❌ [SENTINEL WEB SEARCH] Error: ${errorMessage.replace(/"/g, '\\"')}"`,
+				`echo "\\n❌ [AXOLOTL WEB SEARCH] Error: ${errorMessage.replace(/"/g, '\\"')}"`,
 				10,
 			);
 
@@ -173,7 +173,7 @@ export class SentinelWebSearchHandler implements IToolHandler {
 			"╔══════════════════════════════════════════════════════════════╗",
 		);
 		lines.push(
-			"║           🔍 SENTINEL WEB SEARCH RESULTS                   ║",
+			"║           🔍 AXOLOTL WEB SEARCH RESULTS                   ║",
 		);
 		lines.push(
 			"╚══════════════════════════════════════════════════════════════╝",
@@ -222,7 +222,7 @@ export class SentinelWebSearchHandler implements IToolHandler {
 		results: YouSearchResult[],
 	): string {
 		const lines: string[] = [];
-		lines.push("=== SENTINEL WEB SEARCH RESULTS ===");
+		lines.push("=== AXOLOTL WEB SEARCH RESULTS ===");
 		lines.push(`Query: ${query}`);
 		lines.push("");
 

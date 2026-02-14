@@ -1,7 +1,7 @@
 import { VSCodeButton, VSCodeLink } from "@vscode/webview-ui-toolkit/react"
 import { useClineSignIn } from "@/context/ClineAuthContext"
 import { useExtensionState } from "@/context/ExtensionStateContext"
-import SentinelLogo from "@/assets/SentinelLogo"
+import AxolotlLogo from "@/assets/AxolotlLogo"
 
 /**
  * Full-screen auth gate shown when the user is not logged in.
@@ -16,12 +16,12 @@ export const AuthGateView = () => {
 	return (
 		<div className="fixed inset-0 flex flex-col items-center justify-center px-8">
 			<div className="flex flex-col items-center gap-4 max-w-sm w-full">
-				<SentinelLogo className="size-20 mb-2" environment={environment} />
+				<AxolotlLogo className="size-20 mb-2" environment={environment} />
 
-				<h2 className="text-lg font-semibold text-center m-0">Welcome to Sentinel</h2>
+				<h2 className="text-lg font-semibold text-center m-0">Welcome to Axolotl</h2>
 
 				<p className="text-center text-(--vscode-descriptionForeground) m-0">
-					Please sign in to continue using Sentinel.
+					Please sign in to continue using Axolotl.
 				</p>
 
 				<VSCodeButton appearance="primary" className="w-full" disabled={isLoginLoading} onClick={handleSignIn}>

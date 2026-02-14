@@ -1,6 +1,6 @@
 import { EmptyRequest } from "@shared/proto/cline/common"
 import { InfoIcon } from "lucide-react"
-import SentinelLogo from "@/assets/SentinelLogo"
+import AxolotlLogo from "@/assets/AxolotlLogo"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { useExtensionState } from "@/context/ExtensionStateContext"
 import { UiServiceClient } from "@/services/grpc-client"
@@ -44,7 +44,7 @@ const HomeHeader = ({ shouldShowQuickWins = false }: HomeHeaderProps) => {
 				`}
 			</style>
 			<div className="my-7 logo-animate">
-				<SentinelLogo className="size-20" environment={environment} />
+				<AxolotlLogo className="size-20" environment={environment} />
 			</div>
 			<div className="text-center flex items-center justify-center px-4">
 				<h1 className="m-0 font-bold">What can I do for you?</h1>

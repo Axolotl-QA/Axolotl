@@ -67,7 +67,7 @@ const ApiConfigurationSection = ({
 				<ApiKeyField
 					initialValue={apiConfiguration?.youApiKey || ""}
 					onChange={(value) => handleFieldChange("youApiKey", value)}
-					providerName="You.com (Sentinel Web Search)"
+					providerName="You.com (Axolotl Web Search)"
 					signupUrl="https://api.you.com"
 				/>
 

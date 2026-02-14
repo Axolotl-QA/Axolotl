@@ -187,7 +187,7 @@ export class WriteToFileToolHandler implements IFullyManagedTool {
 				await setTimeoutPromise(3_500)
 			} else {
 				// Manual approval flow with detailed feedback handling
-				const notificationMessage = `Sentinel wants to ${fileExists ? "edit" : "create"} ${getWorkspaceBasename(relPath, "WriteToFile.notification")}`
+				const notificationMessage = `Axolotl wants to ${fileExists ? "edit" : "create"} ${getWorkspaceBasename(relPath, "WriteToFile.notification")}`
 
 				// Show notification
 				showNotificationForApproval(notificationMessage, config.autoApprovalSettings.enableNotifications)

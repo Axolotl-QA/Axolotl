@@ -470,15 +470,15 @@ export class Task {
 		// Initialize vision API handler if configured and primary model doesn't support images
 		const browserSettings = stateManager.getGlobalSettingsKey("browserSettings")
 		const primaryModelSupportsImages = this.api.getModel().info.supportsImages ?? false
-		console.log(`[Sentinel Vision] Primary model supports images: ${primaryModelSupportsImages}`)
-		console.log(`[Sentinel Vision] Vision model provider configured: ${browserSettings.visionModelProvider}`)
+		console.log(`[Axolotl Vision] Primary model supports images: ${primaryModelSupportsImages}`)
+		console.log(`[Axolotl Vision] Vision model provider configured: ${browserSettings.visionModelProvider}`)
 		if (!primaryModelSupportsImages && browserSettings.visionModelProvider) {
 			// Try to get API key: first from browserSettings, then fallback to main apiConfiguration
 			const visionApiKey = this.getVisionModelApiKey(browserSettings, apiConfiguration)
-			console.log(`[Sentinel Vision] Vision API key found: ${!!visionApiKey}`)
+			console.log(`[Axolotl Vision] Vision API key found: ${!!visionApiKey}`)
 			if (visionApiKey) {
 				this.visionApi = this.buildVisionApiHandler(browserSettings, visionApiKey)
-				console.log(`[Sentinel Vision] Vision API handler created: ${!!this.visionApi}`)
+				console.log(`[Axolotl Vision] Vision API handler created: ${!!this.visionApi}`)
 			}
 		}
 
@@ -1818,10 +1818,10 @@ export class Task {
 		// If a vision model is configured, we can also use browser even if primary model doesn't support images.
 		const modelSupportsBrowserUse = providerInfo.model.info.supportsImages ?? false
 		const hasVisionModelFallback = !!this.visionApi
-		console.log(`[Sentinel Vision] attemptApiRequest - modelSupportsBrowserUse: ${modelSupportsBrowserUse}, hasVisionModelFallback: ${hasVisionModelFallback}, disableBrowserTool: ${disableBrowserTool}`)
+		console.log(`[Axolotl Vision] attemptApiRequest - modelSupportsBrowserUse: ${modelSupportsBrowserUse}, hasVisionModelFallback: ${hasVisionModelFallback}, disableBrowserTool: ${disableBrowserTool}`)
 
 		const supportsBrowserUse = (modelSupportsBrowserUse || hasVisionModelFallback) && !disableBrowserTool // only enable browser use if the model supports it (or we have a vision fallback) and the user hasn't disabled it
-		console.log(`[Sentinel Vision] supportsBrowserUse: ${supportsBrowserUse}`)
+		console.log(`[Axolotl Vision] supportsBrowserUse: ${supportsBrowserUse}`)
 		const preferredLanguageRaw = this.stateManager.getGlobalSettingsKey("preferredLanguage")
 		const preferredLanguage = getLanguageKey(preferredLanguageRaw as LanguageDisplay)
 		const preferredLanguageInstructions =
@@ -2293,7 +2293,7 @@ export class Task {
 			if (autoApprovalSettings.enableNotifications) {
 				showSystemNotification({
 					subtitle: "Error",
-					message: "Sentinel is having trouble. Would you like to continue the task?",
+					message: "Axolotl is having trouble. Would you like to continue the task?",
 				})
 			}
 			const { response, text, images, files } = await this.ask(

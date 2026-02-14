@@ -65,8 +65,8 @@ interface AnalysisResult {
 	}
 }
 
-export class SentinelAnalyzeCodeHandler implements IToolHandler {
-	readonly name = ClineDefaultTool.SENTINEL_ANALYZE_CODE
+export class AxolotlAnalyzeCodeHandler implements IToolHandler {
+	readonly name = ClineDefaultTool.AXOLOTL_ANALYZE_CODE
 
 	getDescription(block: ToolUse): string {
 		const analysisType = block.params.analysis_type || "unknown"
@@ -74,7 +74,7 @@ export class SentinelAnalyzeCodeHandler implements IToolHandler {
 	}
 
 	async execute(config: TaskConfig, block: ToolUse): Promise<ToolResponse> {
-		console.log("[SentinelAnalyzeCode] Tool called with params:", JSON.stringify(block.params, null, 2))
+		console.log("[AxolotlAnalyzeCode] Tool called with params:", JSON.stringify(block.params, null, 2))
 
 		const filePathsRaw: string | undefined = block.params.file_paths
 		const analysisType: string | undefined = block.params.analysis_type
@@ -163,7 +163,7 @@ export class SentinelAnalyzeCodeHandler implements IToolHandler {
 			return formatResponse.toolResult(output)
 		} catch (error) {
 			const errorMessage = error instanceof Error ? error.message : "Unknown error"
-			console.error("Error in sentinel_analyze_code:", errorMessage)
+			console.error("Error in axolotl_analyze_code:", errorMessage)
 			return formatResponse.toolError(`Failed to analyze code: ${errorMessage}`)
 		}
 	}
@@ -379,7 +379,7 @@ export class SentinelAnalyzeCodeHandler implements IToolHandler {
 		}
 
 		// Header
-		addLine("=== SENTINEL CODE ANALYSIS ===")
+		addLine("=== AXOLOTL CODE ANALYSIS ===")
 		addLine("")
 
 		// Code Structure section
@@ -463,7 +463,7 @@ export class SentinelAnalyzeCodeHandler implements IToolHandler {
 			addLine(`- Focus areas: ${focusAreas}`)
 		}
 		addLine("")
-		addLine("Use this analysis to generate comprehensive test cases with sentinel_generate_plan.")
+		addLine("Use this analysis to generate comprehensive test cases with axolotl_generate_plan.")
 
 		return output.trim()
 	}

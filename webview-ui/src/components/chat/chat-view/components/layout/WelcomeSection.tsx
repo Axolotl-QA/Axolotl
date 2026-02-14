@@ -1,7 +1,7 @@
 import { BANNER_DATA, BannerAction, BannerActionType, BannerCardData } from "@shared/cline/banner"
 import React, { useCallback, useEffect, useMemo, useState } from "react"
 import WhatsNewModal from "@/components/common/WhatsNewModal"
-import SentinelWelcome from "@/components/sentinel/SentinelWelcome"
+import AxolotlWelcome from "@/components/axolotl/AxolotlWelcome"
 import { useApiConfigurationHandlers } from "@/components/settings/utils/useApiConfigurationHandlers"
 import { useClineAuth } from "@/context/ClineAuthContext"
 import { useExtensionState } from "@/context/ExtensionStateContext"
@@ -185,11 +185,11 @@ export const WelcomeSection: React.FC<WelcomeSectionProps> = ({
 		return [...extensionStateBanners, ...hardcodedBanners]
 	}, [bannerConfig, banners, clineUser, subagentsEnabled, handleBannerAction, handleBannerDismiss])
 
-	// Use Sentinel-specific welcome UI
+	// Use Axolotl-specific welcome UI
 	return (
 		<div className="flex flex-col flex-1 w-full h-full p-0 m-0">
 			<WhatsNewModal onClose={handleCloseWhatsNewModal} open={showWhatsNewModal} version={version} />
-			<SentinelWelcome showHistoryView={showHistoryView} />
+			<AxolotlWelcome showHistoryView={showHistoryView} />
 		</div>
 	)
 }

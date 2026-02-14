@@ -2,15 +2,15 @@ import { ModelFamily } from "@/shared/prompts"
 import { ClineDefaultTool } from "@/shared/tools"
 import type { ClineToolSpec } from "../spec"
 
-const id = ClineDefaultTool.SENTINEL_QA_REPORT
+const id = ClineDefaultTool.AXOLOTL_QA_REPORT
 
 const GENERIC: ClineToolSpec = {
 	variant: ModelFamily.GENERIC,
 	id,
-	name: "sentinel_qa_report",
-	description: `Generate and display a Sentinel QA test report. Use this tool ONLY after:
+	name: "axolotl_qa_report",
+	description: `Generate and display a Axolotl QA test report. Use this tool ONLY after:
 1. Completing all test execution
-2. Cleaning up ALL injected SENTINEL_TEST_LOG statements
+2. Cleaning up ALL injected AXOLOTL_TEST_LOG statements
 
 **IMPORTANT**: You MUST cleanup injected logs BEFORE calling this tool. Do NOT leave test logs in the code!`,
 	parameters: [
@@ -48,7 +48,7 @@ const GENERIC: ClineToolSpec = {
 		{
 			name: "logs_cleanup_summary",
 			required: false,
-			instruction: `Summary of log cleanup performed. If you injected any SENTINEL_TEST_LOG statements, you MUST provide this to confirm cleanup was done.
+			instruction: `Summary of log cleanup performed. If you injected any AXOLOTL_TEST_LOG statements, you MUST provide this to confirm cleanup was done.
 
 Format: "Removed N logs from M files: file1.ts (lines X,Y), file2.ts (line Z)" or "No logs were injected" if no logs were added.
 
@@ -58,4 +58,4 @@ If logs were injected but this field is empty, you have NOT completed the cleanu
 	],
 }
 
-export const sentinel_qa_report_variants = [GENERIC]
+export const axolotl_qa_report_variants = [GENERIC]

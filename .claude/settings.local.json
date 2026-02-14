@@ -16,7 +16,11 @@
       "Bash(npm run build:*)",
       "Bash(npm run:*)",
       "Bash(node esbuild.mjs:*)",
-      "Bash(node:*)"
+      "Bash(node:*)",
+      "Bash(ls:*)",
+      "Bash(brew list:*)",
+      "Bash(python3:*)",
+      "Bash(brew install:*)"
     ]
   },
   "enabledMcpjsonServers": [

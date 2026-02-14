@@ -152,8 +152,8 @@ export type ClineAsk =
 	| "condense"
 	| "summarize_task"
 	| "report_bug"
-	| "sentinel_confirm_changes"
-	| "sentinel_confirm_plan"
+	| "axolotl_confirm_changes"
+	| "axolotl_confirm_plan"
 
 export type ClineSay =
 	| "task"
@@ -186,9 +186,9 @@ export type ClineSay =
 	| "checkpoint_created"
 	| "load_mcp_documentation"
 	| "generate_explanation"
-	| "sentinel_qa_report"
-	| "sentinel_detect_changes"
-	| "sentinel_generate_plan"
+	| "axolotl_qa_report"
+	| "axolotl_detect_changes"
+	| "axolotl_generate_plan"
 	| "info" // Added for general informational messages like retry status
 	| "task_progress"
 	| "hook_status"
@@ -268,7 +268,7 @@ export interface ClineSayGenerateExplanation {
 	error?: string
 }
 
-export interface SentinelQAReportTest {
+export interface AxolotlQAReportTest {
 	id: string
 	name: string
 	category: "functional" | "edge_case" | "integration" | "ui_ux"
@@ -281,7 +281,7 @@ export interface SentinelQAReportTest {
 	failure_reason?: string
 }
 
-export interface SentinelQAReport {
+export interface AxolotlQAReport {
 	summary: {
 		total_tests: number
 		passed: number
@@ -289,27 +289,27 @@ export interface SentinelQAReport {
 		skipped: number
 		verdict: "MERGEABLE" | "NOT_MERGEABLE" | "MERGEABLE_WITH_RISKS"
 	}
-	tests: SentinelQAReportTest[]
+	tests: AxolotlQAReportTest[]
 	risks: string[]
 	recommendations: string[]
 }
 
-export interface ClineSaySentinelQAReport {
+export interface ClineSayAxolotlQAReport {
 	status: "generating" | "complete" | "error"
-	report?: SentinelQAReport
+	report?: AxolotlQAReport
 	error?: string
 }
 
-export interface SentinelDetectedChange {
+export interface AxolotlDetectedChange {
 	file: string
 	status: "modified" | "added" | "deleted" | "renamed"
 	additions?: number
 	deletions?: number
 }
 
-export interface SentinelDetectionResult {
+export interface AxolotlDetectionResult {
 	source: string
-	changes: SentinelDetectedChange[]
+	changes: AxolotlDetectedChange[]
 	totalFiles: number
 	summary: string
 	diff?: string
@@ -320,13 +320,13 @@ export interface SentinelDetectionResult {
 	}
 }
 
-export interface ClineSaySentinelDetectChanges {
+export interface ClineSayAxolotlDetectChanges {
 	status: "detecting" | "confirmed" | "cancelled" | "no_changes" | "error"
-	result?: SentinelDetectionResult
+	result?: AxolotlDetectionResult
 	error?: string
 }
 
-export interface SentinelTestCase {
+export interface AxolotlTestCase {
 	id: string
 	name: string
 	category: "functional" | "edge_case" | "error_handling" | "ui_ux"
@@ -336,17 +336,17 @@ export interface SentinelTestCase {
 	priority: "high" | "medium" | "low"
 }
 
-export interface SentinelTestPlan {
+export interface AxolotlTestPlan {
 	targetFiles: string[]
 	prdDescription?: string
-	testCases: SentinelTestCase[]
+	testCases: AxolotlTestCase[]
 	totalTests: number
 	summary: string
 }
 
-export interface ClineSaySentinelGeneratePlan {
+export interface ClineSayAxolotlGeneratePlan {
 	status: "generating" | "confirmed" | "cancelled" | "error"
-	plan?: SentinelTestPlan
+	plan?: AxolotlTestPlan
 	planFilePath?: string
 	error?: string
 }

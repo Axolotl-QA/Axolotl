@@ -95,7 +95,7 @@ export class BrowserToolHandler implements IFullyManagedTool {
 				} else {
 					// Show notification for approval if enabled
 					showNotificationForApproval(
-						`Sentinel wants to use a browser and launch ${url}`,
+						`Axolotl wants to use a browser and launch ${url}`,
 						config.autoApprovalSettings.enableNotifications,
 					)
 					await config.callbacks.removeLastPartialMessageIfExistsWithType("say", "browser_action_launch")

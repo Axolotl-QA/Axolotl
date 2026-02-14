@@ -10,7 +10,7 @@ import {
 	newRuleToolResponse,
 	newTaskToolResponse,
 	reportBugToolResponse,
-	sentinelQAToolResponse,
+	axolotlQAToolResponse,
 	subagentToolResponse,
 } from "../prompts/commands"
 import { StateManager } from "../storage/StateManager"
@@ -52,7 +52,7 @@ export async function parseSlashCommands(
 		"deep-planning",
 		"subagent",
 		"explain-changes",
-		"sentinel-qa",
+		"type",
 	]
 
 	// Determine if the current provider/model/setting actually uses native tool calling
@@ -67,7 +67,7 @@ export async function parseSlashCommands(
 		"deep-planning": deepPlanningToolResponse(focusChainSettings, providerInfo, willUseNativeTools),
 		subagent: subagentToolResponse(),
 		"explain-changes": explainChangesToolResponse(),
-		"sentinel-qa": sentinelQAToolResponse(),
+		"type": axolotlQAToolResponse(),
 	}
 
 	// Regex patterns to extract content from different XML tags

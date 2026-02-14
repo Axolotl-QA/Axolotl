@@ -1,7 +1,7 @@
 import { VSCodeButton, VSCodeLink } from "@vscode/webview-ui-toolkit/react"
 import { useClineSignIn } from "@/context/ClineAuthContext"
 import { useExtensionState } from "@/context/ExtensionStateContext"
-import SentinelLogo from "../../assets/SentinelLogo"
+import AxolotlLogo from "../../assets/AxolotlLogo"
 
 // export const AccountWelcomeView = () => (
 // 	<div className="flex flex-col items-center pr-3 gap-2.5">
@@ -12,7 +12,7 @@ export const AccountWelcomeView = () => {
 
 	return (
 		<div className="flex flex-col items-center pr-3 gap-2.5">
-			<SentinelLogo className="size-16 mb-4" environment={environment} />
+			<AxolotlLogo className="size-16 mb-4" environment={environment} />
 
 			<p>
 				Sign up for an account to get access to the latest models, billing dashboard to view usage and credits, and more
@@ -20,7 +20,7 @@ export const AccountWelcomeView = () => {
 			</p>
 
 			<VSCodeButton className="w-full mb-4" disabled={isLoginLoading} onClick={handleSignIn}>
-				Sign up with Sentinel
+				Sign up with Axolotl
 				{isLoginLoading && (
 					<span className="ml-1 animate-spin">
 						<span className="codicon codicon-refresh"></span>

@@ -193,7 +193,7 @@ export const CommandOutputRow = memo(
 		)
 
 		const displayTitle = isSubagentCommand ? (
-			<span className="text-foreground font-bold">Sentinel wants to use a subagent:</span>
+			<span className="text-foreground font-bold">Axolotl wants to use a subagent:</span>
 		) : (
 			title
 		)

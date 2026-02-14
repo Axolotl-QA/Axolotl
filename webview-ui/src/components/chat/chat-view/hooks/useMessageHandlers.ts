@@ -81,8 +81,8 @@ export function useMessageHandlers(messages: ClineMessage[], chatState: ChatStat
 							case "new_task":
 							case "condense":
 							case "report_bug":
-							case "sentinel_confirm_plan":
-							case "sentinel_confirm_changes":
+							case "axolotl_confirm_plan":
+							case "axolotl_confirm_changes":
 								await TaskServiceClient.askResponse(
 									AskResponseRequest.create({
 										responseType: "messageResponse",

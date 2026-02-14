@@ -2,13 +2,13 @@ import { ModelFamily } from "@/shared/prompts"
 import { ClineDefaultTool } from "@/shared/tools"
 import type { ClineToolSpec } from "../spec"
 
-const id = ClineDefaultTool.SENTINEL_GENERATE_PLAN
+const id = ClineDefaultTool.AXOLOTL_GENERATE_PLAN
 
 const GENERIC: ClineToolSpec = {
 	variant: ModelFamily.GENERIC,
 	id,
-	name: "sentinel_generate_plan",
-	description: `Generate a comprehensive test plan for Sentinel QA testing. This is a two-step process:
+	name: "axolotl_generate_plan",
+	description: `Generate a comprehensive test plan for Axolotl QA testing. This is a two-step process:
 
 **Step 1 (without test_cases):** Call this tool with changed_files to get instructions for generating test cases. You should:
 1. Read the changed files to understand the code
@@ -20,12 +20,12 @@ const GENERIC: ClineToolSpec = {
 2. Save it for user review
 3. Allow the user to modify before execution
 
-Use this tool AFTER sentinel_detect_changes has confirmed the test scope.`,
+Use this tool AFTER axolotl_detect_changes has confirmed the test scope.`,
 	parameters: [
 		{
 			name: "changed_files",
 			required: true,
-			instruction: `A JSON array of file paths that were detected for testing. This should come from the sentinel_detect_changes result.
+			instruction: `A JSON array of file paths that were detected for testing. This should come from the axolotl_detect_changes result.
 Example: ["src/auth/login.ts", "src/components/LoginForm.tsx"]`,
 			usage: '["src/auth/login.ts", "src/components/LoginForm.tsx"]',
 		},
@@ -73,9 +73,9 @@ Example:
 			name: "diff_content",
 			required: false,
 			instruction: `Optional diff content showing the actual changes. This helps understand what specifically changed and needs testing.`,
-			usage: "The git diff content from sentinel_detect_changes",
+			usage: "The git diff content from axolotl_detect_changes",
 		},
 	],
 }
 
-export const sentinel_generate_plan_variants = [GENERIC]
+export const axolotl_generate_plan_variants = [GENERIC]

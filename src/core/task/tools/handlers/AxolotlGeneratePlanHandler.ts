@@ -1,7 +1,7 @@
 import type { ToolUse } from "@core/assistant-message"
 import { formatResponse } from "@core/prompts/responses"
 import path from "path"
-import type { ClineSaySentinelGeneratePlan, SentinelTestCase, SentinelTestPlan } from "@/shared/ExtensionMessage"
+import type { ClineSayAxolotlGeneratePlan, AxolotlTestCase, AxolotlTestPlan } from "@/shared/ExtensionMessage"
 import { ClineDefaultTool } from "@/shared/tools"
 import type { ToolResponse } from "../../index"
 import type { IPartialBlockHandler, IToolHandler } from "../ToolExecutorCoordinator"
@@ -9,15 +9,15 @@ import type { TaskConfig } from "../types/TaskConfig"
 import type { StronglyTypedUIHelpers } from "../types/UIHelpers"
 
 /**
- * Helper to create a stringified ClineSaySentinelGeneratePlan message
+ * Helper to create a stringified ClineSayAxolotlGeneratePlan message
  */
 function createPlanMessage(
-	status: ClineSaySentinelGeneratePlan["status"],
-	plan?: SentinelTestPlan,
+	status: ClineSayAxolotlGeneratePlan["status"],
+	plan?: AxolotlTestPlan,
 	planFilePath?: string,
 	error?: string,
 ): string {
-	const message: ClineSaySentinelGeneratePlan = { status }
+	const message: ClineSayAxolotlGeneratePlan = { status }
 	if (plan) {
 		message.plan = plan
 	}
@@ -30,8 +30,8 @@ function createPlanMessage(
 	return JSON.stringify(message)
 }
 
-export class SentinelGeneratePlanHandler implements IToolHandler, IPartialBlockHandler {
-	readonly name = ClineDefaultTool.SENTINEL_GENERATE_PLAN
+export class AxolotlGeneratePlanHandler implements IToolHandler, IPartialBlockHandler {
+	readonly name = ClineDefaultTool.AXOLOTL_GENERATE_PLAN
 
 	getDescription(block: ToolUse): string {
 		return `[${block.name}]`
@@ -40,7 +40,7 @@ export class SentinelGeneratePlanHandler implements IToolHandler, IPartialBlockH
 	async handlePartialBlock(_block: ToolUse, uiHelpers: StronglyTypedUIHelpers): Promise<void> {
 		// Show loading message for partial blocks
 		const messageText = createPlanMessage("generating")
-		await uiHelpers.say("sentinel_generate_plan", messageText, undefined, undefined, true)
+		await uiHelpers.say("axolotl_generate_plan", messageText, undefined, undefined, true)
 	}
 
 	async execute(config: TaskConfig, block: ToolUse): Promise<ToolResponse> {
@@ -76,7 +76,7 @@ export class SentinelGeneratePlanHandler implements IToolHandler, IPartialBlockH
 		// If no test_cases provided, return instructions for the AI to generate them
 		if (!testCasesJson) {
 			return formatResponse.toolResult(
-				`🔍 **Sentinel QA: Test Case Generation Required**
+				`🔍 **Axolotl QA: Test Case Generation Required**
 
 Before generating the test plan, you need to analyze the code and create test cases.
 
@@ -96,7 +96,7 @@ ${diffContent ? `**Diff Summary:**\n${diffContent.substring(0, 1000)}${diffConte
    - **Error handling**: Invalid inputs, error states, network failures
    - **UI/UX tests**: Visual rendering, user interactions, loading states
 
-4. Call sentinel_generate_plan again with the test_cases parameter containing a JSON array:
+4. Call axolotl_generate_plan again with the test_cases parameter containing a JSON array:
 
 \`\`\`json
 {
@@ -133,7 +133,7 @@ Generate at least 5-10 meaningful test cases based on actual code analysis.`,
 
 		// Show loading message
 		await config.callbacks.say(
-			"sentinel_generate_plan",
+			"axolotl_generate_plan",
 			createPlanMessage("generating"),
 			undefined,
 			undefined,
@@ -142,7 +142,7 @@ Generate at least 5-10 meaningful test cases based on actual code analysis.`,
 
 		try {
 			// Parse AI-generated test cases
-			let testCases: SentinelTestCase[]
+			let testCases: AxolotlTestCase[]
 			try {
 				const parsed = JSON.parse(testCasesJson)
 				testCases = Array.isArray(parsed) ? parsed : parsed.test_cases || parsed.testCases || []
@@ -169,7 +169,7 @@ Generate at least 5-10 meaningful test cases based on actual code analysis.`,
 				)
 			}
 
-			const testPlan: SentinelTestPlan = {
+			const testPlan: AxolotlTestPlan = {
 				targetFiles: changedFiles,
 				prdDescription,
 				testCases,
@@ -182,7 +182,7 @@ Generate at least 5-10 meaningful test cases based on actual code analysis.`,
 
 			// Save to disk
 			const timestamp = new Date().toISOString().replace(/[:.]/g, "-").substring(0, 19)
-			const planFileName = `sentinel_test_plan_${timestamp}.md`
+			const planFileName = `axolotl_test_plan_${timestamp}.md`
 			const planFilePath = path.join(config.cwd, planFileName)
 
 			// Use diffViewProvider to show streaming effect (lines turning green)
@@ -211,7 +211,7 @@ Generate at least 5-10 meaningful test cases based on actual code analysis.`,
 			const confirmMessage = this.buildConfirmationMessage(testPlan, planFilePath)
 
 			const { response, text: userFeedback } = await config.callbacks.ask(
-				"sentinel_confirm_plan",
+				"axolotl_confirm_plan",
 				JSON.stringify({
 					message: confirmMessage,
 					plan: testPlan,
@@ -225,13 +225,13 @@ Generate at least 5-10 meaningful test cases based on actual code analysis.`,
 			// 1. Reject button → cancel
 			if (response === "noButtonClicked") {
 				await config.callbacks.say(
-					"sentinel_generate_plan",
+					"axolotl_generate_plan",
 					createPlanMessage("cancelled", testPlan, planFilePath),
 					undefined,
 					undefined,
 					false,
 				)
-				return formatResponse.toolResult("User rejected the Sentinel QA test plan.")
+				return formatResponse.toolResult("User rejected the Axolotl QA test plan.")
 			}
 
 			// 2. User provided text feedback (via message, or typed text + clicked Approve)
@@ -242,13 +242,13 @@ Generate at least 5-10 meaningful test cases based on actual code analysis.`,
 				// Explicit cancel
 				if (feedbackLower.includes("cancel")) {
 					await config.callbacks.say(
-						"sentinel_generate_plan",
+						"axolotl_generate_plan",
 						createPlanMessage("cancelled", testPlan, planFilePath),
 						undefined,
 						undefined,
 						false,
 					)
-					return formatResponse.toolResult("User cancelled the Sentinel QA test plan generation.")
+					return formatResponse.toolResult("User cancelled the Axolotl QA test plan generation.")
 				}
 
 				// Any other text = user wants to modify the plan
@@ -256,7 +256,7 @@ Generate at least 5-10 meaningful test cases based on actual code analysis.`,
 				await config.callbacks.say("user_feedback", feedbackText, undefined, undefined, false)
 
 				await config.callbacks.say(
-					"sentinel_generate_plan",
+					"axolotl_generate_plan",
 					createPlanMessage("confirmed", testPlan, planFilePath),
 					undefined,
 					undefined,
@@ -264,7 +264,7 @@ Generate at least 5-10 meaningful test cases based on actual code analysis.`,
 				)
 
 				return formatResponse.toolResult(
-					`User provided feedback on the test plan. Please modify the test plan based on their feedback and call sentinel_generate_plan again with updated test_cases.
+					`User provided feedback on the test plan. Please modify the test plan based on their feedback and call axolotl_generate_plan again with updated test_cases.
 
 📝 User Feedback:
 ${feedbackText}
@@ -276,14 +276,14 @@ ${feedbackText}
 Instructions:
 1. Review the user's feedback carefully
 2. Modify, add, or remove test cases as requested
-3. Call sentinel_generate_plan again with the updated test_cases parameter
+3. Call axolotl_generate_plan again with the updated test_cases parameter
 4. The user will review the modified plan again`,
 				)
 			}
 
 			// 3. Approve with no text → proceed
 			await config.callbacks.say(
-				"sentinel_generate_plan",
+				"axolotl_generate_plan",
 				createPlanMessage("confirmed", testPlan, planFilePath),
 				undefined,
 				undefined,
@@ -292,7 +292,7 @@ Instructions:
 
 			// Build the response with test plan details for the next phase
 			return formatResponse.toolResult(
-				`Sentinel QA: Test Plan Generated and Confirmed
+				`Axolotl QA: Test Plan Generated and Confirmed
 
 📋 Test Plan Summary:
 - Total Test Cases: ${testPlan.totalTests}
@@ -308,7 +308,7 @@ User has confirmed the test plan. You can now proceed with:
 1. Inject logging statements into the code for evidence capture
 2. Start the development server
 3. Execute browser tests using browser_action
-4. Generate the final report using sentinel_qa_report
+4. Generate the final report using axolotl_qa_report
 
 Remember to:
 - Use browser_action for ALL UI testing (not curl)
@@ -318,10 +318,10 @@ Remember to:
 			)
 		} catch (error) {
 			const errorMessage = error instanceof Error ? error.message : "Unknown error"
-			console.error("Error in sentinel_generate_plan:", errorMessage)
+			console.error("Error in axolotl_generate_plan:", errorMessage)
 
 			await config.callbacks.say(
-				"sentinel_generate_plan",
+				"axolotl_generate_plan",
 				createPlanMessage("error", undefined, undefined, errorMessage),
 				undefined,
 				undefined,
@@ -332,7 +332,7 @@ Remember to:
 		}
 	}
 
-	private generateMarkdown(plan: SentinelTestPlan): string {
+	private generateMarkdown(plan: AxolotlTestPlan): string {
 		const now = new Date().toISOString()
 
 		const testsByCategory = {
@@ -342,7 +342,7 @@ Remember to:
 			ui_ux: plan.testCases.filter((t) => t.category === "ui_ux"),
 		}
 
-		const formatTestCase = (tc: SentinelTestCase) => `
+		const formatTestCase = (tc: AxolotlTestCase) => `
 ### ${tc.id}: ${tc.name}
 
 **Priority:** ${tc.priority === "high" ? "🔴 High" : tc.priority === "medium" ? "🟠 Medium" : "🟢 Low"}
@@ -359,7 +359,7 @@ ${tc.steps.map((s, i) => `${i + 1}. ${s}`).join("\n")}
 		// Generate mermaid flowchart for test flow
 		const mermaidDiagram = this.generateMermaidDiagram(plan)
 
-		return `# 🎯 Sentinel QA Test Plan
+		return `# 🎯 Axolotl QA Test Plan
 
 > **Generated:** ${now}
 > **Target Files:** ${plan.targetFiles.join(", ")}
@@ -419,11 +419,11 @@ ${testsByCategory.ui_ux.length > 0 ? testsByCategory.ui_ux.map(formatTestCase).j
 
 ---
 
-*This test plan was generated by Sentinel QA. You can edit this file to add, remove, or modify test cases before running the tests.*
+*This test plan was generated by Axolotl QA. You can edit this file to add, remove, or modify test cases before running the tests.*
 `
 	}
 
-	private generateMermaidDiagram(plan: SentinelTestPlan): string {
+	private generateMermaidDiagram(plan: AxolotlTestPlan): string {
 		const lines: string[] = ["flowchart TD"]
 
 		// Start node
@@ -486,7 +486,7 @@ ${testsByCategory.ui_ux.length > 0 ? testsByCategory.ui_ux.map(formatTestCase).j
 		return lines.join("\n")
 	}
 
-	private buildConfirmationMessage(plan: SentinelTestPlan, planFilePath: string): string {
+	private buildConfirmationMessage(plan: AxolotlTestPlan, planFilePath: string): string {
 		const testSummary = plan.testCases
 			.slice(0, 5)
 			.map((tc) => `  • [${tc.id}] ${tc.name} (${tc.priority})`)
@@ -494,7 +494,7 @@ ${testsByCategory.ui_ux.length > 0 ? testsByCategory.ui_ux.map(formatTestCase).j
 
 		const moreTests = plan.testCases.length > 5 ? `\n  ... and ${plan.testCases.length - 5} more tests` : ""
 
-		return `📋 **Sentinel QA: Test Plan Generated**
+		return `📋 **Axolotl QA: Test Plan Generated**
 
 **Total Test Cases:** ${plan.totalTests}
 **Target Files:** ${plan.targetFiles.length}

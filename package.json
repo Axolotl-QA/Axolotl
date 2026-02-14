@@ -8,7 +8,7 @@
 		"vscode": "^1.84.0"
 	},
 	"author": {
-		"name": "Sentinel"
+		"name": "Axolotl"
 	},
 	"license": "Apache-2.0",
 	"publisher": "saoudrizwan",
@@ -57,22 +57,22 @@
 		},
 		"walkthroughs": [
 			{
-				"id": "SentinelWalkthrough",
-				"title": "Meet Sentinel, your new qa partner",
-				"description": "Sentinel codes like a qa because it thinks like one. Here are 5 ways to put it to work:",
+				"id": "AxolotlWalkthrough",
+				"title": "Meet Axolotl, your new qa partner",
+				"description": "Axolotl codes like a qa because it thinks like one. Here are 5 ways to put it to work:",
 				"steps": [
 					{
 						"id": "welcome",
 						"title": "Start with a Goal, Not Just a Prompt",
-						"description": "Tell Sentinel what you want to achieve. It plans, asks, and then codes, like a true partner.",
+						"description": "Tell Axolotl what you want to achieve. It plans, asks, and then codes, like a true partner.",
 						"media": {
 							"markdown": "walkthrough/step1.md"
 						}
 					},
 					{
 						"id": "learn",
-						"title": "Let Sentinel Learn Your Codebase",
-						"description": "Point Sentinel to your project. It builds understanding to make smart, context-aware changes.",
+						"title": "Let Axolotl Learn Your Codebase",
+						"description": "Point Axolotl to your project. It builds understanding to make smart, context-aware changes.",
 						"media": {
 							"markdown": "walkthrough/step2.md"
 						}
@@ -80,7 +80,7 @@
 					{
 						"id": "advanced-features",
 						"title": "Always Use the Best AI Models",
-						"description": "Sentinel empowers you with State-of-the-Art AI, connecting to top models (Anthropic, Gemini, OpenAI & more).",
+						"description": "Axolotl empowers you with State-of-the-Art AI, connecting to top models (Anthropic, Gemini, OpenAI & more).",
 						"media": {
 							"markdown": "walkthrough/step3.md"
 						}
@@ -96,7 +96,7 @@
 					{
 						"id": "getting-started",
 						"title": "You're Always in Control",
-						"description": "Review Sentinel's plans and diffs. Approve changes before they happen. No surprises.",
+						"description": "Review Axolotl's plans and diffs. Approve changes before they happen. No surprises.",
 						"media": {
 							"markdown": "walkthrough/step5.md"
 						},
@@ -155,72 +155,72 @@
 			{
 				"command": "cline.dev.createTestTasks",
 				"title": "Create Test Tasks",
-				"category": "Sentinel",
+				"category": "Axolotl",
 				"when": "cline.isDevMode"
 			},
 			{
 				"command": "cline.dev.expireMcpOAuthTokens",
 				"title": "Expire MCP OAuth Tokens (for testing)",
-				"category": "Sentinel",
+				"category": "Axolotl",
 				"when": "cline.isDevMode"
 			},
 			{
 				"command": "cline.addToChat",
-				"title": "Add to Sentinel",
-				"category": "Sentinel"
+				"title": "Add to Axolotl",
+				"category": "Axolotl"
 			},
 			{
 				"command": "cline.addTerminalOutputToChat",
-				"title": "Add to Sentinel",
-				"category": "Sentinel"
+				"title": "Add to Axolotl",
+				"category": "Axolotl"
 			},
 			{
 				"command": "cline.focusChatInput",
 				"title": "Jump to Chat Input",
-				"category": "Sentinel"
+				"category": "Axolotl"
 			},
 			{
 				"command": "cline.generateGitCommitMessage",
-				"title": "Generate Commit Message with Sentinel",
-				"category": "Sentinel",
+				"title": "Generate Commit Message with Axolotl",
+				"category": "Axolotl",
 				"icon": "$(cline-icon)"
 			},
 			{
 				"command": "cline.abortGitCommitMessage",
-				"title": "Generate Commit Message with Sentinel - Stop",
-				"category": "Sentinel",
+				"title": "Generate Commit Message with Axolotl - Stop",
+				"category": "Axolotl",
 				"icon": "$(debug-stop)"
 			},
 			{
 				"command": "cline.explainCode",
-				"title": "Explain with Sentinel",
-				"category": "Sentinel"
+				"title": "Explain with Axolotl",
+				"category": "Axolotl"
 			},
 			{
 				"command": "cline.improveCode",
-				"title": "Improve with Sentinel",
-				"category": "Sentinel"
+				"title": "Improve with Axolotl",
+				"category": "Axolotl"
 			},
 			{
 				"command": "cline.openWalkthrough",
 				"title": "Open Walkthrough",
-				"category": "Sentinel"
+				"category": "Axolotl"
 			},
 			{
 				"command": "cline.reconstructTaskHistory",
 				"title": "Reconstruct Task History",
-				"category": "Sentinel"
+				"category": "Axolotl"
 			},
 			{
 				"command": "cline.reviewComment.reply",
 				"title": "Reply",
-				"category": "Sentinel",
+				"category": "Axolotl",
 				"enablement": "!commentIsEmpty"
 			},
 			{
 				"command": "cline.reviewComment.addToChat",
-				"title": "Add to Sentinel Chat",
-				"category": "Sentinel",
+				"title": "Add to Axolotl Chat",
+				"category": "Axolotl",
 				"icon": "$(link-external)"
 			}
 		],
@@ -334,7 +334,7 @@
 			]
 		},
 		"configuration": {
-			"title": "Sentinel",
+			"title": "Axolotl",
 			"properties": {}
 		}
 	},

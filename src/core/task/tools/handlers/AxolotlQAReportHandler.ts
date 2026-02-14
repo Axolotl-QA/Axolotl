@@ -2,7 +2,7 @@ import type { ToolUse } from "@core/assistant-message"
 import { formatResponse } from "@core/prompts/responses"
 import fs from "fs/promises"
 import path from "path"
-import type { ClineSaySentinelQAReport } from "@/shared/ExtensionMessage"
+import type { ClineSayAxolotlQAReport } from "@/shared/ExtensionMessage"
 import { ClineDefaultTool } from "@/shared/tools"
 import type { ToolResponse } from "../../index"
 import type { IPartialBlockHandler, IToolHandler } from "../ToolExecutorCoordinator"
@@ -10,14 +10,14 @@ import type { TaskConfig } from "../types/TaskConfig"
 import type { StronglyTypedUIHelpers } from "../types/UIHelpers"
 
 /**
- * Helper to create a stringified ClineSaySentinelQAReport message
+ * Helper to create a stringified ClineSayAxolotlQAReport message
  */
 function createReportMessage(
-	status: ClineSaySentinelQAReport["status"],
-	report?: ClineSaySentinelQAReport["report"],
+	status: ClineSayAxolotlQAReport["status"],
+	report?: ClineSayAxolotlQAReport["report"],
 	error?: string,
 ): string {
-	const message: ClineSaySentinelQAReport = { status }
+	const message: ClineSayAxolotlQAReport = { status }
 	if (report) {
 		message.report = report
 	}
@@ -27,8 +27,8 @@ function createReportMessage(
 	return JSON.stringify(message)
 }
 
-export class SentinelQAReportHandler implements IToolHandler, IPartialBlockHandler {
-	readonly name = ClineDefaultTool.SENTINEL_QA_REPORT
+export class AxolotlQAReportHandler implements IToolHandler, IPartialBlockHandler {
+	readonly name = ClineDefaultTool.AXOLOTL_QA_REPORT
 
 	getDescription(block: ToolUse): string {
 		return `[${block.name}]`
@@ -37,7 +37,7 @@ export class SentinelQAReportHandler implements IToolHandler, IPartialBlockHandl
 	async handlePartialBlock(block: ToolUse, uiHelpers: StronglyTypedUIHelpers): Promise<void> {
 		// Show loading message for partial blocks
 		const messageText = createReportMessage("generating")
-		await uiHelpers.say("sentinel_qa_report", messageText, undefined, undefined, true)
+		await uiHelpers.say("axolotl_qa_report", messageText, undefined, undefined, true)
 	}
 
 	async execute(config: TaskConfig, block: ToolUse): Promise<ToolResponse> {
@@ -52,7 +52,7 @@ export class SentinelQAReportHandler implements IToolHandler, IPartialBlockHandl
 		config.taskState.consecutiveMistakeCount = 0
 
 		// Show loading message (auto-approved, no user prompt needed)
-		await config.callbacks.say("sentinel_qa_report", createReportMessage("generating"), undefined, undefined, true)
+		await config.callbacks.say("axolotl_qa_report", createReportMessage("generating"), undefined, undefined, true)
 
 		try {
 			// Parse the JSON report
@@ -78,12 +78,12 @@ export class SentinelQAReportHandler implements IToolHandler, IPartialBlockHandl
 			}
 
 			// Save report to disk (in current working directory)
-			const reportPath = path.join(config.cwd, "sentinel-qa-report.json")
+			const reportPath = path.join(config.cwd, "axolotl-qa-report.json")
 			await fs.writeFile(reportPath, JSON.stringify(report, null, 2), "utf8")
 
 			// Display the complete report in UI
 			await config.callbacks.say(
-				"sentinel_qa_report",
+				"axolotl_qa_report",
 				createReportMessage("complete", report),
 				undefined,
 				undefined,
@@ -100,7 +100,7 @@ export class SentinelQAReportHandler implements IToolHandler, IPartialBlockHandl
 			const verdictDisplay = verdictMap[summary.verdict as string] || summary.verdict
 
 			return formatResponse.toolResult(
-				`Sentinel QA Report Generated
+				`Axolotl QA Report Generated
 
 Summary:
 - Total Tests: ${summary.total_tests || 0}
@@ -114,10 +114,10 @@ Report saved to: ${reportPath}`,
 			)
 		} catch (error) {
 			const errorMessage = error instanceof Error ? error.message : "Unknown error"
-			console.error("Error in sentinel_qa_report:", errorMessage)
+			console.error("Error in axolotl_qa_report:", errorMessage)
 
 			await config.callbacks.say(
-				"sentinel_qa_report",
+				"axolotl_qa_report",
 				createReportMessage("error", undefined, errorMessage),
 				undefined,
 				undefined,
