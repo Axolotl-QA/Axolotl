@@ -1,29 +1,31 @@
 {
-  "permissions": {
-    "allow": [
-      "Bash(while IFS= read -r file)",
-      "Bash(do rm -f \"$file\")",
-      "Bash(echo:*)",
-      "Bash(done)",
-      "Bash(git push:*)",
-      "Bash(find:*)",
-      "Bash(curl:*)",
-      "mcp__insforge__fetch-docs",
-      "mcp__insforge__get-backend-metadata",
-      "mcp__insforge__get-anon-key",
-      "mcp__insforge__fetch-sdk-docs",
-      "mcp__insforge__run-raw-sql",
-      "Bash(npm run build:*)",
-      "Bash(npm run:*)",
-      "Bash(node esbuild.mjs:*)",
-      "Bash(node:*)",
-      "Bash(ls:*)",
-      "Bash(brew list:*)",
-      "Bash(python3:*)",
-      "Bash(brew install:*)"
-    ]
-  },
-  "enabledMcpjsonServers": [
-    "insforge"
-  ]
+	"permissions": {
+		"allow": [
+			"Bash(while IFS= read -r file)",
+			"Bash(do rm -f \"$file\")",
+			"Bash(echo:*)",
+			"Bash(done)",
+			"Bash(git push:*)",
+			"Bash(find:*)",
+			"Bash(curl:*)",
+			"mcp__insforge__fetch-docs",
+			"mcp__insforge__get-backend-metadata",
+			"mcp__insforge__get-anon-key",
+			"mcp__insforge__fetch-sdk-docs",
+			"mcp__insforge__run-raw-sql",
+			"Bash(npm run build:*)",
+			"Bash(npm run:*)",
+			"Bash(node esbuild.mjs:*)",
+			"Bash(node:*)",
+			"Bash(ls:*)",
+			"Bash(brew list:*)",
+			"Bash(python3:*)",
+			"Bash(brew install:*)",
+			"Bash(git commit:*)",
+			"Bash(git -C /Users/franklin/axolotl/Sentinel status -s)",
+			"Bash(git -C /Users/franklin/axolotl/Sentinel add axolotl-logo-source.png)",
+			"Bash(git -C /Users/franklin/axolotl/Sentinel commit --no-verify -m \"chore: add axolotl logo source asset\")"
+		]
+	},
+	"enabledMcpjsonServers": ["insforge"]
 }
