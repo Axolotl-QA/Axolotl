@@ -1,29 +1,29 @@
-import { EmptyRequest } from "@shared/proto/cline/common"
-import { VSCodeButton } from "@vscode/webview-ui-toolkit/react"
-import { useState } from "react"
-import { useClineAuth } from "@/context/ClineAuthContext"
-import { useExtensionState } from "@/context/ExtensionStateContext"
-import { AccountServiceClient } from "@/services/grpc-client"
+import { EmptyRequest } from "@shared/proto/cline/common";
+import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
+import { useState } from "react";
+import { useClineAuth } from "@/context/ClineAuthContext";
+import { useExtensionState } from "@/context/ExtensionStateContext";
+import { AccountServiceClient } from "@/services/grpc-client";
 
 export const ClineAccountInfoCard = () => {
-	const { clineUser } = useClineAuth()
-	const { navigateToAccount } = useExtensionState()
-	const [isLoading, setIsLoading] = useState(false)
+	const { clineUser } = useClineAuth();
+	const { navigateToAccount } = useExtensionState();
+	const [isLoading, setIsLoading] = useState(false);
 
-	const user = clineUser || undefined
+	const user = clineUser || undefined;
 
 	const handleLogin = () => {
-		setIsLoading(true)
+		setIsLoading(true);
 		AccountServiceClient.accountLoginClicked(EmptyRequest.create())
 			.catch((err) => console.error("Failed to get login URL:", err))
 			.finally(() => {
-				setIsLoading(false)
-			})
-	}
+				setIsLoading(false);
+			});
+	};
 
 	const handleShowAccount = () => {
-		navigateToAccount()
-	}
+		navigateToAccount();
+	};
 
 	return (
 		<div className="max-w-[600px]">
@@ -33,8 +33,12 @@ export const ClineAccountInfoCard = () => {
 				</VSCodeButton>
 			) : (
 				<div>
-					<VSCodeButton className="mt-0" disabled={isLoading} onClick={handleLogin}>
-						Sign Up with Cline
+					<VSCodeButton
+						className="mt-0"
+						disabled={isLoading}
+						onClick={handleLogin}
+					>
+						Sign Up with Axolotl
 						{isLoading && (
 							<span className="ml-1 animate-spin">
 								<span className="codicon codicon-refresh"></span>
@@ -44,5 +48,5 @@ export const ClineAccountInfoCard = () => {
 				</div>
 			)}
 		</div>
-	)
-}
+	);
+};

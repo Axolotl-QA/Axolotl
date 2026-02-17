@@ -1,14 +1,21 @@
-import { isGPT5ModelFamily, isGPT51Model, isGPT52Model, isNextGenModelProvider } from "@utils/model-utils"
-import { ModelFamily } from "@/shared/prompts"
-import { ClineDefaultTool } from "@/shared/tools"
-import { SystemPromptSection } from "../../templates/placeholders"
-import { createVariant } from "../variant-builder"
-import { validateVariant } from "../variant-validator"
-import { GPT_5_TEMPLATE_OVERRIDES } from "./template"
+import {
+	isGPT5ModelFamily,
+	isGPT51Model,
+	isGPT52Model,
+	isNextGenModelProvider,
+} from "@utils/model-utils";
+import { ModelFamily } from "@/shared/prompts";
+import { ClineDefaultTool } from "@/shared/tools";
+import { SystemPromptSection } from "../../templates/placeholders";
+import { createVariant } from "../variant-builder";
+import { validateVariant } from "../variant-validator";
+import { GPT_5_TEMPLATE_OVERRIDES } from "./template";
 
 // Type-safe variant configuration using the builder pattern
 export const config = createVariant(ModelFamily.NATIVE_GPT_5)
-	.description("Prompt tailored to GPT-5 with native tool use support with less strict rules than GPT-5.1 variant")
+	.description(
+		"Prompt tailored to GPT-5 with native tool use support with less strict rules than GPT-5.1 variant",
+	)
 	.version(1)
 	.tags("gpt", "gpt-5", "advanced", "production", "native_tools")
 	.labels({
@@ -20,18 +27,19 @@ export const config = createVariant(ModelFamily.NATIVE_GPT_5)
 	// Match GPT-5 models from providers that support native tools
 	.matcher((context) => {
 		if (!context.enableNativeToolCalls) {
-			return false
+			return false;
 		}
-		const providerInfo = context.providerInfo
-		const modelId = providerInfo.model.id
+		const providerInfo = context.providerInfo;
+		const modelId = providerInfo.model.id;
 		return (
 			isGPT5ModelFamily(modelId) &&
 			// Exclude gpt-5.1 and gpt-5.2 models except for codex variants
-			(modelId.includes("codex") || (!isGPT51Model(modelId) && !isGPT52Model(modelId))) &&
+			(modelId.includes("codex") ||
+				(!isGPT51Model(modelId) && !isGPT52Model(modelId))) &&
 			// gpt-5-chat models do not support native tool use
 			!modelId.includes("chat") &&
 			isNextGenModelProvider(providerInfo)
-		)
+		);
 	})
 	.template(GPT_5_TEMPLATE_OVERRIDES.BASE)
 	.components(
@@ -47,6 +55,7 @@ export const config = createVariant(ModelFamily.NATIVE_GPT_5)
 		SystemPromptSection.OBJECTIVE,
 		SystemPromptSection.USER_INSTRUCTIONS,
 		SystemPromptSection.SKILLS,
+		SystemPromptSection.AXOLOTL_QA_WORKFLOW,
 	)
 	.tools(
 		ClineDefaultTool.BASH,
@@ -98,18 +107,29 @@ export const config = createVariant(ModelFamily.NATIVE_GPT_5)
 	.overrideComponent(SystemPromptSection.EDITING_FILES, {
 		enabled: false,
 	})
-	.build()
+	.build();
 
 // Compile-time validation
-const validationResult = validateVariant({ ...config, id: ModelFamily.NATIVE_GPT_5 }, { strict: true })
+const validationResult = validateVariant(
+	{ ...config, id: ModelFamily.NATIVE_GPT_5 },
+	{ strict: true },
+);
 if (!validationResult.isValid) {
-	console.error("GPT-5 variant configuration validation failed:", validationResult.errors)
-	throw new Error(`Invalid GPT-5 variant configuration: ${validationResult.errors.join(", ")}`)
+	console.error(
+		"GPT-5 variant configuration validation failed:",
+		validationResult.errors,
+	);
+	throw new Error(
+		`Invalid GPT-5 variant configuration: ${validationResult.errors.join(", ")}`,
+	);
 }
 
 if (validationResult.warnings.length > 0) {
-	console.warn("GPT-5 variant configuration warnings:", validationResult.warnings)
+	console.warn(
+		"GPT-5 variant configuration warnings:",
+		validationResult.warnings,
+	);
 }
 
 // Export type information for better IDE support
-export type GPT5VariantConfig = typeof config
+export type GPT5VariantConfig = typeof config;

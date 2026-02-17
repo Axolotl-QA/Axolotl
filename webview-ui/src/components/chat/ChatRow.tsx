@@ -1,20 +1,20 @@
-import { COMMAND_OUTPUT_STRING } from "@shared/combineCommandSequences"
+import { COMMAND_OUTPUT_STRING } from "@shared/combineCommandSequences";
 import {
-	ClineApiReqInfo,
-	ClineAskQuestion,
-	ClineAskUseMcpServer,
-	ClineMessage,
-	ClinePlanModeResponse,
-	ClineSayGenerateExplanation,
-	ClineSayAxolotlDetectChanges,
-	ClineSayAxolotlGeneratePlan,
-	ClineSayAxolotlQAReport,
-	ClineSayTool,
+	type ClineApiReqInfo,
+	type ClineAskQuestion,
+	type ClineAskUseMcpServer,
+	type ClineMessage,
+	type ClinePlanModeResponse,
+	type ClineSayAxolotlDetectChanges,
+	type ClineSayAxolotlGeneratePlan,
+	type ClineSayAxolotlQAReport,
+	type ClineSayGenerateExplanation,
+	type ClineSayTool,
 	COMPLETION_RESULT_CHANGES_FLAG,
-} from "@shared/ExtensionMessage"
-import { BooleanRequest, StringRequest } from "@shared/proto/cline/common"
-import { Mode } from "@shared/storage/types"
-import deepEqual from "fast-deep-equal"
+} from "@shared/ExtensionMessage";
+import { BooleanRequest, StringRequest } from "@shared/proto/cline/common";
+import type { Mode } from "@shared/storage/types";
+import deepEqual from "fast-deep-equal";
 import {
 	ArrowRightIcon,
 	BellIcon,
@@ -28,7 +28,7 @@ import {
 	LightbulbIcon,
 	Link2Icon,
 	LoaderCircleIcon,
-	LucideIcon,
+	type LucideIcon,
 	PencilIcon,
 	RefreshCwIcon,
 	SearchIcon,
@@ -37,104 +37,126 @@ import {
 	SquareMinusIcon,
 	TerminalIcon,
 	TriangleAlertIcon,
-} from "lucide-react"
-import { MouseEvent, memo, useCallback, useEffect, useMemo, useRef, useState } from "react"
-import { useSize } from "react-use"
-import { OptionsButtons } from "@/components/chat/OptionsButtons"
-import { CheckmarkControl } from "@/components/common/CheckmarkControl"
-import { WithCopyButton } from "@/components/common/CopyButton"
-import McpResponseDisplay from "@/components/mcp/chat-display/McpResponseDisplay"
-import McpResourceRow from "@/components/mcp/configuration/tabs/installed/server-row/McpResourceRow"
-import McpToolRow from "@/components/mcp/configuration/tabs/installed/server-row/McpToolRow"
-import { useExtensionState } from "@/context/ExtensionStateContext"
-import { cn } from "@/lib/utils"
-import { FileServiceClient, UiServiceClient } from "@/services/grpc-client"
-import { findMatchingResourceOrTemplate, getMcpServerDisplayName } from "@/utils/mcp"
-import CodeAccordian, { cleanPathPrefix } from "../common/CodeAccordian"
-import { CommandOutputContent, CommandOutputRow } from "./CommandOutputRow"
-import { CompletionOutputRow } from "./CompletionOutputRow"
-import { getIconByToolName } from "./chat-view"
-import { DiffEditRow } from "./DiffEditRow"
-import ErrorRow from "./ErrorRow"
-import HookMessage from "./HookMessage"
-import { MarkdownRow } from "./MarkdownRow"
-import NewTaskPreview from "./NewTaskPreview"
-import PlanCompletionOutputRow from "./PlanCompletionOutputRow"
-import QuoteButton from "./QuoteButton"
-import ReportBugPreview from "./ReportBugPreview"
-import SearchResultsDisplay from "./SearchResultsDisplay"
-import { ThinkingRow } from "./ThinkingRow"
-import { TypewriterText } from "./TypewriterText"
-import UserMessage from "./UserMessage"
+} from "lucide-react";
+import {
+	type MouseEvent,
+	memo,
+	useCallback,
+	useEffect,
+	useMemo,
+	useRef,
+	useState,
+} from "react";
+import { useSize } from "react-use";
+import { OptionsButtons } from "@/components/chat/OptionsButtons";
+import { CheckmarkControl } from "@/components/common/CheckmarkControl";
+import { WithCopyButton } from "@/components/common/CopyButton";
+import McpResponseDisplay from "@/components/mcp/chat-display/McpResponseDisplay";
+import McpResourceRow from "@/components/mcp/configuration/tabs/installed/server-row/McpResourceRow";
+import McpToolRow from "@/components/mcp/configuration/tabs/installed/server-row/McpToolRow";
+import { useExtensionState } from "@/context/ExtensionStateContext";
+import { cn } from "@/lib/utils";
+import { FileServiceClient, UiServiceClient } from "@/services/grpc-client";
+import {
+	findMatchingResourceOrTemplate,
+	getMcpServerDisplayName,
+} from "@/utils/mcp";
+import CodeAccordian, { cleanPathPrefix } from "../common/CodeAccordian";
+import { CommandOutputContent, CommandOutputRow } from "./CommandOutputRow";
+import { CompletionOutputRow } from "./CompletionOutputRow";
+import { getIconByToolName } from "./chat-view";
+import { DiffEditRow } from "./DiffEditRow";
+import ErrorRow from "./ErrorRow";
+import HookMessage from "./HookMessage";
+import { MarkdownRow } from "./MarkdownRow";
+import NewTaskPreview from "./NewTaskPreview";
+import PlanCompletionOutputRow from "./PlanCompletionOutputRow";
+import QuoteButton from "./QuoteButton";
+import ReportBugPreview from "./ReportBugPreview";
+import SearchResultsDisplay from "./SearchResultsDisplay";
+import { ThinkingRow } from "./ThinkingRow";
+import { TypewriterText } from "./TypewriterText";
+import UserMessage from "./UserMessage";
 
 // State type for api_req_started rendering
-type ApiReqState = "pre" | "thinking" | "error" | "final"
+type ApiReqState = "pre" | "thinking" | "error" | "final";
 
-const HEADER_CLASSNAMES = "flex items-center gap-2.5 mb-3"
+const HEADER_CLASSNAMES = "flex items-center gap-2.5 mb-3";
 
 interface ChatRowProps {
-	message: ClineMessage
-	isExpanded: boolean
-	onToggleExpand: (ts: number) => void
-	lastModifiedMessage?: ClineMessage
-	isLast: boolean
-	onHeightChange: (isTaller: boolean) => void
-	inputValue?: string
-	sendMessageFromChatRow?: (text: string, images: string[], files: string[]) => void
-	onSetQuote: (text: string) => void
-	onCancelCommand?: () => void
-	mode?: Mode
-	reasoningContent?: string
-	responseStarted?: boolean
-	isRequestInProgress?: boolean
+	message: ClineMessage;
+	isExpanded: boolean;
+	onToggleExpand: (ts: number) => void;
+	lastModifiedMessage?: ClineMessage;
+	isLast: boolean;
+	onHeightChange: (isTaller: boolean) => void;
+	inputValue?: string;
+	sendMessageFromChatRow?: (
+		text: string,
+		images: string[],
+		files: string[],
+	) => void;
+	onSetQuote: (text: string) => void;
+	onCancelCommand?: () => void;
+	mode?: Mode;
+	reasoningContent?: string;
+	responseStarted?: boolean;
+	isRequestInProgress?: boolean;
 }
 
 export interface QuoteButtonState {
-	visible: boolean
-	top: number
-	left: number
-	selectedText: string
+	visible: boolean;
+	top: number;
+	left: number;
+	selectedText: string;
 }
 
 interface ChatRowContentProps extends Omit<ChatRowProps, "onHeightChange"> {}
 
-export const ProgressIndicator = () => <LoaderCircleIcon className="size-2 mr-2 animate-spin" />
-const InvisibleSpacer = () => <div aria-hidden className="h-px" />
+export const ProgressIndicator = () => (
+	<LoaderCircleIcon className="size-2 mr-2 animate-spin" />
+);
+const InvisibleSpacer = () => <div aria-hidden className="h-px" />;
 
 const ChatRow = memo(
 	(props: ChatRowProps) => {
-		const { isLast, onHeightChange, message } = props
+		const { isLast, onHeightChange, message } = props;
 		// Store the previous height to compare with the current height
 		// This allows us to detect changes without causing re-renders
-		const prevHeightRef = useRef(0)
+		const prevHeightRef = useRef(0);
 
 		const [chatrow, { height }] = useSize(
 			<div className="relative pt-2.5 px-4">
 				<ChatRowContent {...props} />
 			</div>,
-		)
+		);
 
 		useEffect(() => {
 			// used for partials command output etc.
 			// NOTE: it's important we don't distinguish between partial or complete here since our scroll effects in chatview need to handle height change during partial -> complete
-			const isInitialRender = prevHeightRef.current === 0 // prevents scrolling when new element is added since we already scroll for that
+			const isInitialRender = prevHeightRef.current === 0; // prevents scrolling when new element is added since we already scroll for that
 			// height starts off at Infinity
-			if (isLast && height !== 0 && height !== Infinity && height !== prevHeightRef.current) {
+			if (
+				isLast &&
+				height !== 0 &&
+				height !== Infinity &&
+				height !== prevHeightRef.current
+			) {
 				if (!isInitialRender) {
-					onHeightChange(height > prevHeightRef.current)
+					onHeightChange(height > prevHeightRef.current);
 				}
-				prevHeightRef.current = height
+				prevHeightRef.current = height;
 			}
-		}, [height, isLast, onHeightChange, message])
+		}, [height, isLast, onHeightChange]);
 
 		// we cannot return null as virtuoso does not support it so we use a separate visibleMessages array to filter out messages that should not be rendered
-		return chatrow
+		return chatrow;
 	},
 	// memo does shallow comparison of props, so we need to do deep comparison of arrays/objects whose properties might change
 	deepEqual,
-)
+);
 
-export default ChatRow
+export default ChatRow;
 
 export const ChatRowContent = memo(
 	({
@@ -159,139 +181,174 @@ export const ChatRowContent = memo(
 			onRelinquishControl,
 			vscodeTerminalExecutionMode,
 			clineMessages,
-		} = useExtensionState()
-		const [seeNewChangesDisabled, setSeeNewChangesDisabled] = useState(false)
-		const [explainChangesDisabled, setExplainChangesDisabled] = useState(false)
+		} = useExtensionState();
+		const [seeNewChangesDisabled, setSeeNewChangesDisabled] = useState(false);
+		const [explainChangesDisabled, setExplainChangesDisabled] = useState(false);
 		const [quoteButtonState, setQuoteButtonState] = useState<QuoteButtonState>({
 			visible: false,
 			top: 0,
 			left: 0,
 			selectedText: "",
-		})
-		const contentRef = useRef<HTMLDivElement>(null)
+		});
+		const contentRef = useRef<HTMLDivElement>(null);
 
 		// Command output expansion state (for all messages, but only used by command messages)
-		const [isOutputFullyExpanded, setIsOutputFullyExpanded] = useState(false)
-		const prevCommandExecutingRef = useRef<boolean>(false)
+		const [isOutputFullyExpanded, setIsOutputFullyExpanded] = useState(false);
+		const prevCommandExecutingRef = useRef<boolean>(false);
 
-		const hasAutoExpandedRef = useRef(false)
-		const hasAutoCollapsedRef = useRef(false)
-		const prevIsLastRef = useRef(isLast)
+		const hasAutoExpandedRef = useRef(false);
+		const hasAutoCollapsedRef = useRef(false);
+		const prevIsLastRef = useRef(isLast);
 
 		// Auto-expand completion output when it's the last message (runs once per message)
 		useEffect(() => {
-			const isCompletionResult = message.ask === "completion_result" || message.say === "completion_result"
+			const isCompletionResult =
+				message.ask === "completion_result" ||
+				message.say === "completion_result";
 
 			// Auto-expand if it's last and we haven't already auto-expanded
 			if (isLast && isCompletionResult && !hasAutoExpandedRef.current) {
-				hasAutoExpandedRef.current = true
-				hasAutoCollapsedRef.current = false // Reset the auto-collapse flag when expanding
+				hasAutoExpandedRef.current = true;
+				hasAutoCollapsedRef.current = false; // Reset the auto-collapse flag when expanding
 			}
-		}, [isLast, message.ask, message.say])
+		}, [isLast, message.ask, message.say]);
 
 		// Auto-collapse completion output ONCE when transitioning from last to not-last
 		useEffect(() => {
-			const isCompletionResult = message.ask === "completion_result" || message.say === "completion_result"
-			const wasLast = prevIsLastRef.current
+			const isCompletionResult =
+				message.ask === "completion_result" ||
+				message.say === "completion_result";
+			const wasLast = prevIsLastRef.current;
 
 			// Only auto-collapse if transitioning from last to not-last, and we haven't already auto-collapsed
-			if (wasLast && !isLast && isCompletionResult && !hasAutoCollapsedRef.current) {
-				hasAutoCollapsedRef.current = true
-				hasAutoExpandedRef.current = false // Reset the auto-expand flag when collapsing
+			if (
+				wasLast &&
+				!isLast &&
+				isCompletionResult &&
+				!hasAutoCollapsedRef.current
+			) {
+				hasAutoCollapsedRef.current = true;
+				hasAutoExpandedRef.current = false; // Reset the auto-expand flag when collapsing
 			}
 
-			prevIsLastRef.current = isLast
-		}, [isLast, message.ask, message.say])
+			prevIsLastRef.current = isLast;
+		}, [isLast, message.ask, message.say]);
 
-		const [cost, apiReqCancelReason, apiReqStreamingFailedMessage] = useMemo(() => {
-			if (message.text != null && message.say === "api_req_started") {
-				const info: ClineApiReqInfo = JSON.parse(message.text)
-				return [info.cost, info.cancelReason, info.streamingFailedMessage, info.retryStatus]
-			}
-			return [undefined, undefined, undefined, undefined, undefined]
-		}, [message.text, message.say])
+		const [cost, _apiReqCancelReason, apiReqStreamingFailedMessage] =
+			useMemo(() => {
+				if (message.text != null && message.say === "api_req_started") {
+					const info: ClineApiReqInfo = JSON.parse(message.text);
+					return [
+						info.cost,
+						info.cancelReason,
+						info.streamingFailedMessage,
+						info.retryStatus,
+					];
+				}
+				return [undefined, undefined, undefined, undefined, undefined];
+			}, [message.text, message.say]);
 
 		// when resuming task last won't be api_req_failed but a resume_task message so api_req_started will show loading spinner. that's why we just remove the last api_req_started that failed without streaming anything
 		const apiRequestFailedMessage =
 			isLast && lastModifiedMessage?.ask === "api_req_failed" // if request is retried then the latest message is a api_req_retried
 				? lastModifiedMessage?.text
-				: undefined
+				: undefined;
 
-		const type = message.type === "ask" ? message.ask : message.say
+		const type = message.type === "ask" ? message.ask : message.say;
 
-		const isCommandMessage = type === "command"
+		const isCommandMessage = type === "command";
 		// Check if command has output to determine if it's actually executing
-		const commandHasOutput = message.text?.includes(COMMAND_OUTPUT_STRING) ?? false
+		const commandHasOutput =
+			message.text?.includes(COMMAND_OUTPUT_STRING) ?? false;
 		// A command is executing if it has output but hasn't completed yet
-		const isCommandExecuting = isCommandMessage && !message.commandCompleted && commandHasOutput
+		const isCommandExecuting =
+			isCommandMessage && !message.commandCompleted && commandHasOutput;
 		// A command is pending if it hasn't started (no output) and hasn't completed
-		const isCommandPending = isCommandMessage && isLast && !message.commandCompleted && !commandHasOutput
-		const isCommandCompleted = isCommandMessage && message.commandCompleted === true
+		const isCommandPending =
+			isCommandMessage &&
+			isLast &&
+			!message.commandCompleted &&
+			!commandHasOutput;
+		const isCommandCompleted =
+			isCommandMessage && message.commandCompleted === true;
 
-		const isMcpServerResponding = isLast && lastModifiedMessage?.say === "mcp_server_request_started"
+		const isMcpServerResponding =
+			isLast && lastModifiedMessage?.say === "mcp_server_request_started";
 
 		const handleToggle = useCallback(() => {
-			onToggleExpand(message.ts)
-		}, [onToggleExpand, message.ts])
+			onToggleExpand(message.ts);
+		}, [onToggleExpand, message.ts]);
 
 		// Use the onRelinquishControl hook instead of message event
 		useEffect(() => {
 			return onRelinquishControl(() => {
-				setSeeNewChangesDisabled(false)
-				setExplainChangesDisabled(false)
-			})
-		}, [onRelinquishControl])
+				setSeeNewChangesDisabled(false);
+				setExplainChangesDisabled(false);
+			});
+		}, [onRelinquishControl]);
 
 		// --- Quote Button Logic ---
 		// MOVE handleQuoteClick INSIDE ChatRowContent
 		const handleQuoteClick = useCallback(() => {
-			onSetQuote(quoteButtonState.selectedText)
-			window.getSelection()?.removeAllRanges() // Clear the browser selection
-			setQuoteButtonState({ visible: false, top: 0, left: 0, selectedText: "" })
-		}, [onSetQuote, quoteButtonState.selectedText]) // <-- Use onSetQuote from props
+			onSetQuote(quoteButtonState.selectedText);
+			window.getSelection()?.removeAllRanges(); // Clear the browser selection
+			setQuoteButtonState({
+				visible: false,
+				top: 0,
+				left: 0,
+				selectedText: "",
+			});
+		}, [onSetQuote, quoteButtonState.selectedText]); // <-- Use onSetQuote from props
 
 		const handleMouseUp = useCallback((event: MouseEvent<HTMLDivElement>) => {
 			// Get the target element immediately, before the timeout
-			const targetElement = event.target as Element
-			const isClickOnButton = !!targetElement.closest(".quote-button-class")
+			const targetElement = event.target as Element;
+			const isClickOnButton = !!targetElement.closest(".quote-button-class");
 
 			// Delay the selection check slightly
 			setTimeout(() => {
 				// Now, check the selection state *after* the browser has likely updated it
-				const selection = window.getSelection()
-				const selectedText = selection?.toString().trim() ?? ""
+				const selection = window.getSelection();
+				const selectedText = selection?.toString().trim() ?? "";
 
-				let shouldShowButton = false
-				let buttonTop = 0
-				let buttonLeft = 0
-				let textToQuote = ""
+				let shouldShowButton = false;
+				let buttonTop = 0;
+				let buttonLeft = 0;
+				let textToQuote = "";
 
 				// Condition 1: Check if there's a valid, non-collapsed selection within bounds
 				// Ensure contentRef.current still exists in case component unmounted during timeout
-				if (selectedText && contentRef.current && selection && selection.rangeCount > 0 && !selection.isCollapsed) {
-					const range = selection.getRangeAt(0)
-					const rangeRect = range.getBoundingClientRect()
+				if (
+					selectedText &&
+					contentRef.current &&
+					selection &&
+					selection.rangeCount > 0 &&
+					!selection.isCollapsed
+				) {
+					const range = selection.getRangeAt(0);
+					const rangeRect = range.getBoundingClientRect();
 					// Re-check ref inside timeout and ensure containerRect is valid
-					const containerRect = contentRef.current?.getBoundingClientRect()
+					const containerRect = contentRef.current?.getBoundingClientRect();
 
 					if (containerRect) {
 						// Check if containerRect was successfully obtained
-						const tolerance = 5 // Allow for a small pixel overflow (e.g., for margins)
+						const tolerance = 5; // Allow for a small pixel overflow (e.g., for margins)
 						const isSelectionWithin =
 							rangeRect.top >= containerRect.top &&
 							rangeRect.left >= containerRect.left &&
 							rangeRect.bottom <= containerRect.bottom + tolerance && // Added tolerance
-							rangeRect.right <= containerRect.right
+							rangeRect.right <= containerRect.right;
 
 						if (isSelectionWithin) {
-							shouldShowButton = true // Mark that we should show the button
-							const buttonHeight = 30
+							shouldShowButton = true; // Mark that we should show the button
+							const buttonHeight = 30;
 							// Calculate the raw top position relative to the container, placing it above the selection
-							const calculatedTop = rangeRect.top - containerRect.top - buttonHeight - 5 // Subtract button height and a small margin
+							const calculatedTop =
+								rangeRect.top - containerRect.top - buttonHeight - 5; // Subtract button height and a small margin
 							// Allow the button to potentially have a negative top value
-							buttonTop = calculatedTop
-							buttonLeft = Math.max(0, rangeRect.left - containerRect.left) // Still prevent going left of container
-							textToQuote = selectedText
+							buttonTop = calculatedTop;
+							buttonLeft = Math.max(0, rangeRect.left - containerRect.left); // Still prevent going left of container
+							textToQuote = selectedText;
 						}
 					}
 				}
@@ -304,14 +361,19 @@ export const ChatRowContent = memo(
 						top: buttonTop,
 						left: buttonLeft,
 						selectedText: textToQuote,
-					})
+					});
 				} else if (!isClickOnButton) {
 					// Scenario B: No valid selection AND click was NOT on button -> Hide button
-					setQuoteButtonState({ visible: false, top: 0, left: 0, selectedText: "" })
+					setQuoteButtonState({
+						visible: false,
+						top: 0,
+						left: 0,
+						selectedText: "",
+					});
 				}
 				// Scenario C (Click WAS on button): Do nothing here, handleQuoteClick takes over.
-			}, 0) // Delay of 0ms pushes execution after current event cycle
-		}, []) // Dependencies remain empty
+			}, 0); // Delay of 0ms pushes execution after current event cycle
+		}, []); // Dependencies remain empty
 
 		const [icon, title] = useMemo(() => {
 			switch (type) {
@@ -319,19 +381,25 @@ export const ChatRowContent = memo(
 					return [
 						<span className="codicon codicon-error text-error mb-[-1.5px]" />,
 						<span className="text-error font-bold">Error</span>,
-					]
+					];
 				case "mistake_limit_reached":
 					return [
 						<CircleXIcon className="text-error size-2" />,
-						<span className="text-error font-bold">Axolotl is having trouble...</span>,
-					]
+						<span className="text-error font-bold">
+							Axolotl is having trouble...
+						</span>,
+					];
 				case "command":
 					return [
 						<TerminalIcon className="text-foreground size-2" />,
-						<span className="font-bold text-foreground">Axolotl wants to execute this command:</span>,
-					]
-				case "use_mcp_server":
-					const mcpServerUse = JSON.parse(message.text || "{}") as ClineAskUseMcpServer
+						<span className="font-bold text-foreground">
+							Axolotl wants to execute this command:
+						</span>,
+					];
+				case "use_mcp_server": {
+					const mcpServerUse = JSON.parse(
+						message.text || "{}",
+					) as ClineAskUseMcpServer;
 					return [
 						isMcpServerResponding ? (
 							<ProgressIndicator />
@@ -339,89 +407,109 @@ export const ChatRowContent = memo(
 							<span className="codicon codicon-server text-foreground mb-[-1.5px]" />
 						),
 						<span className="ph-no-capture font-bold text-foreground break-words">
-							Axolotl wants to {mcpServerUse.type === "use_mcp_tool" ? "use a tool" : "access a resource"} on the{" "}
+							Axolotl wants to{" "}
+							{mcpServerUse.type === "use_mcp_tool"
+								? "use a tool"
+								: "access a resource"}{" "}
+							on the{" "}
 							<code className="break-all">
-								{getMcpServerDisplayName(mcpServerUse.serverName, mcpMarketplaceCatalog)}
+								{getMcpServerDisplayName(
+									mcpServerUse.serverName,
+									mcpMarketplaceCatalog,
+								)}
 							</code>{" "}
 							MCP server:
 						</span>,
-					]
+					];
+				}
 				case "completion_result":
 					return [
 						<span className="codicon codicon-check text-success mb-[-1.5px]" />,
 						<span className="text-success font-bold">Task Completed</span>,
-					]
+					];
 				case "api_req_started":
 					// API request rows no longer render the request payload/cost accordion.
 					// Thinking/reasoning is handled directly in the api_req_started renderer below.
-					return [null, null]
+					return [null, null];
 				case "followup":
 					return [
 						<span className="codicon codicon-question text-foreground mb-[-1.5px]" />,
-						<span className="font-bold text-foreground">Axolotl has a question:</span>,
-					]
+						<span className="font-bold text-foreground">
+							Axolotl has a question:
+						</span>,
+					];
 				default:
-					return [null, null]
+					return [null, null];
 			}
-		}, [
-			type,
-			cost,
-			apiRequestFailedMessage,
-			isCommandExecuting,
-			isCommandPending,
-			apiReqCancelReason,
-			isMcpServerResponding,
-			message.text,
-		])
+		}, [type, isMcpServerResponding, message.text, mcpMarketplaceCatalog]);
 
 		const tool = useMemo(() => {
 			if (message.ask === "tool" || message.say === "tool") {
-				return JSON.parse(message.text || "{}") as ClineSayTool
+				return JSON.parse(message.text || "{}") as ClineSayTool;
 			}
-			return null
-		}, [message.ask, message.say, message.text])
+			return null;
+		}, [message.ask, message.say, message.text]);
 
 		// Helper function to check if file is an image
 		const isImageFile = (filePath: string): boolean => {
-			const imageExtensions = [".png", ".jpg", ".jpeg", ".webp"]
-			const extension = filePath.toLowerCase().split(".").pop()
-			return extension ? imageExtensions.includes(`.${extension}`) : false
-		}
+			const imageExtensions = [".png", ".jpg", ".jpeg", ".webp"];
+			const extension = filePath.toLowerCase().split(".").pop();
+			return extension ? imageExtensions.includes(`.${extension}`) : false;
+		};
 
 		if (tool) {
 			const colorMap = {
 				red: "var(--vscode-errorForeground)",
 				yellow: "var(--vscode-editorWarning-foreground)",
 				green: "var(--vscode-charts-green)",
-			}
-			const toolIcon = (name: string, color?: string, rotation?: number, title?: string) => (
+			};
+			const toolIcon = (
+				name: string,
+				color?: string,
+				rotation?: number,
+				title?: string,
+			) => (
 				<span
 					className={`codicon codicon-${name} ph-no-capture`}
 					style={{
-						color: color ? colorMap[color as keyof typeof colorMap] || color : "var(--vscode-foreground)",
+						color: color
+							? colorMap[color as keyof typeof colorMap] || color
+							: "var(--vscode-foreground)",
 						marginBottom: "-1.5px",
 						transform: rotation ? `rotate(${rotation}deg)` : undefined,
 					}}
-					title={title}></span>
-			)
+					title={title}
+				></span>
+			);
 
 			switch (tool.tool) {
-				case "editedExistingFile":
-					const content = tool?.content || ""
-					const isApplyingPatch = content?.startsWith("%%bash") && !content.endsWith("*** End Patch\nEOF")
+				case "editedExistingFile": {
+					const content = tool?.content || "";
+					const isApplyingPatch =
+						content?.startsWith("%%bash") &&
+						!content.endsWith("*** End Patch\nEOF");
 					const editToolTitle = isApplyingPatch
 						? "Axolotl is creating patches to edit this file:"
-						: "Axolotl wants to edit this file:"
+						: "Axolotl wants to edit this file:";
 					return (
 						<div>
 							<div className={HEADER_CLASSNAMES}>
 								<PencilIcon className="size-2" />
 								{tool.operationIsLocatedInWorkspace === false &&
-									toolIcon("sign-out", "yellow", -90, "This file is outside of your workspace")}
+									toolIcon(
+										"sign-out",
+										"yellow",
+										-90,
+										"This file is outside of your workspace",
+									)}
 								<span style={{ fontWeight: "bold" }}>{editToolTitle}</span>
 							</div>
 							{backgroundEditEnabled && tool.path && tool.content ? (
-								<DiffEditRow isLoading={message.partial} patch={tool.content} path={tool.path} />
+								<DiffEditRow
+									isLoading={message.partial}
+									patch={tool.content}
+									path={tool.path}
+								/>
 							) : (
 								<CodeAccordian
 									// isLoading={message.partial}
@@ -432,15 +520,23 @@ export const ChatRowContent = memo(
 								/>
 							)}
 						</div>
-					)
+					);
+				}
 				case "fileDeleted":
 					return (
 						<div>
 							<div className={HEADER_CLASSNAMES}>
 								<SquareMinusIcon className="size-2" />
 								{tool.operationIsLocatedInWorkspace === false &&
-									toolIcon("sign-out", "yellow", -90, "This file is outside of your workspace")}
-								<span style={{ fontWeight: "bold" }}>Axolotl wants to delete this file:</span>
+									toolIcon(
+										"sign-out",
+										"yellow",
+										-90,
+										"This file is outside of your workspace",
+									)}
+								<span style={{ fontWeight: "bold" }}>
+									Axolotl wants to delete this file:
+								</span>
 							</div>
 							<CodeAccordian
 								// isLoading={message.partial}
@@ -450,15 +546,22 @@ export const ChatRowContent = memo(
 								path={tool.path!}
 							/>
 						</div>
-					)
+					);
 				case "newFileCreated":
 					return (
 						<div>
 							<div className={HEADER_CLASSNAMES}>
 								<FilePlus2Icon className="size-2" />
 								{tool.operationIsLocatedInWorkspace === false &&
-									toolIcon("sign-out", "yellow", -90, "This file is outside of your workspace")}
-								<span className="font-bold">Axolotl wants to create a new file:</span>
+									toolIcon(
+										"sign-out",
+										"yellow",
+										-90,
+										"This file is outside of your workspace",
+									)}
+								<span className="font-bold">
+									Axolotl wants to create a new file:
+								</span>
 							</div>
 							{backgroundEditEnabled && tool.path && tool.content ? (
 								<DiffEditRow patch={tool.content} path={tool.path} />
@@ -472,47 +575,70 @@ export const ChatRowContent = memo(
 								/>
 							)}
 						</div>
-					)
-				case "readFile":
-					const isImage = isImageFile(tool.path || "")
+					);
+				case "readFile": {
+					const isImage = isImageFile(tool.path || "");
 					return (
 						<div>
 							<div className={HEADER_CLASSNAMES}>
-								{isImage ? <ImageUpIcon className="size-2" /> : <FileCode2Icon className="size-2" />}
+								{isImage ? (
+									<ImageUpIcon className="size-2" />
+								) : (
+									<FileCode2Icon className="size-2" />
+								)}
 								{tool.operationIsLocatedInWorkspace === false &&
-									toolIcon("sign-out", "yellow", -90, "This file is outside of your workspace")}
-								<span className="font-bold">Axolotl wants to read this file:</span>
+									toolIcon(
+										"sign-out",
+										"yellow",
+										-90,
+										"This file is outside of your workspace",
+									)}
+								<span className="font-bold">
+									Axolotl wants to read this file:
+								</span>
 							</div>
 							<div className="bg-code rounded-sm overflow-hidden border border-editor-group-border">
 								<div
-									className={cn("text-description flex items-center cursor-pointer select-none py-2 px-2.5", {
-										"cursor-default select-text": isImage,
-									})}
+									className={cn(
+										"text-description flex items-center cursor-pointer select-none py-2 px-2.5",
+										{
+											"cursor-default select-text": isImage,
+										},
+									)}
 									onClick={() => {
 										if (!isImage) {
-											FileServiceClient.openFile(StringRequest.create({ value: tool.content })).catch(
-												(err) => console.error("Failed to open file:", err),
-											)
+											FileServiceClient.openFile(
+												StringRequest.create({ value: tool.content }),
+											).catch((err) =>
+												console.error("Failed to open file:", err),
+											);
 										}
-									}}>
+									}}
+								>
 									{tool.path?.startsWith(".") && <span>.</span>}
 									{tool.path && !tool.path.startsWith(".") && <span>/</span>}
 									<span className="ph-no-capture whitespace-nowrap overflow-hidden text-ellipsis mr-2 text-left [direction: rtl]">
-										{cleanPathPrefix(tool.path ?? "") + "\u200E"}
+										{`${cleanPathPrefix(tool.path ?? "")}\u200E`}
 									</span>
 									<div className="grow" />
 									{!isImage && <SquareArrowOutUpRightIcon className="size-2" />}
 								</div>
 							</div>
 						</div>
-					)
+					);
+				}
 				case "listFilesTopLevel":
 					return (
 						<div>
 							<div className={HEADER_CLASSNAMES}>
 								{toolIcon("folder-opened")}
 								{tool.operationIsLocatedInWorkspace === false &&
-									toolIcon("sign-out", "yellow", -90, "This is outside of your workspace")}
+									toolIcon(
+										"sign-out",
+										"yellow",
+										-90,
+										"This is outside of your workspace",
+									)}
 								<span style={{ fontWeight: "bold" }}>
 									{message.type === "ask"
 										? "Axolotl wants to view the top level files in this directory:"
@@ -527,14 +653,19 @@ export const ChatRowContent = memo(
 								path={tool.path!}
 							/>
 						</div>
-					)
+					);
 				case "listFilesRecursive":
 					return (
 						<div>
 							<div className={HEADER_CLASSNAMES}>
 								{toolIcon("folder-opened")}
 								{tool.operationIsLocatedInWorkspace === false &&
-									toolIcon("sign-out", "yellow", -90, "This is outside of your workspace")}
+									toolIcon(
+										"sign-out",
+										"yellow",
+										-90,
+										"This is outside of your workspace",
+									)}
 								<span style={{ fontWeight: "bold" }}>
 									{message.type === "ask"
 										? "Axolotl wants to recursively view all files in this directory:"
@@ -549,14 +680,19 @@ export const ChatRowContent = memo(
 								path={tool.path!}
 							/>
 						</div>
-					)
+					);
 				case "listCodeDefinitionNames":
 					return (
 						<div>
 							<div className={HEADER_CLASSNAMES}>
 								{toolIcon("file-code")}
 								{tool.operationIsLocatedInWorkspace === false &&
-									toolIcon("sign-out", "yellow", -90, "This file is outside of your workspace")}
+									toolIcon(
+										"sign-out",
+										"yellow",
+										-90,
+										"This file is outside of your workspace",
+									)}
 								<span style={{ fontWeight: "bold" }}>
 									{message.type === "ask"
 										? "Axolotl wants to view source code definition names used in this directory:"
@@ -570,16 +706,22 @@ export const ChatRowContent = memo(
 								path={tool.path!}
 							/>
 						</div>
-					)
+					);
 				case "searchFiles":
 					return (
 						<div>
 							<div className={HEADER_CLASSNAMES}>
 								{toolIcon("search")}
 								{tool.operationIsLocatedInWorkspace === false &&
-									toolIcon("sign-out", "yellow", -90, "This is outside of your workspace")}
+									toolIcon(
+										"sign-out",
+										"yellow",
+										-90,
+										"This is outside of your workspace",
+									)}
 								<span className="font-bold">
-									Axolotl wants to search this directory for <code className="break-all">{tool.regex}</code>:
+									Axolotl wants to search this directory for{" "}
+									<code className="break-all">{tool.regex}</code>:
 								</span>
 							</div>
 							<SearchResultsDisplay
@@ -590,27 +732,31 @@ export const ChatRowContent = memo(
 								path={tool.path!}
 							/>
 						</div>
-					)
+					);
 				case "summarizeTask":
 					return (
 						<div>
 							<div className={HEADER_CLASSNAMES}>
 								<FoldVerticalIcon className="size-2" />
-								<span className="font-bold">Axolotl is condensing the conversation:</span>
+								<span className="font-bold">
+									Axolotl is condensing the conversation:
+								</span>
 							</div>
 							<div className="bg-code overflow-hidden border border-editor-group-border rounded-[3px]">
 								<div
-									aria-label={isExpanded ? "Collapse summary" : "Expand summary"}
+									aria-label={
+										isExpanded ? "Collapse summary" : "Expand summary"
+									}
 									className="text-description py-2 px-2.5 cursor-pointer select-none"
 									onClick={handleToggle}
 									onKeyDown={(e) => {
 										if (e.key === "Enter" || e.key === " ") {
-											e.preventDefault()
-											e.stopPropagation()
-											handleToggle()
+											e.preventDefault();
+											e.stopPropagation();
+											handleToggle();
 										}
 									}}
-									tabIndex={0}>
+								>
 									{isExpanded ? (
 										<div>
 											<div className="flex items-center mb-2">
@@ -618,12 +764,14 @@ export const ChatRowContent = memo(
 												<div className="grow" />
 												<span className="codicon codicon-chevron-up my-0.5 shrink-0" />
 											</div>
-											<span className="ph-no-capture break-words whitespace-pre-wrap">{tool.content}</span>
+											<span className="ph-no-capture break-words whitespace-pre-wrap">
+												{tool.content}
+											</span>
 										</div>
 									) : (
 										<div className="flex items-center">
 											<span className="ph-no-capture whitespace-nowrap overflow-hidden text-ellipsis text-left flex-1 mr-2 [direction:rtl]">
-												{tool.content + "\u200E"}
+												{`${tool.content}\u200E`}
 											</span>
 											<span className="codicon codicon-chevron-down my-0.5 shrink-0" />
 										</div>
@@ -631,7 +779,7 @@ export const ChatRowContent = memo(
 								</div>
 							</div>
 						</div>
-					)
+					);
 				case "webFetch":
 					return (
 						<div>
@@ -650,24 +798,32 @@ export const ChatRowContent = memo(
 								onClick={() => {
 									// Open the URL in the default browser using gRPC
 									if (tool.path) {
-										UiServiceClient.openUrl(StringRequest.create({ value: tool.path })).catch((err) => {
-											console.error("Failed to open URL:", err)
-										})
+										UiServiceClient.openUrl(
+											StringRequest.create({ value: tool.path }),
+										).catch((err) => {
+											console.error("Failed to open URL:", err);
+										});
 									}
-								}}>
+								}}
+							>
 								<span className="ph-no-capture whitespace-nowrap overflow-hidden text-ellipsis mr-2 [direction:rtl] text-left text-link underline">
-									{tool.path + "\u200E"}
+									{`${tool.path}\u200E`}
 								</span>
 							</div>
 						</div>
-					)
+					);
 				case "webSearch":
 					return (
 						<div>
 							<div className={HEADER_CLASSNAMES}>
 								<SearchIcon className="size-2 rotate-90" />
 								{tool.operationIsLocatedInWorkspace === false &&
-									toolIcon("sign-out", "yellow", -90, "This search is external")}
+									toolIcon(
+										"sign-out",
+										"yellow",
+										-90,
+										"This search is external",
+									)}
 								<span className="font-bold">
 									{message.type === "ask"
 										? "Axolotl wants to search the web for:"
@@ -676,26 +832,30 @@ export const ChatRowContent = memo(
 							</div>
 							<div className="bg-code border border-editor-group-border overflow-hidden rounded-xs select-text py-[9px] px-2.5">
 								<span className="ph-no-capture whitespace-nowrap overflow-hidden text-ellipsis mr-2 text-left [direction:rtl]">
-									{tool.path + "\u200E"}
+									{`${tool.path}\u200E`}
 								</span>
 							</div>
 						</div>
-					)
+					);
 				default:
-					return <InvisibleSpacer />
+					return <InvisibleSpacer />;
 			}
 		}
 
 		// Reset output expansion state when command stops (completes or is cancelled)
 		useEffect(() => {
 			// If command was executing and now isn't, clean up
-			if (isCommandMessage && prevCommandExecutingRef.current && !isCommandExecuting) {
-				setIsOutputFullyExpanded(false)
+			if (
+				isCommandMessage &&
+				prevCommandExecutingRef.current &&
+				!isCommandExecuting
+			) {
+				setIsOutputFullyExpanded(false);
 			}
 
 			// Update ref for next render
-			prevCommandExecutingRef.current = isCommandExecuting
-		}, [isCommandMessage, isCommandExecuting])
+			prevCommandExecutingRef.current = isCommandExecuting;
+		}, [isCommandMessage, isCommandExecuting]);
 
 		// Auto-expand when command starts executing (only if running > 500ms)
 		useEffect(() => {
@@ -703,12 +863,18 @@ export const ChatRowContent = memo(
 				// Wait 500ms before auto-expanding to avoid animating fast commands
 				const timer = setTimeout(() => {
 					// Expand after 500ms
-					onToggleExpand(message.ts)
-				}, 500)
+					onToggleExpand(message.ts);
+				}, 500);
 
-				return () => clearTimeout(timer)
+				return () => clearTimeout(timer);
 			}
-		}, [isCommandMessage, isCommandExecuting, isExpanded, onToggleExpand, message.ts])
+		}, [
+			isCommandMessage,
+			isCommandExecuting,
+			isExpanded,
+			onToggleExpand,
+			message.ts,
+		]);
 
 		if (message.ask === "command" || message.say === "command") {
 			return (
@@ -724,12 +890,16 @@ export const ChatRowContent = memo(
 					setIsOutputFullyExpanded={setIsOutputFullyExpanded}
 					title={title}
 				/>
-			)
+			);
 		}
 
 		if (message.ask === "use_mcp_server" || message.say === "use_mcp_server") {
-			const useMcpServer = JSON.parse(message.text || "{}") as ClineAskUseMcpServer
-			const server = mcpServers.find((server) => server.name === useMcpServer.serverName)
+			const useMcpServer = JSON.parse(
+				message.text || "{}",
+			) as ClineAskUseMcpServer;
+			const server = mcpServers.find(
+				(server) => server.name === useMcpServer.serverName,
+			);
 			return (
 				<div>
 					<div className={HEADER_CLASSNAMES}>
@@ -763,11 +933,13 @@ export const ChatRowContent = memo(
 										tool={{
 											name: useMcpServer.toolName || "",
 											description:
-												server?.tools?.find((tool) => tool.name === useMcpServer.toolName)?.description ||
-												"",
+												server?.tools?.find(
+													(tool) => tool.name === useMcpServer.toolName,
+												)?.description || "",
 											autoApprove:
-												server?.tools?.find((tool) => tool.name === useMcpServer.toolName)?.autoApprove ||
-												false,
+												server?.tools?.find(
+													(tool) => tool.name === useMcpServer.toolName,
+												)?.autoApprove || false,
 										}}
 									/>
 								</div>
@@ -786,7 +958,7 @@ export const ChatRowContent = memo(
 						)}
 					</div>
 				</div>
-			)
+			);
 		}
 
 		switch (message.type) {
@@ -794,10 +966,12 @@ export const ChatRowContent = memo(
 				switch (message.say) {
 					case "api_req_started": {
 						// Derive explicit state
-						const hasError = !!(apiRequestFailedMessage || apiReqStreamingFailedMessage)
-						const hasCost = cost != null
-						const hasReasoning = !!reasoningContent
-						const hasResponseStarted = !!responseStarted
+						const hasError = !!(
+							apiRequestFailedMessage || apiReqStreamingFailedMessage
+						);
+						const hasCost = cost != null;
+						const hasReasoning = !!reasoningContent;
+						const hasResponseStarted = !!responseStarted;
 
 						const apiReqState: ApiReqState = hasError
 							? "error"
@@ -805,62 +979,70 @@ export const ChatRowContent = memo(
 								? "final"
 								: hasReasoning
 									? "thinking"
-									: "pre"
+									: "pre";
 
 						// While reasoning is streaming, keep the Brain ThinkingBlock exactly as-is.
 						// Once response content starts (any text/tool/command), collapse into a compact
 						// "🧠 Thinking" row that can be expanded to show the reasoning only.
-						const showStreamingThinking = hasReasoning && !hasResponseStarted && !hasError && !hasCost
-						const showCollapsedThinking = hasReasoning && !showStreamingThinking
+						const showStreamingThinking =
+							hasReasoning && !hasResponseStarted && !hasError && !hasCost;
+						const showCollapsedThinking =
+							hasReasoning && !showStreamingThinking;
 
 						// Find all exploratory tool activities from the PREVIOUS completed API request.
 						// This shows what Cline just ingested while waiting for the next response.
 						// Includes action verbiage and icons for each tool type.
 						// Memoized to avoid iterating through all messages on every render.
 						const currentActivities = useMemo(() => {
-							const activities: { icon: LucideIcon; text: string }[] = []
+							const activities: { icon: LucideIcon; text: string }[] = [];
 
 							// Helper to format search regex for display - show all terms separated by |
-							const formatSearchRegex = (regex: string, path: string, filePattern?: string): string => {
+							const formatSearchRegex = (
+								regex: string,
+								path: string,
+								filePattern?: string,
+							): string => {
 								const terms = regex
 									.split("|")
-									.map((t) => t.trim().replace(/\\b/g, "").replace(/\\s\?/g, " "))
-									.filter(Boolean)
-								let result = `"${terms.join(" | ")}" in ${cleanPathPrefix(path)}/`
+									.map((t) =>
+										t.trim().replace(/\\b/g, "").replace(/\\s\?/g, " "),
+									)
+									.filter(Boolean);
+								let result = `"${terms.join(" | ")}" in ${cleanPathPrefix(path)}/`;
 								if (filePattern && filePattern !== "*") {
-									result += ` (${filePattern})`
+									result += ` (${filePattern})`;
 								}
-								return result
-							}
+								return result;
+							};
 
 							// Find the most recent api_req_started (the current one being rendered)
 							// Then find the PREVIOUS api_req_started that has a cost (completed)
 							// Collect all low-stakes tools between those two
 
-							let currentApiReqIndex = -1
-							let prevCompletedApiReqIndex = -1
+							let currentApiReqIndex = -1;
+							let prevCompletedApiReqIndex = -1;
 
 							// Find the current api_req_started (most recent)
 							for (let i = clineMessages.length - 1; i >= 0; i--) {
 								if (clineMessages[i].say === "api_req_started") {
-									currentApiReqIndex = i
-									break
+									currentApiReqIndex = i;
+									break;
 								}
 							}
 
 							if (currentApiReqIndex === -1) {
-								return activities
+								return activities;
 							}
 
 							// Find the previous api_req_started that is completed (has cost)
 							for (let i = currentApiReqIndex - 1; i >= 0; i--) {
-								const msg = clineMessages[i]
+								const msg = clineMessages[i];
 								if (msg.say === "api_req_started" && msg.text) {
 									try {
-										const info = JSON.parse(msg.text)
+										const info = JSON.parse(msg.text);
 										if (info.cost != null) {
-											prevCompletedApiReqIndex = i
-											break
+											prevCompletedApiReqIndex = i;
+											break;
 										}
 									} catch {
 										// ignore parse errors
@@ -869,42 +1051,56 @@ export const ChatRowContent = memo(
 							}
 
 							if (prevCompletedApiReqIndex === -1) {
-								return activities
+								return activities;
 							}
 
 							// Collect all low-stakes tools between prevCompletedApiReq and currentApiReq
-							for (let i = prevCompletedApiReqIndex + 1; i < currentApiReqIndex; i++) {
-								const msg = clineMessages[i]
+							for (
+								let i = prevCompletedApiReqIndex + 1;
+								i < currentApiReqIndex;
+								i++
+							) {
+								const msg = clineMessages[i];
 								if (msg.say === "tool" || msg.ask === "tool") {
 									try {
-										const tool = JSON.parse(msg.text || "{}") as ClineSayTool
-										const toolIcon = getIconByToolName(tool.tool)
+										const tool = JSON.parse(msg.text || "{}") as ClineSayTool;
+										const toolIcon = getIconByToolName(tool.tool);
 										// Exploratory tools - collect activity with icon and action verbiage
 										if (tool.tool === "readFile" && tool.path) {
 											activities.push({
 												icon: toolIcon,
 												text: `Reading ${cleanPathPrefix(tool.path)}...`,
-											})
+											});
 										} else if (tool.tool === "listFilesTopLevel" && tool.path) {
 											activities.push({
 												icon: toolIcon,
 												text: `Exploring ${cleanPathPrefix(tool.path)}/...`,
-											})
-										} else if (tool.tool === "listFilesRecursive" && tool.path) {
+											});
+										} else if (
+											tool.tool === "listFilesRecursive" &&
+											tool.path
+										) {
 											activities.push({
 												icon: toolIcon,
 												text: `Exploring ${cleanPathPrefix(tool.path)}/...`,
-											})
-										} else if (tool.tool === "searchFiles" && tool.regex && tool.path) {
+											});
+										} else if (
+											tool.tool === "searchFiles" &&
+											tool.regex &&
+											tool.path
+										) {
 											activities.push({
 												icon: toolIcon,
 												text: `Searching ${formatSearchRegex(tool.regex, tool.path, tool.filePattern)}...`,
-											})
-										} else if (tool.tool === "listCodeDefinitionNames" && tool.path) {
+											});
+										} else if (
+											tool.tool === "listCodeDefinitionNames" &&
+											tool.path
+										) {
 											activities.push({
 												icon: toolIcon,
 												text: `Analyzing ${cleanPathPrefix(tool.path)}/...`,
-											})
+											});
 										}
 										// Non-exploratory tools are ignored (they have their own UI)
 									} catch {
@@ -913,8 +1109,8 @@ export const ChatRowContent = memo(
 								}
 							}
 
-							return activities
-						}, [clineMessages])
+							return activities;
+						}, [clineMessages]);
 
 						return (
 							<div>
@@ -926,21 +1122,28 @@ export const ChatRowContent = memo(
 													{currentActivities.map((activity, _) => (
 														<div
 															className="flex items-center gap-2 h-auto w-full overflow-hidden"
-															key={activity.text}>
+															key={activity.text}
+														>
 															<activity.icon className="size-2 text-foreground shrink-0" />
 															<TypewriterText speed={15} text={activity.text} />
 														</div>
 													))}
 												</div>
 											) : (
-												<TypewriterText text={mode === "plan" ? "Planning..." : "Thinking..."} />
+												<TypewriterText
+													text={mode === "plan" ? "Planning..." : "Thinking..."}
+												/>
 											)}
 										</div>
 									</div>
 								)}
 								{reasoningContent && (
 									<ThinkingRow
-										isExpanded={isExpanded || showStreamingThinking || showCollapsedThinking}
+										isExpanded={
+											isExpanded ||
+											showStreamingThinking ||
+											showCollapsedThinking
+										}
 										isVisible={true}
 										onToggle={handleToggle}
 										reasoningContent={reasoningContent}
@@ -957,12 +1160,12 @@ export const ChatRowContent = memo(
 									/>
 								)}
 							</div>
-						)
+						);
 					}
 					case "api_req_finished":
-						return <InvisibleSpacer /> // we should never see this message type
+						return <InvisibleSpacer />; // we should never see this message type
 					case "mcp_server_response":
-						return <McpResponseDisplay responseText={message.text || ""} />
+						return <McpResponseDisplay responseText={message.text || ""} />;
 					case "mcp_notification":
 						return (
 							<div className="flex items-start gap-2 py-2.5 px-3 bg-quote rounded-sm text-base text-foreground opacity-90 mb-2">
@@ -972,14 +1175,15 @@ export const ChatRowContent = memo(
 									<span className="ph-no-capture">{message.text}</span>
 								</div>
 							</div>
-						)
+						);
 					case "text": {
 						return (
 							<WithCopyButton
 								onMouseUp={handleMouseUp}
 								position="bottom-right"
 								ref={contentRef}
-								textToCopy={message.text}>
+								textToCopy={message.text}
+							>
 								<div className="flex items-center">
 									<div className={cn("flex-1 min-w-0 pl-1")}>
 										<MarkdownRow markdown={message.text} showCursor={false} />
@@ -993,7 +1197,7 @@ export const ChatRowContent = memo(
 									/>
 								)}
 							</WithCopyButton>
-						)
+						);
 					}
 					case "reasoning": {
 						return (
@@ -1004,7 +1208,7 @@ export const ChatRowContent = memo(
 								reasoningContent={message.text}
 								showTitle={true}
 							/>
-						)
+						);
 					}
 					case "user_feedback":
 						return (
@@ -1015,9 +1219,9 @@ export const ChatRowContent = memo(
 								sendMessageFromChatRow={sendMessageFromChatRow}
 								text={message.text}
 							/>
-						)
-					case "user_feedback_diff":
-						const tool = JSON.parse(message.text || "{}") as ClineSayTool
+						);
+					case "user_feedback_diff": {
+						const tool = JSON.parse(message.text || "{}") as ClineSayTool;
 						return (
 							<div className="w-full -mt-2.5">
 								<CodeAccordian
@@ -1027,32 +1231,38 @@ export const ChatRowContent = memo(
 									onToggleExpand={handleToggle}
 								/>
 							</div>
-						)
+						);
+					}
 					case "error":
-						return <ErrorRow errorType="error" message={message} />
+						return <ErrorRow errorType="error" message={message} />;
 					case "diff_error":
-						return <ErrorRow errorType="diff_error" message={message} />
+						return <ErrorRow errorType="diff_error" message={message} />;
 					case "clineignore_error":
-						return <ErrorRow errorType="clineignore_error" message={message} />
+						return <ErrorRow errorType="clineignore_error" message={message} />;
 					case "checkpoint_created":
-						return <CheckmarkControl isCheckpointCheckedOut={message.isCheckpointCheckedOut} messageTs={message.ts} />
+						return (
+							<CheckmarkControl
+								isCheckpointCheckedOut={message.isCheckpointCheckedOut}
+								messageTs={message.ts}
+							/>
+						);
 					case "load_mcp_documentation":
 						return (
 							<div className="text-foreground flex items-center opacity-70 text-[12px] py-1 px-0">
 								<i className="codicon codicon-book mr-1.5" />
 								Loading MCP documentation
 							</div>
-						)
+						);
 					case "generate_explanation": {
 						let explanationInfo: ClineSayGenerateExplanation = {
 							title: "code changes",
 							fromRef: "",
 							toRef: "",
 							status: "generating",
-						}
+						};
 						try {
 							if (message.text) {
-								explanationInfo = JSON.parse(message.text)
+								explanationInfo = JSON.parse(message.text);
 							}
 						} catch {
 							// Use defaults if parsing fails
@@ -1064,9 +1274,10 @@ export const ChatRowContent = memo(
 							explanationInfo.status === "generating" &&
 							(!isLast ||
 								lastModifiedMessage?.ask === "resume_task" ||
-								lastModifiedMessage?.ask === "resume_completed_task")
-						const isGenerating = explanationInfo.status === "generating" && !wasCancelled
-						const isError = explanationInfo.status === "error"
+								lastModifiedMessage?.ask === "resume_completed_task");
+						const isGenerating =
+							explanationInfo.status === "generating" && !wasCancelled;
+						const isError = explanationInfo.status === "error";
 						return (
 							<div className="bg-code flex flex-col border border-editor-group-border rounded-sm py-2.5 px-3">
 								<div className="flex items-center">
@@ -1090,34 +1301,37 @@ export const ChatRowContent = memo(
 									</span>
 								</div>
 								{isError && explanationInfo.error && (
-									<div className="opacity-80 ml-6 mt-1.5 text-error break-words">{explanationInfo.error}</div>
-								)}
-								{!isError && (explanationInfo.title || explanationInfo.fromRef) && (
-									<div className="opacity-80 ml-6 mt-1.5">
-										<div>{explanationInfo.title}</div>
-										{explanationInfo.fromRef && (
-											<div className="opacity-70 mt-1.5 break-all text-xs">
-												<code className="bg-quote rounded-sm py-0.5 pr-1.5">
-													{explanationInfo.fromRef}
-												</code>
-												<ArrowRightIcon className="inline size-2 mx-1" />
-												<code className="bg-quote rounded-sm py-0.5 px-1.5">
-													{explanationInfo.toRef || "working directory"}
-												</code>
-											</div>
-										)}
+									<div className="opacity-80 ml-6 mt-1.5 text-error break-words">
+										{explanationInfo.error}
 									</div>
 								)}
+								{!isError &&
+									(explanationInfo.title || explanationInfo.fromRef) && (
+										<div className="opacity-80 ml-6 mt-1.5">
+											<div>{explanationInfo.title}</div>
+											{explanationInfo.fromRef && (
+												<div className="opacity-70 mt-1.5 break-all text-xs">
+													<code className="bg-quote rounded-sm py-0.5 pr-1.5">
+														{explanationInfo.fromRef}
+													</code>
+													<ArrowRightIcon className="inline size-2 mx-1" />
+													<code className="bg-quote rounded-sm py-0.5 px-1.5">
+														{explanationInfo.toRef || "working directory"}
+													</code>
+												</div>
+											)}
+										</div>
+									)}
 							</div>
-						)
+						);
 					}
 					case "axolotl_detect_changes": {
 						let detectInfo: ClineSayAxolotlDetectChanges = {
 							status: "detecting",
-						}
+						};
 						try {
 							if (message.text) {
-								detectInfo = JSON.parse(message.text)
+								detectInfo = JSON.parse(message.text);
 							}
 						} catch {
 							// Use defaults if parsing fails
@@ -1126,24 +1340,25 @@ export const ChatRowContent = memo(
 							detectInfo.status === "detecting" &&
 							(!isLast ||
 								lastModifiedMessage?.ask === "resume_task" ||
-								lastModifiedMessage?.ask === "resume_completed_task")
-						const isDetecting = detectInfo.status === "detecting" && !detectWasCancelled
-						const detectIsError = detectInfo.status === "error"
-						const detectResult = detectInfo.result
+								lastModifiedMessage?.ask === "resume_completed_task");
+						const isDetecting =
+							detectInfo.status === "detecting" && !detectWasCancelled;
+						const detectIsError = detectInfo.status === "error";
+						const detectResult = detectInfo.result;
 
 						// Get status icon color
 						const getStatusColor = (status: string) => {
 							switch (status) {
 								case "added":
-									return "text-success"
+									return "text-success";
 								case "deleted":
-									return "text-error"
+									return "text-error";
 								case "modified":
-									return "text-warning"
+									return "text-warning";
 								default:
-									return ""
+									return "";
 							}
-						}
+						};
 
 						return (
 							<div className="bg-code flex flex-col border border-editor-group-border rounded-sm py-2.5 px-3">
@@ -1172,39 +1387,46 @@ export const ChatRowContent = memo(
 									</span>
 								</div>
 								{detectIsError && detectInfo.error && (
-									<div className="opacity-80 ml-6 mt-1.5 text-error break-words">{detectInfo.error}</div>
-								)}
-								{!detectIsError && !isDetecting && !detectWasCancelled && detectResult && (
-									<div className="ml-6 mt-2">
-										<div className="text-xs opacity-70 mb-1">
-											Source: {detectResult.source} • {detectResult.totalFiles} file(s)
-										</div>
-										<div className="flex flex-wrap gap-1 mt-1">
-											{detectResult.changes.slice(0, 5).map((change, i) => (
-												<span
-													key={i}
-													className={`text-xs px-1.5 py-0.5 rounded bg-editor-group-border ${getStatusColor(change.status)}`}>
-													{change.file.split("/").pop()}
-												</span>
-											))}
-											{detectResult.changes.length > 5 && (
-												<span className="text-xs opacity-50">
-													+{detectResult.changes.length - 5} more
-												</span>
-											)}
-										</div>
+									<div className="opacity-80 ml-6 mt-1.5 text-error break-words">
+										{detectInfo.error}
 									</div>
 								)}
+								{!detectIsError &&
+									!isDetecting &&
+									!detectWasCancelled &&
+									detectResult && (
+										<div className="ml-6 mt-2">
+											<div className="text-xs opacity-70 mb-1">
+												Source: {detectResult.source} •{" "}
+												{detectResult.totalFiles} file(s)
+											</div>
+											<div className="flex flex-wrap gap-1 mt-1">
+												{detectResult.changes.slice(0, 5).map((change, i) => (
+													<span
+														key={i}
+														className={`text-xs px-1.5 py-0.5 rounded bg-editor-group-border ${getStatusColor(change.status)}`}
+													>
+														{change.file.split("/").pop()}
+													</span>
+												))}
+												{detectResult.changes.length > 5 && (
+													<span className="text-xs opacity-50">
+														+{detectResult.changes.length - 5} more
+													</span>
+												)}
+											</div>
+										</div>
+									)}
 							</div>
-						)
+						);
 					}
 					case "axolotl_generate_plan": {
 						let planInfo: ClineSayAxolotlGeneratePlan = {
 							status: "generating",
-						}
+						};
 						try {
 							if (message.text) {
-								planInfo = JSON.parse(message.text)
+								planInfo = JSON.parse(message.text);
 							}
 						} catch {
 							// Use defaults if parsing fails
@@ -1213,40 +1435,41 @@ export const ChatRowContent = memo(
 							planInfo.status === "generating" &&
 							(!isLast ||
 								lastModifiedMessage?.ask === "resume_task" ||
-								lastModifiedMessage?.ask === "resume_completed_task")
-						const isGeneratingPlan = planInfo.status === "generating" && !planWasCancelled
-						const planIsError = planInfo.status === "error"
-						const plan = planInfo.plan
+								lastModifiedMessage?.ask === "resume_completed_task");
+						const isGeneratingPlan =
+							planInfo.status === "generating" && !planWasCancelled;
+						const planIsError = planInfo.status === "error";
+						const plan = planInfo.plan;
 
 						// Get priority color
 						const getPriorityColor = (priority: string) => {
 							switch (priority) {
 								case "high":
-									return "text-error"
+									return "text-error";
 								case "medium":
-									return "text-warning"
+									return "text-warning";
 								case "low":
-									return "text-success"
+									return "text-success";
 								default:
-									return ""
+									return "";
 							}
-						}
+						};
 
 						// Get category icon
 						const getCategoryIcon = (category: string) => {
 							switch (category) {
 								case "functional":
-									return "🟢"
+									return "🟢";
 								case "edge_case":
-									return "🟡"
+									return "🟡";
 								case "error_handling":
-									return "🔴"
+									return "🔴";
 								case "ui_ux":
-									return "🔵"
+									return "🔵";
 								default:
-									return "⚪"
+									return "⚪";
 							}
-						}
+						};
 
 						return (
 							<div className="bg-code flex flex-col border border-editor-group-border rounded-sm py-2.5 px-3">
@@ -1271,49 +1494,60 @@ export const ChatRowContent = memo(
 									</span>
 								</div>
 								{planIsError && planInfo.error && (
-									<div className="opacity-80 ml-6 mt-1.5 text-error break-words">{planInfo.error}</div>
+									<div className="opacity-80 ml-6 mt-1.5 text-error break-words">
+										{planInfo.error}
+									</div>
 								)}
-								{!planIsError && !isGeneratingPlan && !planWasCancelled && plan && (
-									<div className="ml-6 mt-2">
-										<div className="text-xs opacity-70 mb-2">
-											{plan.totalTests} test case(s) for {plan.targetFiles.length} file(s)
-										</div>
-										<div className="space-y-1.5 max-h-[200px] overflow-y-auto">
-											{plan.testCases.slice(0, 6).map((tc, i) => (
-												<div
-													key={i}
-													className="flex items-center gap-2 text-xs bg-editor-group-border rounded px-2 py-1">
-													<span>{getCategoryIcon(tc.category)}</span>
-													<span className="font-mono opacity-50">{tc.id}</span>
-													<span className="flex-1 truncate">{tc.name}</span>
-													<span className={`text-[10px] ${getPriorityColor(tc.priority)}`}>
-														{tc.priority.toUpperCase()}
-													</span>
-												</div>
-											))}
-											{plan.testCases.length > 6 && (
-												<div className="text-xs opacity-50 text-center">
-													+{plan.testCases.length - 6} more test cases
+								{!planIsError &&
+									!isGeneratingPlan &&
+									!planWasCancelled &&
+									plan && (
+										<div className="ml-6 mt-2">
+											<div className="text-xs opacity-70 mb-2">
+												{plan.totalTests} test case(s) for{" "}
+												{plan.targetFiles.length} file(s)
+											</div>
+											<div className="space-y-1.5 max-h-[200px] overflow-y-auto">
+												{plan.testCases.slice(0, 6).map((tc, i) => (
+													<div
+														key={i}
+														className="flex items-center gap-2 text-xs bg-editor-group-border rounded px-2 py-1"
+													>
+														<span>{getCategoryIcon(tc.category)}</span>
+														<span className="font-mono opacity-50">
+															{tc.id}
+														</span>
+														<span className="flex-1 truncate">{tc.name}</span>
+														<span
+															className={`text-[10px] ${getPriorityColor(tc.priority)}`}
+														>
+															{tc.priority.toUpperCase()}
+														</span>
+													</div>
+												))}
+												{plan.testCases.length > 6 && (
+													<div className="text-xs opacity-50 text-center">
+														+{plan.testCases.length - 6} more test cases
+													</div>
+												)}
+											</div>
+											{planInfo.planFilePath && (
+												<div className="mt-2 text-xs opacity-50 truncate">
+													📄 {planInfo.planFilePath.split("/").pop()}
 												</div>
 											)}
 										</div>
-										{planInfo.planFilePath && (
-											<div className="mt-2 text-xs opacity-50 truncate">
-												📄 {planInfo.planFilePath.split("/").pop()}
-											</div>
-										)}
-									</div>
-								)}
+									)}
 							</div>
-						)
+						);
 					}
 					case "axolotl_qa_report": {
 						let reportInfo: ClineSayAxolotlQAReport = {
 							status: "generating",
-						}
+						};
 						try {
 							if (message.text) {
-								reportInfo = JSON.parse(message.text)
+								reportInfo = JSON.parse(message.text);
 							}
 						} catch {
 							// Use defaults if parsing fails
@@ -1323,24 +1557,25 @@ export const ChatRowContent = memo(
 							reportInfo.status === "generating" &&
 							(!isLast ||
 								lastModifiedMessage?.ask === "resume_task" ||
-								lastModifiedMessage?.ask === "resume_completed_task")
-						const isGenerating = reportInfo.status === "generating" && !wasCancelled
-						const isError = reportInfo.status === "error"
-						const report = reportInfo.report
+								lastModifiedMessage?.ask === "resume_completed_task");
+						const isGenerating =
+							reportInfo.status === "generating" && !wasCancelled;
+						const isError = reportInfo.status === "error";
+						const report = reportInfo.report;
 
 						// Determine verdict color
 						const getVerdictColor = (verdict?: string) => {
 							switch (verdict) {
 								case "MERGEABLE":
-									return "text-success"
+									return "text-success";
 								case "NOT_MERGEABLE":
-									return "text-error"
+									return "text-error";
 								case "MERGEABLE_WITH_RISKS":
-									return "text-warning"
+									return "text-warning";
 								default:
-									return ""
+									return "";
 							}
-						}
+						};
 
 						return (
 							<div className="bg-code flex flex-col border border-editor-group-border rounded-sm py-2.5 px-3">
@@ -1369,18 +1604,28 @@ export const ChatRowContent = memo(
 									</span>
 								</div>
 								{isError && reportInfo.error && (
-									<div className="opacity-80 ml-6 mt-1.5 text-error break-words">{reportInfo.error}</div>
+									<div className="opacity-80 ml-6 mt-1.5 text-error break-words">
+										{reportInfo.error}
+									</div>
 								)}
 								{!isError && !isGenerating && !wasCancelled && report && (
 									<div className="ml-6 mt-2">
 										{/* Summary */}
 										<div className="flex items-center gap-4 text-sm">
-											<span className="text-success">Passed: {report.summary.passed}</span>
-											<span className="text-error">Failed: {report.summary.failed}</span>
-											<span className="opacity-70">Skipped: {report.summary.skipped}</span>
+											<span className="text-success">
+												Passed: {report.summary.passed}
+											</span>
+											<span className="text-error">
+												Failed: {report.summary.failed}
+											</span>
+											<span className="opacity-70">
+												Skipped: {report.summary.skipped}
+											</span>
 										</div>
 										{/* Verdict */}
-										<div className={`mt-2 font-semibold ${getVerdictColor(report.summary.verdict)}`}>
+										<div
+											className={`mt-2 font-semibold ${getVerdictColor(report.summary.verdict)}`}
+										>
 											Verdict: {report.summary.verdict.replace(/_/g, " ")}
 										</div>
 										{/* Risks */}
@@ -1395,24 +1640,30 @@ export const ChatRowContent = memo(
 											</div>
 										)}
 										{/* Recommendations */}
-										{report.recommendations && report.recommendations.length > 0 && (
-											<div className="mt-2">
-												<div className="text-xs opacity-70 mb-1">Recommendations:</div>
-												<ul className="list-disc list-inside text-sm opacity-80">
-													{report.recommendations.map((rec, i) => (
-														<li key={i}>{rec}</li>
-													))}
-												</ul>
-											</div>
-										)}
+										{report.recommendations &&
+											report.recommendations.length > 0 && (
+												<div className="mt-2">
+													<div className="text-xs opacity-70 mb-1">
+														Recommendations:
+													</div>
+													<ul className="list-disc list-inside text-sm opacity-80">
+														{report.recommendations.map((rec, i) => (
+															<li key={i}>{rec}</li>
+														))}
+													</ul>
+												</div>
+											)}
 									</div>
 								)}
 							</div>
-						)
+						);
 					}
-					case "completion_result":
-						const hasChanges = message.text?.endsWith(COMPLETION_RESULT_CHANGES_FLAG) ?? false
-						const text = hasChanges ? message.text?.slice(0, -COMPLETION_RESULT_CHANGES_FLAG.length) : message.text
+					case "completion_result": {
+						const hasChanges =
+							message.text?.endsWith(COMPLETION_RESULT_CHANGES_FLAG) ?? false;
+						const text = hasChanges
+							? message.text?.slice(0, -COMPLETION_RESULT_CHANGES_FLAG.length)
+							: message.text;
 
 						return (
 							<CompletionOutputRow
@@ -1427,32 +1678,37 @@ export const ChatRowContent = memo(
 								showActionRow={message.partial !== true && hasChanges}
 								text={text || ""}
 							/>
-						)
+						);
+					}
 					case "shell_integration_warning":
 						return (
 							<div className="flex flex-col bg-warning/20 p-2 rounded-xs border border-error">
 								<div className="flex items-center mb-1">
 									<TriangleAlertIcon className="mr-2 size-2 stroke-3 text-error" />
-									<span className="font-medium text-foreground">Shell Integration Unavailable</span>
+									<span className="font-medium text-foreground">
+										Shell Integration Unavailable
+									</span>
 								</div>
 								<div className="text-foreground opacity-80">
-									Cline may have trouble viewing the command's output. Please update VSCode (
-									<code>CMD/CTRL + Shift + P</code> → "Update") and make sure you're using a supported shell:
-									zsh, bash, fish, or PowerShell (<code>CMD/CTRL + Shift + P</code> → "Terminal: Select Default
-									Profile").
+									Axolotl may have trouble viewing the command's output. Please
+									update VSCode (<code>CMD/CTRL + Shift + P</code> → "Update")
+									and make sure you're using a supported shell: zsh, bash, fish,
+									or PowerShell (<code>CMD/CTRL + Shift + P</code> → "Terminal:
+									Select Default Profile").
 									<a
 										className="px-1"
-										href="https://github.com/cline/cline/wiki/Troubleshooting-%E2%80%90-Shell-Integration-Unavailable">
+										href="https://github.com/cline/cline/wiki/Troubleshooting-%E2%80%90-Shell-Integration-Unavailable"
+									>
 										Still having trouble?
 									</a>
 								</div>
 							</div>
-						)
+						);
 					case "error_retry":
 						try {
-							const retryInfo = JSON.parse(message.text || "{}")
-							const { attempt, maxAttempts, delaySeconds, failed } = retryInfo
-							const isFailed = failed === true
+							const retryInfo = JSON.parse(message.text || "{}");
+							const { attempt, maxAttempts, delaySeconds, failed } = retryInfo;
+							const isFailed = failed === true;
 
 							return (
 								<div className="flex flex-col bg-quote p-0 rounded-[3px] text-[12px]">
@@ -1463,74 +1719,94 @@ export const ChatRowContent = memo(
 											<RefreshCwIcon className="mr-2 size-2 animate-spin" />
 										)}
 										<span className="font-medium text-foreground">
-											{isFailed ? "Auto-Retry Failed" : "Auto-Retry in Progress"}
+											{isFailed
+												? "Auto-Retry Failed"
+												: "Auto-Retry in Progress"}
 										</span>
 									</div>
 									<div className="text-foreground opacity-80">
 										{isFailed ? (
 											<span>
-												Auto-retry failed after <strong>{maxAttempts}</strong> attempts. Manual
-												intervention required.
+												Auto-retry failed after <strong>{maxAttempts}</strong>{" "}
+												attempts. Manual intervention required.
 											</span>
 										) : (
 											<span>
-												Attempt <strong>{attempt}</strong> of <strong>{maxAttempts}</strong> - Retrying in{" "}
+												Attempt <strong>{attempt}</strong> of{" "}
+												<strong>{maxAttempts}</strong> - Retrying in{" "}
 												{delaySeconds} seconds...
 											</span>
 										)}
 									</div>
 								</div>
-							)
+							);
 						} catch (_e) {
 							// Fallback if JSON parsing fails
 							return (
 								<div className="text-foreground">
 									<MarkdownRow markdown={message.text} />
 								</div>
-							)
+							);
 						}
 					case "hook_status":
-						return <HookMessage CommandOutput={CommandOutputContent} message={message} />
+						return (
+							<HookMessage
+								CommandOutput={CommandOutputContent}
+								message={message}
+							/>
+						);
 					case "hook_output_stream":
 						// hook_output_stream messages are combined with hook_status messages, so we don't render them separately
-						return <InvisibleSpacer />
-					case "shell_integration_warning_with_suggestion":
-						const isBackgroundModeEnabled = vscodeTerminalExecutionMode === "backgroundExec"
+						return <InvisibleSpacer />;
+					case "shell_integration_warning_with_suggestion": {
+						const isBackgroundModeEnabled =
+							vscodeTerminalExecutionMode === "backgroundExec";
 						return (
 							<div className="p-2 bg-link/10 border border-link/30 rounded-xs">
 								<div className="flex items-center mb-1">
 									<LightbulbIcon className="mr-1.5 size-2 text-link" />
-									<span className="font-medium text-foreground">Shell integration issues</span>
+									<span className="font-medium text-foreground">
+										Shell integration issues
+									</span>
 								</div>
 								<div className="text-foreground opacity-90 mb-2">
-									Since you're experiencing repeated shell integration issues, we recommend switching to
-									Background Terminal mode for better reliability.
+									Since you're experiencing repeated shell integration issues,
+									we recommend switching to Background Terminal mode for better
+									reliability.
 								</div>
 								<button
 									className={cn(
 										"bg-button-background text-button-foreground border-0 rounded-xs py-1.5 px-3 text-[12px] flex items-center gap-1.5 cursor-pointer hover:bg-button-hover",
 										{
-											"cursor-default opacity-80 bg-success": isBackgroundModeEnabled,
+											"cursor-default opacity-80 bg-success":
+												isBackgroundModeEnabled,
 										},
 									)}
 									disabled={isBackgroundModeEnabled}
 									onClick={async () => {
 										try {
 											// Enable background terminal execution mode
-											await UiServiceClient.setTerminalExecutionMode(BooleanRequest.create({ value: true }))
+											await UiServiceClient.setTerminalExecutionMode(
+												BooleanRequest.create({ value: true }),
+											);
 										} catch (error) {
-											console.error("Failed to enable background terminal:", error)
+											console.error(
+												"Failed to enable background terminal:",
+												error,
+											);
 										}
-									}}>
+									}}
+								>
 									<SettingsIcon className="size-2" />
 									{isBackgroundModeEnabled
 										? "Background Terminal Enabled"
 										: "Enable Background Terminal (Recommended)"}
 								</button>
 							</div>
-						)
+						);
+					}
 					case "task_progress":
-						return <InvisibleSpacer /> // task_progress messages should be displayed in TaskHeader only, not in chat
+						return <InvisibleSpacer />; // task_progress messages should be displayed in TaskHeader only, not in chat
 					default:
 						return (
 							<div>
@@ -1544,16 +1820,21 @@ export const ChatRowContent = memo(
 									<MarkdownRow markdown={message.text} />
 								</div>
 							</div>
-						)
+						);
 				}
 			case "ask":
 				switch (message.ask) {
 					case "mistake_limit_reached":
-						return <ErrorRow errorType="mistake_limit_reached" message={message} />
+						return (
+							<ErrorRow errorType="mistake_limit_reached" message={message} />
+						);
 					case "completion_result":
 						if (message.text) {
-							const hasChanges = message.text.endsWith(COMPLETION_RESULT_CHANGES_FLAG) ?? false
-							const text = hasChanges ? message.text.slice(0, -COMPLETION_RESULT_CHANGES_FLAG.length) : message.text
+							const hasChanges =
+								message.text.endsWith(COMPLETION_RESULT_CHANGES_FLAG) ?? false;
+							const text = hasChanges
+								? message.text.slice(0, -COMPLETION_RESULT_CHANGES_FLAG.length)
+								: message.text;
 							return (
 								<CompletionOutputRow
 									explainChangesDisabled={explainChangesDisabled}
@@ -1567,23 +1848,25 @@ export const ChatRowContent = memo(
 									showActionRow={message.partial !== true && hasChanges}
 									text={text || ""}
 								/>
-							)
+							);
 						} else {
 							// Virtuoso cannot handle zero-height items; render a spacer instead of null
-							return <InvisibleSpacer />
+							return <InvisibleSpacer />;
 						}
-					case "followup":
-						let question: string | undefined
-						let options: string[] | undefined
-						let selected: string | undefined
+					case "followup": {
+						let question: string | undefined;
+						let options: string[] | undefined;
+						let selected: string | undefined;
 						try {
-							const parsedMessage = JSON.parse(message.text || "{}") as ClineAskQuestion
-							question = parsedMessage.question
-							options = parsedMessage.options
-							selected = parsedMessage.selected
+							const parsedMessage = JSON.parse(
+								message.text || "{}",
+							) as ClineAskQuestion;
+							question = parsedMessage.question;
+							options = parsedMessage.options;
+							selected = parsedMessage.selected;
 						} catch (_e) {
 							// legacy messages would pass question directly
-							question = message.text
+							question = message.text;
 						}
 
 						return (
@@ -1599,13 +1882,14 @@ export const ChatRowContent = memo(
 									onMouseUp={handleMouseUp}
 									position="bottom-right"
 									ref={contentRef}
-									textToCopy={question}>
+									textToCopy={question}
+								>
 									<MarkdownRow markdown={question} />
 									{quoteButtonState.visible && (
 										<QuoteButton
 											left={quoteButtonState.left}
 											onClick={() => {
-												handleQuoteClick()
+												handleQuoteClick();
 											}}
 											top={quoteButtonState.top}
 										/>
@@ -1621,49 +1905,58 @@ export const ChatRowContent = memo(
 									selected={selected}
 								/>
 							</div>
-						)
+						);
+					}
 					case "new_task":
 						return (
 							<div>
 								<div className={HEADER_CLASSNAMES}>
 									<FilePlus2Icon className="size-2" />
-									<span className="text-foreground font-bold">Axolotl wants to start a new task:</span>
+									<span className="text-foreground font-bold">
+										Axolotl wants to start a new task:
+									</span>
 								</div>
 								<NewTaskPreview context={message.text || ""} />
 							</div>
-						)
+						);
 					case "condense":
 						return (
 							<div>
 								<div className={HEADER_CLASSNAMES}>
 									<FilePlus2Icon className="size-2" />
-									<span className="text-foreground font-bold">Axolotl wants to condense your conversation:</span>
+									<span className="text-foreground font-bold">
+										Axolotl wants to condense your conversation:
+									</span>
 								</div>
 								<NewTaskPreview context={message.text || ""} />
 							</div>
-						)
+						);
 					case "report_bug":
 						return (
 							<div>
 								<div className={HEADER_CLASSNAMES}>
 									<FilePlus2Icon className="size-2" />
-									<span className="text-foreground font-bold">Axolotl wants to create a Github issue:</span>
+									<span className="text-foreground font-bold">
+										Axolotl wants to create a Github issue:
+									</span>
 								</div>
 								<ReportBugPreview data={message.text || ""} />
 							</div>
-						)
+						);
 					case "plan_mode_respond": {
-						let response: string | undefined
-						let options: string[] | undefined
-						let selected: string | undefined
+						let response: string | undefined;
+						let options: string[] | undefined;
+						let selected: string | undefined;
 						try {
-							const parsedMessage = JSON.parse(message.text || "{}") as ClinePlanModeResponse
-							response = parsedMessage.response
-							options = parsedMessage.options
-							selected = parsedMessage.selected
+							const parsedMessage = JSON.parse(
+								message.text || "{}",
+							) as ClinePlanModeResponse;
+							response = parsedMessage.response;
+							options = parsedMessage.options;
+							selected = parsedMessage.selected;
 						} catch (_e) {
 							// legacy messages would pass response directly
-							response = message.text
+							response = message.text;
 						}
 						return (
 							<div>
@@ -1674,18 +1967,19 @@ export const ChatRowContent = memo(
 								<OptionsButtons
 									inputValue={inputValue}
 									isActive={
-										(isLast && lastModifiedMessage?.ask === "plan_mode_respond") ||
+										(isLast &&
+											lastModifiedMessage?.ask === "plan_mode_respond") ||
 										(!selected && options && options.length > 0)
 									}
 									options={options}
 									selected={selected}
 								/>
 							</div>
-						)
+						);
 					}
 					default:
-						return <InvisibleSpacer />
+						return <InvisibleSpacer />;
 				}
 		}
 	},
-)
+);

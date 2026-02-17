@@ -1,14 +1,16 @@
-import { ModelFamily } from "@/shared/prompts"
-import { ClineDefaultTool } from "@/shared/tools"
-import { isGLMModelFamily } from "@/utils/model-utils"
-import { SystemPromptSection } from "../../templates/placeholders"
-import { createVariant } from "../variant-builder"
-import { validateVariant } from "../variant-validator"
-import { glmComponentOverrides } from "./overrides"
-import { baseTemplate } from "./template"
+import { ModelFamily } from "@/shared/prompts";
+import { ClineDefaultTool } from "@/shared/tools";
+import { isGLMModelFamily } from "@/utils/model-utils";
+import { SystemPromptSection } from "../../templates/placeholders";
+import { createVariant } from "../variant-builder";
+import { validateVariant } from "../variant-validator";
+import { glmComponentOverrides } from "./overrides";
+import { baseTemplate } from "./template";
 
 export const config = createVariant(ModelFamily.GLM)
-	.description("Prompt optimized for GLM-4.6 model with advanced agentic capabilities.")
+	.description(
+		"Prompt optimized for GLM-4.6 model with advanced agentic capabilities.",
+	)
 	.version(1)
 	.tags("glm", "stable")
 	.labels({
@@ -16,7 +18,7 @@ export const config = createVariant(ModelFamily.GLM)
 		production: 1,
 	})
 	.matcher((context) => {
-		return isGLMModelFamily(context.providerInfo.model.id)
+		return isGLMModelFamily(context.providerInfo.model.id);
 	})
 	.template(baseTemplate)
 	.components(
@@ -34,6 +36,7 @@ export const config = createVariant(ModelFamily.GLM)
 		SystemPromptSection.OBJECTIVE,
 		SystemPromptSection.USER_INSTRUCTIONS,
 		SystemPromptSection.SKILLS,
+		SystemPromptSection.AXOLOTL_QA_WORKFLOW,
 	)
 	.tools(
 		ClineDefaultTool.BASH,
@@ -64,23 +67,49 @@ export const config = createVariant(ModelFamily.GLM)
 	})
 	.config({})
 	// Apply GLM-specific component overrides
-	.overrideComponent(SystemPromptSection.TOOL_USE, glmComponentOverrides[SystemPromptSection.TOOL_USE])
-	.overrideComponent(SystemPromptSection.OBJECTIVE, glmComponentOverrides[SystemPromptSection.OBJECTIVE])
-	.overrideComponent(SystemPromptSection.RULES, glmComponentOverrides[SystemPromptSection.RULES])
-	.overrideComponent(SystemPromptSection.TASK_PROGRESS, glmComponentOverrides[SystemPromptSection.TASK_PROGRESS])
-	.overrideComponent(SystemPromptSection.MCP, glmComponentOverrides[SystemPromptSection.MCP])
-	.build()
+	.overrideComponent(
+		SystemPromptSection.TOOL_USE,
+		glmComponentOverrides[SystemPromptSection.TOOL_USE],
+	)
+	.overrideComponent(
+		SystemPromptSection.OBJECTIVE,
+		glmComponentOverrides[SystemPromptSection.OBJECTIVE],
+	)
+	.overrideComponent(
+		SystemPromptSection.RULES,
+		glmComponentOverrides[SystemPromptSection.RULES],
+	)
+	.overrideComponent(
+		SystemPromptSection.TASK_PROGRESS,
+		glmComponentOverrides[SystemPromptSection.TASK_PROGRESS],
+	)
+	.overrideComponent(
+		SystemPromptSection.MCP,
+		glmComponentOverrides[SystemPromptSection.MCP],
+	)
+	.build();
 
 // Compile-time validation
-const validationResult = validateVariant({ ...config, id: "glm" }, { strict: true })
+const validationResult = validateVariant(
+	{ ...config, id: "glm" },
+	{ strict: true },
+);
 if (!validationResult.isValid) {
-	console.error("GLM variant configuration validation failed:", validationResult.errors)
-	throw new Error(`Invalid GLM variant configuration: ${validationResult.errors.join(", ")}`)
+	console.error(
+		"GLM variant configuration validation failed:",
+		validationResult.errors,
+	);
+	throw new Error(
+		`Invalid GLM variant configuration: ${validationResult.errors.join(", ")}`,
+	);
 }
 
 if (validationResult.warnings.length > 0) {
-	console.warn("GLM variant configuration warnings:", validationResult.warnings)
+	console.warn(
+		"GLM variant configuration warnings:",
+		validationResult.warnings,
+	);
 }
 
 // Export type information for better IDE support
-export type GLMVariantConfig = typeof config
+export type GLMVariantConfig = typeof config;

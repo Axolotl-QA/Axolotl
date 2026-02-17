@@ -1,28 +1,37 @@
-import { Button } from "@components/ui/button"
-import { EmptyRequest } from "@shared/proto/cline/common"
-import React, { useCallback, useRef } from "react"
-import { useMount } from "react-use"
-import { Dialog, DialogContent } from "@/components/ui/dialog"
-import { useClineAuth } from "@/context/ClineAuthContext"
-import { useExtensionState } from "@/context/ExtensionStateContext"
-import { AccountServiceClient } from "@/services/grpc-client"
-import { useApiConfigurationHandlers } from "../settings/utils/useApiConfigurationHandlers"
+import { Button } from "@components/ui/button";
+import { EmptyRequest } from "@shared/proto/cline/common";
+import type React from "react";
+import { useCallback, useRef } from "react";
+import { useMount } from "react-use";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { useClineAuth } from "@/context/ClineAuthContext";
+import { useExtensionState } from "@/context/ExtensionStateContext";
+import { AccountServiceClient } from "@/services/grpc-client";
+import { useApiConfigurationHandlers } from "../settings/utils/useApiConfigurationHandlers";
 
 interface WhatsNewModalProps {
-	open: boolean
-	onClose: () => void
-	version: string
+	open: boolean;
+	onClose: () => void;
+	version: string;
 }
 
-export const WhatsNewModal: React.FC<WhatsNewModalProps> = ({ open, onClose, version }) => {
-	const { clineUser } = useClineAuth()
-	const { openRouterModels, setShowChatModelSelector, refreshOpenRouterModels } = useExtensionState()
-	const { handleFieldsChange } = useApiConfigurationHandlers()
+export const WhatsNewModal: React.FC<WhatsNewModalProps> = ({
+	open,
+	onClose,
+	version,
+}) => {
+	const { clineUser } = useClineAuth();
+	const {
+		openRouterModels,
+		setShowChatModelSelector,
+		refreshOpenRouterModels,
+	} = useExtensionState();
+	const { handleFieldsChange } = useApiConfigurationHandlers();
 
-	const clickedModelsRef = useRef<Set<string>>(new Set())
+	const clickedModelsRef = useRef<Set<string>>(new Set());
 
 	// Get latest model list in case user hits shortcut button to set model
-	useMount(refreshOpenRouterModels)
+	useMount(refreshOpenRouterModels);
 
 	const setModel = useCallback(
 		(modelId: string) => {
@@ -33,75 +42,89 @@ export const WhatsNewModal: React.FC<WhatsNewModalProps> = ({ open, onClose, ver
 				actModeOpenRouterModelInfo: openRouterModels[modelId],
 				planModeApiProvider: "cline",
 				actModeApiProvider: "cline",
-			})
+			});
 
-			clickedModelsRef.current.add(modelId)
-			setShowChatModelSelector(true)
-			onClose()
+			clickedModelsRef.current.add(modelId);
+			setShowChatModelSelector(true);
+			onClose();
 		},
 		[handleFieldsChange, openRouterModels, setShowChatModelSelector, onClose],
-	)
+	);
 
 	const handleShowAccount = useCallback(() => {
-		AccountServiceClient.accountLoginClicked(EmptyRequest.create()).catch((err) =>
-			console.error("Failed to get login URL:", err),
-		)
-	}, [])
+		AccountServiceClient.accountLoginClicked(EmptyRequest.create()).catch(
+			(err) => console.error("Failed to get login URL:", err),
+		);
+	}, []);
 
-	const ModelButton: React.FC<{ modelId: string; label: string }> = ({ modelId, label }) => {
-		const isClicked = clickedModelsRef.current.has(modelId)
+	const _ModelButton: React.FC<{ modelId: string; label: string }> = ({
+		modelId,
+		label,
+	}) => {
+		const isClicked = clickedModelsRef.current.has(modelId);
 		if (isClicked) {
-			return null
+			return null;
 		}
 
 		return (
 			<Button className="my-1" onClick={() => setModel(modelId)} size="sm">
 				{label}
 			</Button>
-		)
-	}
+		);
+	};
 
-	const AuthButton: React.FC<{ children: React.ReactNode }> = ({ children }) =>
+	const _AuthButton: React.FC<{ children: React.ReactNode }> = ({
+		children,
+	}) =>
 		clineUser ? (
 			<div className="flex gap-2 flex-wrap">{children}</div>
 		) : (
 			<Button className="my-1" onClick={handleShowAccount} size="sm">
-				Sign Up with Cline
+				Sign Up with Axolotl
 			</Button>
-		)
+		);
 
 	return (
 		<Dialog onOpenChange={(isOpen) => !isOpen && onClose()} open={open}>
 			<DialogContent
 				aria-describedby="whats-new-description"
 				aria-labelledby="whats-new-title"
-				className="pt-5 px-5 pb-4 gap-0">
+				className="pt-5 px-5 pb-4 gap-0"
+			>
 				<div id="whats-new-description">
 					<h2
 						className="text-lg font-semibold mb-3 pr-6"
 						id="whats-new-title"
-						style={{ color: "var(--vscode-editor-foreground)" }}>
+						style={{ color: "var(--vscode-editor-foreground)" }}
+					>
 						🎉 New in v{version}
 					</h2>
 
 					{/* Description */}
-					<ul className="text-sm pl-3 list-disc" style={{ color: "var(--vscode-descriptionForeground)" }}>
+					<ul
+						className="text-sm pl-3 list-disc"
+						style={{ color: "var(--vscode-descriptionForeground)" }}
+					>
 						<li className="mb-2">
 							<strong>OpenAI:</strong> Add gpt-5.2-codex model support
 						</li>
 						<li className="mb-2">
-							<strong>Skills:</strong> Extend Cline with instruction sets for specialized tasks.{" "}
+							<strong>Skills:</strong> Extend Axolotl with instruction sets for
+							specialized tasks.{" "}
 							<a
 								href="https://docs.cline.bot/features/skills"
-								style={{ color: "var(--vscode-textLink-foreground)" }}>
+								style={{ color: "var(--vscode-textLink-foreground)" }}
+							>
 								Learn more
 							</a>
 						</li>
 						<li>
-							<strong>Web Search:</strong> Improved websearch tooling in Cline provider.{" "}
+							<strong>Web Search:</strong> Improved websearch tooling in Axolotl
+							provider.{" "}
 							<a
 								href="https://docs.cline.bot/features/web-tools"
-								style={{ color: "var(--vscode-textLink-foreground)" }}>
+								style={{ color: "var(--vscode-textLink-foreground)" }}
+							>
 								Learn more
 							</a>
 						</li>
@@ -109,7 +132,7 @@ export const WhatsNewModal: React.FC<WhatsNewModalProps> = ({ open, onClose, ver
 				</div>
 			</DialogContent>
 		</Dialog>
-	)
-}
+	);
+};
 
-export default WhatsNewModal
+export default WhatsNewModal;

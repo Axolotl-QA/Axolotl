@@ -1,11 +1,11 @@
-import { isLocalModel } from "@utils/model-utils"
-import { ModelFamily } from "@/shared/prompts"
-import { ClineDefaultTool } from "@/shared/tools"
-import { SystemPromptSection } from "../../templates/placeholders"
-import { createVariant } from "../variant-builder"
-import { validateVariant } from "../variant-validator"
-import { xsComponentOverrides } from "./overrides"
-import { baseTemplate } from "./template"
+import { isLocalModel } from "@utils/model-utils";
+import { ModelFamily } from "@/shared/prompts";
+import { ClineDefaultTool } from "@/shared/tools";
+import { SystemPromptSection } from "../../templates/placeholders";
+import { createVariant } from "../variant-builder";
+import { validateVariant } from "../variant-validator";
+import { xsComponentOverrides } from "./overrides";
+import { baseTemplate } from "./template";
 
 // Type-safe variant configuration using the builder pattern
 export const config = createVariant(ModelFamily.XS)
@@ -18,9 +18,11 @@ export const config = createVariant(ModelFamily.XS)
 		advanced: 1,
 	})
 	.matcher((context) => {
-		const providerInfo = context.providerInfo
+		const providerInfo = context.providerInfo;
 		// Match compact local models
-		return providerInfo.customPrompt === "compact" && isLocalModel(providerInfo)
+		return (
+			providerInfo.customPrompt === "compact" && isLocalModel(providerInfo)
+		);
 	})
 	.template(baseTemplate)
 	.components(
@@ -34,6 +36,7 @@ export const config = createVariant(ModelFamily.XS)
 		SystemPromptSection.SYSTEM_INFO,
 		SystemPromptSection.USER_INSTRUCTIONS,
 		SystemPromptSection.SKILLS,
+		SystemPromptSection.AXOLOTL_QA_WORKFLOW,
 	)
 	.tools(
 		ClineDefaultTool.BASH,
@@ -58,22 +61,30 @@ export const config = createVariant(ModelFamily.XS)
 		MODEL_FAMILY: ModelFamily.XS,
 	})
 	.config({})
-	.build()
+	.build();
 
 // Apply component overrides after building the base configuration
 // This is necessary because the builder pattern doesn't support bulk overrides
-Object.assign(config.componentOverrides, xsComponentOverrides)
+Object.assign(config.componentOverrides, xsComponentOverrides);
 
 // Compile-time validation
-const validationResult = validateVariant({ ...config, id: ModelFamily.XS }, { strict: true })
+const validationResult = validateVariant(
+	{ ...config, id: ModelFamily.XS },
+	{ strict: true },
+);
 if (!validationResult.isValid) {
-	console.error("XS variant configuration validation failed:", validationResult.errors)
-	throw new Error(`Invalid XS variant configuration: ${validationResult.errors.join(", ")}`)
+	console.error(
+		"XS variant configuration validation failed:",
+		validationResult.errors,
+	);
+	throw new Error(
+		`Invalid XS variant configuration: ${validationResult.errors.join(", ")}`,
+	);
 }
 
 if (validationResult.warnings.length > 0) {
-	console.warn("XS variant configuration warnings:", validationResult.warnings)
+	console.warn("XS variant configuration warnings:", validationResult.warnings);
 }
 
 // Export type information for better IDE support
-export type XsVariantConfig = typeof config
+export type XsVariantConfig = typeof config;

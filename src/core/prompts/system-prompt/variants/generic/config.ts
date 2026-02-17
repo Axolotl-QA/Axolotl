@@ -1,10 +1,15 @@
-import { isGLMModelFamily, isLocalModel, isNextGenModelFamily, isNextGenModelProvider } from "@utils/model-utils"
-import { ModelFamily } from "@/shared/prompts"
-import { ClineDefaultTool } from "@/shared/tools"
-import { SystemPromptSection } from "../../templates/placeholders"
-import { createVariant } from "../variant-builder"
-import { validateVariant } from "../variant-validator"
-import { baseTemplate } from "./template"
+import {
+	isGLMModelFamily,
+	isLocalModel,
+	isNextGenModelFamily,
+	isNextGenModelProvider,
+} from "@utils/model-utils";
+import { ModelFamily } from "@/shared/prompts";
+import { ClineDefaultTool } from "@/shared/tools";
+import { SystemPromptSection } from "../../templates/placeholders";
+import { createVariant } from "../variant-builder";
+import { validateVariant } from "../variant-validator";
+import { baseTemplate } from "./template";
 
 export const config = createVariant(ModelFamily.GENERIC)
 	.description("The fallback prompt for generic use cases and models.")
@@ -17,19 +22,23 @@ export const config = createVariant(ModelFamily.GENERIC)
 	// Generic matcher - fallback for everything that doesn't match other variants
 	// This will match anything that doesn't match the other specific variants
 	.matcher((context) => {
-		const providerInfo = context.providerInfo
+		const providerInfo = context.providerInfo;
 		if (!providerInfo.providerId || !providerInfo.model.id) {
-			return true
+			return true;
 		}
-		const modelId = providerInfo.model.id.toLowerCase()
+		const modelId = providerInfo.model.id.toLowerCase();
 		return (
 			// Not a local model with compact prompt enabled
-			!(providerInfo.customPrompt === "compact" && isLocalModel(providerInfo)) &&
+			!(
+				providerInfo.customPrompt === "compact" && isLocalModel(providerInfo)
+			) &&
 			// Not a next-gen model
-			!(isNextGenModelProvider(providerInfo) && isNextGenModelFamily(modelId)) &&
+			!(
+				isNextGenModelProvider(providerInfo) && isNextGenModelFamily(modelId)
+			) &&
 			// Not a GLM model
 			!isGLMModelFamily(modelId)
-		)
+		);
 	})
 	.template(baseTemplate)
 	.components(
@@ -46,6 +55,7 @@ export const config = createVariant(ModelFamily.GENERIC)
 		SystemPromptSection.OBJECTIVE,
 		SystemPromptSection.USER_INSTRUCTIONS,
 		SystemPromptSection.SKILLS,
+		SystemPromptSection.AXOLOTL_QA_WORKFLOW,
 	)
 	.tools(
 		ClineDefaultTool.BASH,
@@ -75,18 +85,29 @@ export const config = createVariant(ModelFamily.GENERIC)
 		MODEL_FAMILY: "generic",
 	})
 	.config({})
-	.build()
+	.build();
 
 // Compile-time validation
-const validationResult = validateVariant({ ...config, id: "generic" }, { strict: true })
+const validationResult = validateVariant(
+	{ ...config, id: "generic" },
+	{ strict: true },
+);
 if (!validationResult.isValid) {
-	console.error("Generic variant configuration validation failed:", validationResult.errors)
-	throw new Error(`Invalid generic variant configuration: ${validationResult.errors.join(", ")}`)
+	console.error(
+		"Generic variant configuration validation failed:",
+		validationResult.errors,
+	);
+	throw new Error(
+		`Invalid generic variant configuration: ${validationResult.errors.join(", ")}`,
+	);
 }
 
 if (validationResult.warnings.length > 0) {
-	console.warn("Generic variant configuration warnings:", validationResult.warnings)
+	console.warn(
+		"Generic variant configuration warnings:",
+		validationResult.warnings,
+	);
 }
 
 // Export type information for better IDE support
-export type GenericVariantConfig = typeof config
+export type GenericVariantConfig = typeof config;

@@ -1,20 +1,20 @@
-import React from "react"
-import MarkdownBlock from "../common/MarkdownBlock"
+import React from "react";
+import MarkdownBlock from "../common/MarkdownBlock";
 
 interface ReportBugPreviewProps {
-	data: string
+	data: string;
 }
 
 const ReportBugPreview: React.FC<ReportBugPreviewProps> = ({ data }) => {
 	// Parse the JSON data from the context string
 	const bugData = React.useMemo(() => {
 		try {
-			return JSON.parse(data || "{}")
+			return JSON.parse(data || "{}");
 		} catch (e) {
-			console.error("Failed to parse bug report data", e)
-			return {}
+			console.error("Failed to parse bug report data", e);
+			return {};
 		}
-	}, [data])
+	}, [data]);
 
 	return (
 		<div className="bg-badge-background/50 text-badge-foreground rounded-xs p-3">
@@ -65,7 +65,7 @@ const ReportBugPreview: React.FC<ReportBugPreviewProps> = ({ data }) => {
 
 				{bugData.cline_version && (
 					<div>
-						<div className="font-semibold">Cline Version</div>
+						<div className="font-semibold">Axolotl Version</div>
 						<MarkdownBlock markdown={bugData.cline_version} />
 					</div>
 				)}
@@ -78,7 +78,7 @@ const ReportBugPreview: React.FC<ReportBugPreviewProps> = ({ data }) => {
 				)}
 			</div>
 		</div>
-	)
-}
+	);
+};
 
-export default ReportBugPreview
+export default ReportBugPreview;

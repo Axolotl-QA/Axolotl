@@ -1,10 +1,14 @@
-import { isGPT5ModelFamily, isNextGenModelFamily, isNextGenModelProvider } from "@utils/model-utils"
-import { ModelFamily } from "@/shared/prompts"
-import { ClineDefaultTool } from "@/shared/tools"
-import { SystemPromptSection } from "../../templates/placeholders"
-import { createVariant } from "../variant-builder"
-import { validateVariant } from "../variant-validator"
-import { TEMPLATE_OVERRIDES } from "./template"
+import {
+	isGPT5ModelFamily,
+	isNextGenModelFamily,
+	isNextGenModelProvider,
+} from "@utils/model-utils";
+import { ModelFamily } from "@/shared/prompts";
+import { ClineDefaultTool } from "@/shared/tools";
+import { SystemPromptSection } from "../../templates/placeholders";
+import { createVariant } from "../variant-builder";
+import { validateVariant } from "../variant-validator";
+import { TEMPLATE_OVERRIDES } from "./template";
 
 // Type-safe variant configuration using the builder pattern
 export const config = createVariant(ModelFamily.NATIVE_NEXT_GEN)
@@ -19,14 +23,14 @@ export const config = createVariant(ModelFamily.NATIVE_NEXT_GEN)
 	})
 	.matcher((context) => {
 		if (!context.enableNativeToolCalls) {
-			return false
+			return false;
 		}
-		const providerInfo = context.providerInfo
+		const providerInfo = context.providerInfo;
 		if (!isNextGenModelProvider(providerInfo)) {
-			return false
+			return false;
 		}
-		const modelId = providerInfo.model.id.toLowerCase()
-		return !isGPT5ModelFamily(modelId) && isNextGenModelFamily(modelId)
+		const modelId = providerInfo.model.id.toLowerCase();
+		return !isGPT5ModelFamily(modelId) && isNextGenModelFamily(modelId);
 	})
 	.template(TEMPLATE_OVERRIDES.BASE)
 	.components(
@@ -42,6 +46,7 @@ export const config = createVariant(ModelFamily.NATIVE_NEXT_GEN)
 		SystemPromptSection.OBJECTIVE,
 		SystemPromptSection.USER_INSTRUCTIONS,
 		SystemPromptSection.SKILLS,
+		SystemPromptSection.AXOLOTL_QA_WORKFLOW,
 	)
 	.tools(
 		ClineDefaultTool.ASK,
@@ -88,18 +93,29 @@ export const config = createVariant(ModelFamily.NATIVE_NEXT_GEN)
 	.overrideComponent(SystemPromptSection.FEEDBACK, {
 		template: TEMPLATE_OVERRIDES.FEEDBACK,
 	})
-	.build()
+	.build();
 
 // Compile-time validation
-const validationResult = validateVariant({ ...config, id: ModelFamily.NATIVE_NEXT_GEN }, { strict: true })
+const validationResult = validateVariant(
+	{ ...config, id: ModelFamily.NATIVE_NEXT_GEN },
+	{ strict: true },
+);
 if (!validationResult.isValid) {
-	console.error("Native Next Gen variant configuration validation failed:", validationResult.errors)
-	throw new Error(`Invalid Native Next Gen variant configuration: ${validationResult.errors.join(", ")}`)
+	console.error(
+		"Native Next Gen variant configuration validation failed:",
+		validationResult.errors,
+	);
+	throw new Error(
+		`Invalid Native Next Gen variant configuration: ${validationResult.errors.join(", ")}`,
+	);
 }
 
 if (validationResult.warnings.length > 0) {
-	console.warn("Native Next Gen variant configuration warnings:", validationResult.warnings)
+	console.warn(
+		"Native Next Gen variant configuration warnings:",
+		validationResult.warnings,
+	);
 }
 
 // Export type information for better IDE support
-export type NativeNextGenVariantConfig = typeof config
+export type NativeNextGenVariantConfig = typeof config;

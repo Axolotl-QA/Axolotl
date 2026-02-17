@@ -1,43 +1,41 @@
-import type { ExtensionMessage } from "@shared/ExtensionMessage"
-import { ResetStateRequest } from "@shared/proto/cline/state"
-import { VSCodeButton } from "@vscode/webview-ui-toolkit/react"
+import type { ExtensionMessage } from "@shared/ExtensionMessage";
+import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import {
 	CheckCheck,
-	FlaskConical,
 	Info,
 	type LucideIcon,
 	SlidersHorizontal,
 	SquareMousePointer,
 	SquareTerminal,
 	Wrench,
-} from "lucide-react"
-import { useCallback, useEffect, useMemo, useState } from "react"
-import { useEvent } from "react-use"
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
-import { useExtensionState } from "@/context/ExtensionStateContext"
-import { cn } from "@/lib/utils"
-import { StateServiceClient } from "@/services/grpc-client"
-import { getEnvironmentColor } from "@/utils/environmentColors"
-import { Tab, TabContent, TabHeader, TabList, TabTrigger } from "../common/Tab"
-import SectionHeader from "./SectionHeader"
-import AboutSection from "./sections/AboutSection"
-import ApiConfigurationSection from "./sections/ApiConfigurationSection"
-import BrowserSettingsSection from "./sections/BrowserSettingsSection"
-import DebugSection from "./sections/DebugSection"
-import FeatureSettingsSection from "./sections/FeatureSettingsSection"
-import GeneralSettingsSection from "./sections/GeneralSettingsSection"
-import TerminalSettingsSection from "./sections/TerminalSettingsSection"
-
-const IS_DEV = process.env.IS_DEV
+} from "lucide-react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEvent } from "react-use";
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { useExtensionState } from "@/context/ExtensionStateContext";
+import { cn } from "@/lib/utils";
+import { getEnvironmentColor } from "@/utils/environmentColors";
+import { Tab, TabContent, TabHeader, TabList, TabTrigger } from "../common/Tab";
+import SectionHeader from "./SectionHeader";
+import AboutSection from "./sections/AboutSection";
+import ApiConfigurationSection from "./sections/ApiConfigurationSection";
+import BrowserSettingsSection from "./sections/BrowserSettingsSection";
+import FeatureSettingsSection from "./sections/FeatureSettingsSection";
+import GeneralSettingsSection from "./sections/GeneralSettingsSection";
+import TerminalSettingsSection from "./sections/TerminalSettingsSection";
 
 // Tab definitions
 interface SettingsTab {
-	id: string
-	name: string
-	tooltipText: string
-	headerText: string
-	icon: LucideIcon
-	hidden?: boolean
+	id: string;
+	name: string;
+	tooltipText: string;
+	headerText: string;
+	icon: LucideIcon;
+	hidden?: boolean;
 }
 
 export const SETTINGS_TABS: SettingsTab[] = [
@@ -79,31 +77,22 @@ export const SETTINGS_TABS: SettingsTab[] = [
 	{
 		id: "about",
 		name: "About",
-		tooltipText: "About Cline",
+		tooltipText: "About Axolotl",
 		headerText: "About",
 		icon: Info,
 	},
-	// Only show in dev mode
-	{
-		id: "debug",
-		name: "Debug",
-		tooltipText: "Debug Tools",
-		headerText: "Debug",
-		icon: FlaskConical,
-		hidden: !IS_DEV,
-	},
-]
+];
 
 type SettingsViewProps = {
-	onDone: () => void
-	targetSection?: string
-}
+	onDone: () => void;
+	targetSection?: string;
+};
 
 // Helper to render section header - moved outside component for better performance
 const renderSectionHeader = (tabId: string) => {
-	const tab = SETTINGS_TABS.find((t) => t.id === tabId)
+	const tab = SETTINGS_TABS.find((t) => t.id === tabId);
 	if (!tab) {
-		return null
+		return null;
 	}
 
 	return (
@@ -113,8 +102,8 @@ const renderSectionHeader = (tabId: string) => {
 				<div>{tab.headerText}</div>
 			</div>
 		</SectionHeader>
-	)
-}
+	);
+};
 
 const SettingsView = ({ onDone, targetSection }: SettingsViewProps) => {
 	// Memoize to avoid recreation
@@ -126,78 +115,75 @@ const SettingsView = ({ onDone, targetSection }: SettingsViewProps) => {
 			browser: BrowserSettingsSection,
 			terminal: TerminalSettingsSection,
 			about: AboutSection,
-			debug: DebugSection,
 		}),
 		[],
-	) // Empty deps - these imports never change
+	); // Empty deps - these imports never change
 
-	const { version, environment } = useExtensionState()
+	const { version, environment } = useExtensionState();
 
-	const [activeTab, setActiveTab] = useState<string>(targetSection || SETTINGS_TABS[0].id)
+	const [activeTab, setActiveTab] = useState<string>(
+		targetSection || SETTINGS_TABS[0].id,
+	);
 
 	// Optimized message handler with early returns
 	const handleMessage = useCallback((event: MessageEvent) => {
-		const message: ExtensionMessage = event.data
+		const message: ExtensionMessage = event.data;
 		if (message.type !== "grpc_response") {
-			return
+			return;
 		}
 
-		const grpcMessage = message.grpc_response?.message
+		const grpcMessage = message.grpc_response?.message;
 		if (grpcMessage?.key !== "scrollToSettings") {
-			return
+			return;
 		}
 
-		const tabId = grpcMessage.value
+		const tabId = grpcMessage.value;
 		if (!tabId) {
-			return
+			return;
 		}
 
 		// Check if valid tab ID
 		if (SETTINGS_TABS.some((tab) => tab.id === tabId)) {
-			setActiveTab(tabId)
-			return
+			setActiveTab(tabId);
+			return;
 		}
 
 		// Fallback to element scrolling
 		requestAnimationFrame(() => {
-			const element = document.getElementById(tabId)
+			const element = document.getElementById(tabId);
 			if (!element) {
-				return
+				return;
 			}
 
-			element.scrollIntoView({ behavior: "smooth" })
-			element.style.transition = "background-color 0.5s ease"
-			element.style.backgroundColor = "var(--vscode-textPreformat-background)"
+			element.scrollIntoView({ behavior: "smooth" });
+			element.style.transition = "background-color 0.5s ease";
+			element.style.backgroundColor = "var(--vscode-textPreformat-background)";
 
 			setTimeout(() => {
-				element.style.backgroundColor = "transparent"
-			}, 1200)
-		})
-	}, [])
+				element.style.backgroundColor = "transparent";
+			}, 1200);
+		});
+	}, []);
 
-	useEvent("message", handleMessage)
-
-	// Memoized reset state handler
-	const handleResetState = useCallback(async (resetGlobalState?: boolean) => {
-		try {
-			await StateServiceClient.resetState(ResetStateRequest.create({ global: resetGlobalState }))
-		} catch (error) {
-			console.error("Failed to reset state:", error)
-		}
-	}, [])
+	useEvent("message", handleMessage);
 
 	// Update active tab when targetSection changes
 	useEffect(() => {
 		if (targetSection) {
-			setActiveTab(targetSection)
+			setActiveTab(targetSection);
 		}
-	}, [targetSection])
+	}, [targetSection]);
 
 	// Memoized tab item renderer
 	const renderTabItem = useCallback(
 		(tab: (typeof SETTINGS_TABS)[0]) => {
 			return (
-				<TabTrigger className="flex justify-baseline" data-testid={`tab-${tab.id}`} key={tab.id} value={tab.id}>
+				<TabTrigger
+					className="flex justify-baseline"
+					data-testid={`tab-${tab.id}`}
+					key={tab.id}
+					value={tab.id}
+				>
 					<Tooltip key={tab.id}>
 						<TooltipTrigger>
 							<div
@@ -207,7 +193,8 @@ const SettingsView = ({ onDone, targetSection }: SettingsViewProps) => {
 										"opacity-100 border-l-2 border-l-foreground border-t-0 border-r-0 border-b-0 bg-selection":
 											activeTab === tab.id,
 									},
-								)}>
+								)}
+							>
 								<tab.icon className="w-4 h-4" />
 								<span className="hidden sm:block">{tab.name}</span>
 							</div>
@@ -215,30 +202,33 @@ const SettingsView = ({ onDone, targetSection }: SettingsViewProps) => {
 						<TooltipContent side="right">{tab.tooltipText}</TooltipContent>
 					</Tooltip>
 				</TabTrigger>
-			)
+			);
 		},
 		[activeTab],
-	)
+	);
 
 	// Memoized active content component
 	const ActiveContent = useMemo(() => {
-		const Component = TAB_CONTENT_MAP[activeTab as keyof typeof TAB_CONTENT_MAP]
+		const Component =
+			TAB_CONTENT_MAP[activeTab as keyof typeof TAB_CONTENT_MAP];
 		if (!Component) {
-			return null
+			return null;
 		}
 
 		// Special props for specific components
-		const props: any = { renderSectionHeader }
-		if (activeTab === "debug") {
-			props.onResetState = handleResetState
-		} else if (activeTab === "about") {
-			props.version = version
+		const props: any = { renderSectionHeader };
+		if (activeTab === "about") {
+			props.version = version;
 		}
 
-		return <Component {...props} />
-	}, [activeTab, handleResetState, version])
+		return <Component {...props} />;
+	}, [
+		activeTab,
+		version,
+		TAB_CONTENT_MAP[activeTab as keyof typeof TAB_CONTENT_MAP],
+	]);
 
-	const titleColor = getEnvironmentColor(environment)
+	const titleColor = getEnvironmentColor(environment);
 
 	return (
 		<Tab>
@@ -257,14 +247,17 @@ const SettingsView = ({ onDone, targetSection }: SettingsViewProps) => {
 				<TabList
 					className="shrink-0 flex flex-col overflow-y-auto border-r border-sidebar-background"
 					onValueChange={setActiveTab}
-					value={activeTab}>
+					value={activeTab}
+				>
 					{SETTINGS_TABS.filter((tab) => !tab.hidden).map(renderTabItem)}
 				</TabList>
 
-				<TabContent className="flex-1 overflow-auto">{ActiveContent}</TabContent>
+				<TabContent className="flex-1 overflow-auto">
+					{ActiveContent}
+				</TabContent>
 			</div>
 		</Tab>
-	)
-}
+	);
+};
 
-export default SettingsView
+export default SettingsView;

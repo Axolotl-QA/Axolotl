@@ -1,18 +1,19 @@
-import { SystemPromptSection } from "../templates/placeholders"
-import { getActVsPlanModeSection } from "./act_vs_plan_mode"
-import { getAgentRoleSection } from "./agent_role"
-import { getCapabilitiesSection } from "./capabilities"
-import { getCliSubagentsSection } from "./cli_subagents"
-import { getEditingFilesSection } from "./editing_files"
-import { getFeedbackSection } from "./feedback"
-import { getMcp } from "./mcp"
-import { getObjectiveSection } from "./objective"
-import { getRulesSection } from "./rules"
-import { getSkillsSection } from "./skills"
-import { getSystemInfo } from "./system_info"
-import { getUpdatingTaskProgress } from "./task_progress"
-import { getToolUseSection } from "./tool_use"
-import { getUserInstructions } from "./user_instructions"
+import { SystemPromptSection } from "../templates/placeholders";
+import { getActVsPlanModeSection } from "./act_vs_plan_mode";
+import { getAgentRoleSection } from "./agent_role";
+import { getAxolotlQAWorkflow } from "./axolotl_qa_workflow";
+import { getCapabilitiesSection } from "./capabilities";
+import { getCliSubagentsSection } from "./cli_subagents";
+import { getEditingFilesSection } from "./editing_files";
+import { getFeedbackSection } from "./feedback";
+import { getMcp } from "./mcp";
+import { getObjectiveSection } from "./objective";
+import { getRulesSection } from "./rules";
+import { getSkillsSection } from "./skills";
+import { getSystemInfo } from "./system_info";
+import { getUpdatingTaskProgress } from "./task_progress";
+import { getToolUseSection } from "./tool_use";
+import { getUserInstructions } from "./user_instructions";
 
 /**
  * Registers all tool variants with the ClineToolSet provider.
@@ -53,5 +54,9 @@ export function getSystemPromptComponents() {
 			fn: getFeedbackSection,
 		},
 		{ id: SystemPromptSection.TASK_PROGRESS, fn: getUpdatingTaskProgress },
-	]
+		{
+			id: SystemPromptSection.AXOLOTL_QA_WORKFLOW,
+			fn: getAxolotlQAWorkflow,
+		},
+	];
 }

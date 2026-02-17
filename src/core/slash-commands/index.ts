@@ -1,8 +1,8 @@
-import type { ApiProviderInfo } from "@core/api"
-import { ClineRulesToggles } from "@shared/cline-rules"
-import fs from "fs/promises"
-import { telemetryService } from "@/services/telemetry"
-import { isNativeToolCallingConfig } from "@/utils/model-utils"
+import fs from "node:fs/promises";
+import type { ApiProviderInfo } from "@core/api";
+import type { ClineRulesToggles } from "@shared/cline-rules";
+import { telemetryService } from "@/services/telemetry";
+import { isNativeToolCallingConfig } from "@/utils/model-utils";
 import {
 	condenseToolResponse,
 	deepPlanningToolResponse,
@@ -10,25 +10,24 @@ import {
 	newRuleToolResponse,
 	newTaskToolResponse,
 	reportBugToolResponse,
-	axolotlQAToolResponse,
 	subagentToolResponse,
-} from "../prompts/commands"
-import { StateManager } from "../storage/StateManager"
+} from "../prompts/commands";
+import { StateManager } from "../storage/StateManager";
 
 type FileBasedWorkflow = {
-	fullPath: string
-	fileName: string
-	isRemote: false
-}
+	fullPath: string;
+	fileName: string;
+	isRemote: false;
+};
 
 type RemoteWorkflow = {
-	fullPath: string
-	fileName: string
-	isRemote: true
-	contents: string
-}
+	fullPath: string;
+	fileName: string;
+	isRemote: true;
+	contents: string;
+};
 
-type Workflow = FileBasedWorkflow | RemoteWorkflow
+type Workflow = FileBasedWorkflow | RemoteWorkflow;
 
 /**
  * Processes text for slash commands and transforms them with appropriate instructions
@@ -52,11 +51,13 @@ export async function parseSlashCommands(
 		"deep-planning",
 		"subagent",
 		"explain-changes",
-		"type",
-	]
+	];
 
 	// Determine if the current provider/model/setting actually uses native tool calling
-	const willUseNativeTools = isNativeToolCallingConfig(providerInfo!, enableNativeToolCalls || false)
+	const willUseNativeTools = isNativeToolCallingConfig(
+		providerInfo!,
+		enableNativeToolCalls || false,
+	);
 
 	const commandReplacements: Record<string, string> = {
 		newtask: newTaskToolResponse(willUseNativeTools),
@@ -64,11 +65,14 @@ export async function parseSlashCommands(
 		compact: condenseToolResponse(focusChainSettings),
 		newrule: newRuleToolResponse(),
 		reportbug: reportBugToolResponse(),
-		"deep-planning": deepPlanningToolResponse(focusChainSettings, providerInfo, willUseNativeTools),
+		"deep-planning": deepPlanningToolResponse(
+			focusChainSettings,
+			providerInfo,
+			willUseNativeTools,
+		),
 		subagent: subagentToolResponse(),
 		"explain-changes": explainChangesToolResponse(),
-		"type": axolotlQAToolResponse(),
-	}
+	};
 
 	// Regex patterns to extract content from different XML tags
 	const tagPatterns = [
@@ -76,7 +80,7 @@ export async function parseSlashCommands(
 		{ tag: "feedback", regex: /<feedback>([\s\S]*?)<\/feedback>/i },
 		{ tag: "answer", regex: /<answer>([\s\S]*?)<\/answer>/i },
 		{ tag: "user_message", regex: /<user_message>([\s\S]*?)<\/user_message>/i },
-	]
+	];
 
 	// Regex to find slash commands anywhere in text (not just at the beginning).
 	// This mirrors how @ mentions work - they can appear anywhere in a message.
@@ -93,7 +97,7 @@ export async function parseSlashCommands(
 	//   - Partial words: "foo/bar" - same reason
 	//
 	// Only ONE slash command per message is processed (first match found).
-	const slashCommandInTextRegex = /(^|\s)\/([a-zA-Z0-9_.-]+)(?=\s|$)/
+	const slashCommandInTextRegex = /(^|\s)\/([a-zA-Z0-9_.-]+)(?=\s|$)/;
 
 	// Helper function to calculate positions and remove slash command from text
 	const removeSlashCommand = (
@@ -105,45 +109,57 @@ export async function parseSlashCommands(
 		// slashMatch.index is where the match starts (could include whitespace before /)
 		// slashMatch[1] is the whitespace or empty string before the slash
 		// slashMatch[2] is the command name
-		const slashPositionInContent = slashMatch.index + slashMatch[1].length
-		const slashPositionInFullText = contentStartIndex + slashPositionInContent
-		const commandText = "/" + slashMatch[2]
-		const commandEndPosition = slashPositionInFullText + commandText.length
+		const slashPositionInContent = slashMatch.index + slashMatch[1].length;
+		const slashPositionInFullText = contentStartIndex + slashPositionInContent;
+		const commandText = `/${slashMatch[2]}`;
+		const commandEndPosition = slashPositionInFullText + commandText.length;
 
-		return fullText.substring(0, slashPositionInFullText) + fullText.substring(commandEndPosition)
-	}
+		return (
+			fullText.substring(0, slashPositionInFullText) +
+			fullText.substring(commandEndPosition)
+		);
+	};
 
 	// if we find a valid match, we will return inside that block
 	for (const { regex } of tagPatterns) {
-		const regexObj = new RegExp(regex.source, regex.flags)
-		const tagMatch = regexObj.exec(text)
+		const regexObj = new RegExp(regex.source, regex.flags);
+		const tagMatch = regexObj.exec(text);
 
 		if (tagMatch) {
-			const tagContent = tagMatch[1]
-			const tagStartIndex = tagMatch.index
-			const contentStartIndex = text.indexOf(tagContent, tagStartIndex)
+			const tagContent = tagMatch[1];
+			const tagStartIndex = tagMatch.index;
+			const contentStartIndex = text.indexOf(tagContent, tagStartIndex);
 
 			// Find slash command within the tag content
-			const slashMatch = slashCommandInTextRegex.exec(tagContent)
+			const slashMatch = slashCommandInTextRegex.exec(tagContent);
 
 			if (!slashMatch) {
-				continue
+				continue;
 			}
 
 			// slashMatch[1] is the whitespace or empty string before the slash
 			// slashMatch[2] is the command name
-			const commandName = slashMatch[2] // casing matters
+			const commandName = slashMatch[2]; // casing matters
 
 			// we give preference to the default commands if the user has a file with the same name
 			if (SUPPORTED_DEFAULT_COMMANDS.includes(commandName)) {
 				// remove the slash command and add custom instructions at the top of this message
-				const textWithoutSlashCommand = removeSlashCommand(text, tagContent, contentStartIndex, slashMatch)
-				const processedText = commandReplacements[commandName] + textWithoutSlashCommand
+				const textWithoutSlashCommand = removeSlashCommand(
+					text,
+					tagContent,
+					contentStartIndex,
+					slashMatch,
+				);
+				const processedText =
+					commandReplacements[commandName] + textWithoutSlashCommand;
 
 				// Track telemetry for builtin slash command usage
-				telemetryService.captureSlashCommandUsed(ulid, commandName, "builtin")
+				telemetryService.captureSlashCommandUsed(ulid, commandName, "builtin");
 
-				return { processedText: processedText, needsClinerulesFileCheck: commandName === "newrule" }
+				return {
+					processedText: processedText,
+					needsClinerulesFileCheck: commandName === "newrule",
+				};
 			}
 
 			const globalWorkflows: Workflow[] = Object.entries(globalWorkflowToggles)
@@ -152,7 +168,7 @@ export async function parseSlashCommands(
 					fullPath: filePath,
 					fileName: filePath.replace(/^.*[/\\]/, ""),
 					isRemote: false,
-				}))
+				}));
 
 			const localWorkflows: Workflow[] = Object.entries(localWorkflowToggles)
 				.filter(([_, enabled]) => enabled)
@@ -160,59 +176,82 @@ export async function parseSlashCommands(
 					fullPath: filePath,
 					fileName: filePath.replace(/^.*[/\\]/, ""),
 					isRemote: false,
-				}))
+				}));
 
 			// Get remote workflows from remote config
-			const stateManager = StateManager.get()
-			const remoteConfigSettings = stateManager.getRemoteConfigSettings()
-			const remoteWorkflows = remoteConfigSettings.remoteGlobalWorkflows || []
-			const remoteWorkflowToggles = stateManager.getGlobalStateKey("remoteWorkflowToggles") || {}
+			const stateManager = StateManager.get();
+			const remoteConfigSettings = stateManager.getRemoteConfigSettings();
+			const remoteWorkflows = remoteConfigSettings.remoteGlobalWorkflows || [];
+			const remoteWorkflowToggles =
+				stateManager.getGlobalStateKey("remoteWorkflowToggles") || {};
 
 			const enabledRemoteWorkflows: Workflow[] = remoteWorkflows
 				.filter((workflow) => {
 					// If alwaysEnabled, always include; otherwise check toggle
-					return workflow.alwaysEnabled || remoteWorkflowToggles[workflow.name] !== false
+					return (
+						workflow.alwaysEnabled ||
+						remoteWorkflowToggles[workflow.name] !== false
+					);
 				})
 				.map((workflow) => ({
 					fullPath: "",
 					fileName: workflow.name,
 					isRemote: true,
 					contents: workflow.contents,
-				}))
+				}));
 
 			// local workflows have precedence over global workflows, which have precedence over remote workflows
-			const enabledWorkflows: Workflow[] = [...localWorkflows, ...globalWorkflows, ...enabledRemoteWorkflows]
+			const enabledWorkflows: Workflow[] = [
+				...localWorkflows,
+				...globalWorkflows,
+				...enabledRemoteWorkflows,
+			];
 
 			// Then check if the command matches any enabled workflow filename
-			const matchingWorkflow = enabledWorkflows.find((workflow) => workflow.fileName === commandName)
+			const matchingWorkflow = enabledWorkflows.find(
+				(workflow) => workflow.fileName === commandName,
+			);
 
 			if (matchingWorkflow) {
 				try {
 					// Get workflow content - either from file or from remote config
-					let workflowContent: string
+					let workflowContent: string;
 					if (matchingWorkflow.isRemote) {
-						workflowContent = matchingWorkflow.contents.trim()
+						workflowContent = matchingWorkflow.contents.trim();
 					} else {
-						workflowContent = (await fs.readFile(matchingWorkflow.fullPath, "utf8")).trim()
+						workflowContent = (
+							await fs.readFile(matchingWorkflow.fullPath, "utf8")
+						).trim();
 					}
 
 					// remove the slash command and add custom instructions at the top of this message
-					const textWithoutSlashCommand = removeSlashCommand(text, tagContent, contentStartIndex, slashMatch)
+					const textWithoutSlashCommand = removeSlashCommand(
+						text,
+						tagContent,
+						contentStartIndex,
+						slashMatch,
+					);
 					const processedText =
 						`<explicit_instructions type="${matchingWorkflow.fileName}">\n${workflowContent}\n</explicit_instructions>\n` +
-						textWithoutSlashCommand
+						textWithoutSlashCommand;
 
 					// Track telemetry for workflow command usage
-					telemetryService.captureSlashCommandUsed(ulid, commandName, "workflow")
+					telemetryService.captureSlashCommandUsed(
+						ulid,
+						commandName,
+						"workflow",
+					);
 
-					return { processedText, needsClinerulesFileCheck: false }
+					return { processedText, needsClinerulesFileCheck: false };
 				} catch (error) {
-					console.error(`Error reading workflow file ${matchingWorkflow.fullPath}: ${error}`)
+					console.error(
+						`Error reading workflow file ${matchingWorkflow.fullPath}: ${error}`,
+					);
 				}
 			}
 		}
 	}
 
 	// if no supported commands are found, return the original text
-	return { processedText: text, needsClinerulesFileCheck: false }
+	return { processedText: text, needsClinerulesFileCheck: false };
 }

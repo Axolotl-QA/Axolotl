@@ -1,11 +1,11 @@
-import { ModelFamily } from "@/shared/prompts"
-import { ClineDefaultTool } from "@/shared/tools"
-import { isDevstralModelFamily } from "@/utils/model-utils"
-import { SystemPromptSection } from "../../templates/placeholders"
-import { createVariant } from "../variant-builder"
-import { validateVariant } from "../variant-validator"
-import { DEVSTRAL_AGENT_ROLE_TEMPLATE } from "./overrides"
-import { baseTemplate } from "./template"
+import { ModelFamily } from "@/shared/prompts";
+import { ClineDefaultTool } from "@/shared/tools";
+import { isDevstralModelFamily } from "@/utils/model-utils";
+import { SystemPromptSection } from "../../templates/placeholders";
+import { createVariant } from "../variant-builder";
+import { validateVariant } from "../variant-validator";
+import { DEVSTRAL_AGENT_ROLE_TEMPLATE } from "./overrides";
+import { baseTemplate } from "./template";
 
 export const config = createVariant(ModelFamily.DEVSTRAL)
 	.description("Baseline prompt for Devstral family models")
@@ -16,7 +16,7 @@ export const config = createVariant(ModelFamily.DEVSTRAL)
 		production: 1,
 	})
 	.matcher((context) => {
-		return isDevstralModelFamily(context.providerInfo.model.id)
+		return isDevstralModelFamily(context.providerInfo.model.id);
 	})
 	.template(baseTemplate)
 	.components(
@@ -33,6 +33,7 @@ export const config = createVariant(ModelFamily.DEVSTRAL)
 		SystemPromptSection.OBJECTIVE,
 		SystemPromptSection.USER_INSTRUCTIONS,
 		SystemPromptSection.SKILLS,
+		SystemPromptSection.AXOLOTL_QA_WORKFLOW,
 	)
 	.tools(
 		ClineDefaultTool.BASH,
@@ -66,18 +67,29 @@ export const config = createVariant(ModelFamily.DEVSTRAL)
 	.overrideComponent(SystemPromptSection.AGENT_ROLE, {
 		template: DEVSTRAL_AGENT_ROLE_TEMPLATE,
 	})
-	.build()
+	.build();
 
 // Compile-time validation
-const validationResult = validateVariant({ ...config, id: "devstral" }, { strict: true })
+const validationResult = validateVariant(
+	{ ...config, id: "devstral" },
+	{ strict: true },
+);
 if (!validationResult.isValid) {
-	console.error("Devstral variant configuration validation failed:", validationResult.errors)
-	throw new Error(`Invalid Devstral variant configuration: ${validationResult.errors.join(", ")}`)
+	console.error(
+		"Devstral variant configuration validation failed:",
+		validationResult.errors,
+	);
+	throw new Error(
+		`Invalid Devstral variant configuration: ${validationResult.errors.join(", ")}`,
+	);
 }
 
 if (validationResult.warnings.length > 0) {
-	console.warn("Devstral variant configuration warnings:", validationResult.warnings)
+	console.warn(
+		"Devstral variant configuration warnings:",
+		validationResult.warnings,
+	);
 }
 
 // Export type information for better IDE support
-export type DevstralVariantConfig = typeof config
+export type DevstralVariantConfig = typeof config;

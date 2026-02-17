@@ -1,14 +1,16 @@
-import { ModelFamily } from "@/shared/prompts"
-import { ClineDefaultTool } from "@/shared/tools"
-import { isHermesModelFamily } from "@/utils/model-utils"
-import { SystemPromptSection } from "../../templates/placeholders"
-import { createVariant } from "../variant-builder"
-import { validateVariant } from "../variant-validator"
-import { hermesComponentOverrides } from "./overrides"
-import { baseTemplate } from "./template"
+import { ModelFamily } from "@/shared/prompts";
+import { ClineDefaultTool } from "@/shared/tools";
+import { isHermesModelFamily } from "@/utils/model-utils";
+import { SystemPromptSection } from "../../templates/placeholders";
+import { createVariant } from "../variant-builder";
+import { validateVariant } from "../variant-validator";
+import { hermesComponentOverrides } from "./overrides";
+import { baseTemplate } from "./template";
 
 export const config = createVariant(ModelFamily.HERMES)
-	.description("Prompt optimized for Hermes-4 model with advanced agentic capabilities.")
+	.description(
+		"Prompt optimized for Hermes-4 model with advanced agentic capabilities.",
+	)
 	.version(1)
 	.tags("hermes", "stable")
 	.labels({
@@ -16,8 +18,8 @@ export const config = createVariant(ModelFamily.HERMES)
 		production: 1,
 	})
 	.matcher((context) => {
-		const modelId = context.providerInfo.model.id
-		return isHermesModelFamily(modelId)
+		const modelId = context.providerInfo.model.id;
+		return isHermesModelFamily(modelId);
 	})
 	.template(baseTemplate)
 	.components(
@@ -35,6 +37,7 @@ export const config = createVariant(ModelFamily.HERMES)
 		SystemPromptSection.OBJECTIVE,
 		SystemPromptSection.USER_INSTRUCTIONS,
 		SystemPromptSection.SKILLS,
+		SystemPromptSection.AXOLOTL_QA_WORKFLOW,
 	)
 	.tools(
 		ClineDefaultTool.BASH,
@@ -66,24 +69,53 @@ export const config = createVariant(ModelFamily.HERMES)
 	})
 	.config({})
 	// Apply Hermes-specific component overrides
-	.overrideComponent(SystemPromptSection.AGENT_ROLE, hermesComponentOverrides[SystemPromptSection.AGENT_ROLE])
-	.overrideComponent(SystemPromptSection.TOOL_USE, hermesComponentOverrides[SystemPromptSection.TOOL_USE])
-	.overrideComponent(SystemPromptSection.OBJECTIVE, hermesComponentOverrides[SystemPromptSection.OBJECTIVE])
-	.overrideComponent(SystemPromptSection.RULES, hermesComponentOverrides[SystemPromptSection.RULES])
-	.overrideComponent(SystemPromptSection.TASK_PROGRESS, hermesComponentOverrides[SystemPromptSection.TASK_PROGRESS])
-	.overrideComponent(SystemPromptSection.MCP, hermesComponentOverrides[SystemPromptSection.MCP])
-	.build()
+	.overrideComponent(
+		SystemPromptSection.AGENT_ROLE,
+		hermesComponentOverrides[SystemPromptSection.AGENT_ROLE],
+	)
+	.overrideComponent(
+		SystemPromptSection.TOOL_USE,
+		hermesComponentOverrides[SystemPromptSection.TOOL_USE],
+	)
+	.overrideComponent(
+		SystemPromptSection.OBJECTIVE,
+		hermesComponentOverrides[SystemPromptSection.OBJECTIVE],
+	)
+	.overrideComponent(
+		SystemPromptSection.RULES,
+		hermesComponentOverrides[SystemPromptSection.RULES],
+	)
+	.overrideComponent(
+		SystemPromptSection.TASK_PROGRESS,
+		hermesComponentOverrides[SystemPromptSection.TASK_PROGRESS],
+	)
+	.overrideComponent(
+		SystemPromptSection.MCP,
+		hermesComponentOverrides[SystemPromptSection.MCP],
+	)
+	.build();
 
 // Compile-time validation
-const validationResult = validateVariant({ ...config, id: "hermes" }, { strict: true })
+const validationResult = validateVariant(
+	{ ...config, id: "hermes" },
+	{ strict: true },
+);
 if (!validationResult.isValid) {
-	console.error("Hermes variant configuration validation failed:", validationResult.errors)
-	throw new Error(`Invalid Hermes variant configuration: ${validationResult.errors.join(", ")}`)
+	console.error(
+		"Hermes variant configuration validation failed:",
+		validationResult.errors,
+	);
+	throw new Error(
+		`Invalid Hermes variant configuration: ${validationResult.errors.join(", ")}`,
+	);
 }
 
 if (validationResult.warnings.length > 0) {
-	console.warn("Hermes variant configuration warnings:", validationResult.warnings)
+	console.warn(
+		"Hermes variant configuration warnings:",
+		validationResult.warnings,
+	);
 }
 
 // Export type information for better IDE support
-export type HermesVariantConfig = typeof config
+export type HermesVariantConfig = typeof config;

@@ -15,6 +15,7 @@ export enum SystemPromptSection {
 	USER_INSTRUCTIONS = "USER_INSTRUCTIONS_SECTION",
 	FEEDBACK = "FEEDBACK_SECTION",
 	TASK_PROGRESS = "TASK_PROGRESS_SECTION",
+	AXOLOTL_QA_WORKFLOW = "AXOLOTL_QA_WORKFLOW_SECTION",
 }
 
 /**
@@ -38,14 +39,18 @@ export const STANDARD_PLACEHOLDERS = {
 	// Dynamic Content
 	CURRENT_DATE: "CURRENT_DATE",
 	...SystemPromptSection,
-} as const
+} as const;
 
-export type StandardPlaceholder = (typeof STANDARD_PLACEHOLDERS)[keyof typeof STANDARD_PLACEHOLDERS]
+export type StandardPlaceholder =
+	(typeof STANDARD_PLACEHOLDERS)[keyof typeof STANDARD_PLACEHOLDERS];
 
 /**
  * Required placeholders that must be provided for basic prompt functionality
  */
-export const REQUIRED_PLACEHOLDERS: StandardPlaceholder[] = [STANDARD_PLACEHOLDERS.AGENT_ROLE, STANDARD_PLACEHOLDERS.SYSTEM_INFO]
+export const REQUIRED_PLACEHOLDERS: StandardPlaceholder[] = [
+	STANDARD_PLACEHOLDERS.AGENT_ROLE,
+	STANDARD_PLACEHOLDERS.SYSTEM_INFO,
+];
 
 /**
  * Optional placeholders that enhance prompt functionality when available
@@ -54,19 +59,21 @@ export const OPTIONAL_PLACEHOLDERS: StandardPlaceholder[] = [
 	STANDARD_PLACEHOLDERS.FEEDBACK,
 	STANDARD_PLACEHOLDERS.USER_INSTRUCTIONS,
 	STANDARD_PLACEHOLDERS.TODO,
-]
+];
 
 /**
  * Validates that all required placeholders are present in the provided values
  */
-export function validateRequiredPlaceholders(placeholders: Record<string, unknown>): string[] {
-	const missing: string[] = []
+export function validateRequiredPlaceholders(
+	placeholders: Record<string, unknown>,
+): string[] {
+	const missing: string[] = [];
 
 	for (const required of REQUIRED_PLACEHOLDERS) {
 		if (!(required in placeholders) || placeholders[required] === undefined) {
-			missing.push(required)
+			missing.push(required);
 		}
 	}
 
-	return missing
+	return missing;
 }

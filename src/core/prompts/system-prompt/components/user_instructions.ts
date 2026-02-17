@@ -1,14 +1,17 @@
-import { SystemPromptSection } from "../templates/placeholders"
-import { TemplateEngine } from "../templates/TemplateEngine"
-import type { PromptVariant, SystemPromptContext } from "../types"
+import { SystemPromptSection } from "../templates/placeholders";
+import { TemplateEngine } from "../templates/TemplateEngine";
+import type { PromptVariant, SystemPromptContext } from "../types";
 
 const USER_CUSTOM_INSTRUCTIONS_TEMPLATE_TEXT = `USER'S CUSTOM INSTRUCTIONS
 
 The following additional instructions are provided by the user, and should be followed to the best of your ability without interfering with the TOOL USE guidelines.
 
-{{CUSTOM_INSTRUCTIONS}}`
+{{CUSTOM_INSTRUCTIONS}}`;
 
-export async function getUserInstructions(variant: PromptVariant, context: SystemPromptContext): Promise<string | undefined> {
+export async function getUserInstructions(
+	variant: PromptVariant,
+	context: SystemPromptContext,
+): Promise<string | undefined> {
 	const customInstructions = buildUserInstructions(
 		context.globalClineRulesFileInstructions,
 		context.localClineRulesFileInstructions,
@@ -17,19 +20,21 @@ export async function getUserInstructions(variant: PromptVariant, context: Syste
 		context.localWindsurfRulesFileInstructions,
 		context.localAgentsRulesFileInstructions,
 		context.clineIgnoreInstructions,
+		context.axolotlMdInstructions,
 		context.preferredLanguageInstructions,
-	)
+	);
 
 	if (!customInstructions) {
-		return undefined
+		return undefined;
 	}
 
 	const template =
-		variant.componentOverrides?.[SystemPromptSection.USER_INSTRUCTIONS]?.template || USER_CUSTOM_INSTRUCTIONS_TEMPLATE_TEXT
+		variant.componentOverrides?.[SystemPromptSection.USER_INSTRUCTIONS]
+			?.template || USER_CUSTOM_INSTRUCTIONS_TEMPLATE_TEXT;
 
 	return new TemplateEngine().resolve(template, context, {
 		CUSTOM_INSTRUCTIONS: customInstructions,
-	})
+	});
 }
 
 function buildUserInstructions(
@@ -40,35 +45,39 @@ function buildUserInstructions(
 	localWindsurfRulesFileInstructions?: string,
 	localAgentsRulesFileInstructions?: string,
 	clineIgnoreInstructions?: string,
+	axolotlMdInstructions?: string,
 	preferredLanguageInstructions?: string,
 ): string | undefined {
-	const customInstructions = []
+	const customInstructions = [];
 	if (preferredLanguageInstructions) {
-		customInstructions.push(preferredLanguageInstructions)
+		customInstructions.push(preferredLanguageInstructions);
 	}
 	if (globalClineRulesFileInstructions) {
-		customInstructions.push(globalClineRulesFileInstructions)
+		customInstructions.push(globalClineRulesFileInstructions);
 	}
 	if (localClineRulesFileInstructions) {
-		customInstructions.push(localClineRulesFileInstructions)
+		customInstructions.push(localClineRulesFileInstructions);
 	}
 	if (localCursorRulesFileInstructions) {
-		customInstructions.push(localCursorRulesFileInstructions)
+		customInstructions.push(localCursorRulesFileInstructions);
 	}
 	if (localCursorRulesDirInstructions) {
-		customInstructions.push(localCursorRulesDirInstructions)
+		customInstructions.push(localCursorRulesDirInstructions);
 	}
 	if (localWindsurfRulesFileInstructions) {
-		customInstructions.push(localWindsurfRulesFileInstructions)
+		customInstructions.push(localWindsurfRulesFileInstructions);
 	}
 	if (localAgentsRulesFileInstructions) {
-		customInstructions.push(localAgentsRulesFileInstructions)
+		customInstructions.push(localAgentsRulesFileInstructions);
 	}
 	if (clineIgnoreInstructions) {
-		customInstructions.push(clineIgnoreInstructions)
+		customInstructions.push(clineIgnoreInstructions);
+	}
+	if (axolotlMdInstructions) {
+		customInstructions.push(axolotlMdInstructions);
 	}
 	if (customInstructions.length === 0) {
-		return undefined
+		return undefined;
 	}
-	return customInstructions.join("\n\n")
+	return customInstructions.join("\n\n");
 }

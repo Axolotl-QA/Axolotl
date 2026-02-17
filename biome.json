@@ -1,0 +1,32 @@
+{
+	"$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
+	"linter": {
+		"rules": {
+			"style": {
+				"noNonNullAssertion": "warn"
+			},
+			"suspicious": {
+				"noExplicitAny": "warn",
+				"noArrayIndexKey": "warn",
+				"noAssignInExpressions": "warn"
+			},
+			"a11y": {
+				"noStaticElementInteractions": "warn",
+				"useKeyWithClickEvents": "warn",
+				"useAriaPropsSupportedByRole": "warn",
+				"noLabelWithoutControl": "warn",
+				"useSemanticElements": "warn",
+				"useButtonType": "warn"
+			},
+			"correctness": {
+				"useJsxKeyInIterable": "warn",
+				"noUnusedVariables": "warn",
+				"noUnusedFunctionParameters": "warn",
+				"useHookAtTopLevel": "warn"
+			},
+			"security": {
+				"noDangerouslySetInnerHtml": "warn"
+			}
+		}
+	}
+}
