@@ -4,9 +4,7 @@ import { formatResponse } from "@core/prompts/responses";
 import { GlobalFileNames } from "@core/storage/disk";
 import { fileExistsAtPath } from "@utils/fs";
 
-export async function getAxolotlMdInstructions(
-	cwd: string,
-): Promise<string | undefined> {
+export async function getAxolotlMdInstructions(cwd: string): Promise<string> {
 	const filePath = path.resolve(cwd, GlobalFileNames.axolotlMd);
 
 	if (await fileExistsAtPath(filePath)) {
@@ -20,5 +18,5 @@ export async function getAxolotlMdInstructions(
 		}
 	}
 
-	return undefined;
+	return formatResponse.axolotlMdEmptyInstructions(cwd);
 }

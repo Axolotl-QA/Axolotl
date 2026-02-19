@@ -275,7 +275,10 @@ Otherwise, if you have not completed the task and do not need additional informa
 		`# AGENTS.md\n\nThe following is provided by AGENTS.md files found recursively throughout this working directory (${cwd.toPosix()}) where the user has specified instructions. Nested AGENTS.md will be combined below, and you should only apply the instructions for each AGENTS.md file that is directly applicable to the current task, i.e. if you are reading or writing to a file in that directory.\n\n${content}`,
 
 	axolotlMdInstructions: (cwd: string, content: string) =>
-		`# axolotl.md\n\nThe following project documentation is provided by axolotl.md in the project root (${cwd.toPosix()}). This contains information about how to run, build, and test the project:\n\n${content}`,
+		`# axolotl.md (Your Persistent Memory)\n\nYou have a persistent memory system powered by the file axolotl.md in the project root (${cwd.toPosix()}). This file persists across conversations and contains project knowledge you have accumulated over time, including how to install, run, build, and test the project. When users ask if you have memory, you should confirm that you do — your memory is stored in axolotl.md and carries over between sessions.\n\nCurrent memory contents:\n\n${content}`,
+
+	axolotlMdEmptyInstructions: (cwd: string) =>
+		`# axolotl.md (Your Persistent Memory)\n\nYou have a persistent memory system powered by the file axolotl.md in the project root (${cwd.toPosix()}). This file persists across conversations and stores project knowledge you learn during QA sessions. When users ask if you have memory, you should confirm that you do — your memory is stored in axolotl.md and carries over between sessions.\n\nNo axolotl.md exists in this project yet. Your memory is empty. During QA sessions (Phase 9), you will create axolotl.md to save what you learn about the project (e.g., how to install dependencies, start the dev server, run tests).`,
 
 	fileContextWarning: (editedFiles: string[]): string => {
 		const fileCount = editedFiles.length;
