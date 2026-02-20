@@ -34,7 +34,7 @@ import { BannerService } from "@/services/banner/BannerService";
 import { featureFlagsService } from "@/services/feature-flags";
 import { getDistinctId } from "@/services/logging/distinctId";
 import { telemetryService } from "@/services/telemetry";
-import { BannerCardData } from "@/shared/cline/banner";
+import type { BannerCardData } from "@/shared/cline/banner";
 import { getAxiosSettings } from "@/shared/net";
 import { ShowMessageType } from "@/shared/proto/host/window";
 import { getLatestAnnouncementId } from "@/utils/announcements";
@@ -557,9 +557,17 @@ export class Controller {
 		}
 	}
 
-	async handleAuthCallback(customToken: string, state: string | null = null) {
+	async handleAuthCallback(
+		customToken: string,
+		state: string | null = null,
+		refreshToken?: string,
+	) {
 		try {
-			await this.authService.handleAuthCallback(customToken, state);
+			await this.authService.handleAuthCallback(
+				customToken,
+				state,
+				refreshToken,
+			);
 
 			const clineProvider: ApiProvider = "cline";
 

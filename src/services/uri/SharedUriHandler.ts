@@ -1,5 +1,5 @@
-import { WebviewProvider } from "@/core/webview"
-import { Logger } from "../logging/Logger"
+import { WebviewProvider } from "@/core/webview";
+import { Logger } from "../logging/Logger";
 
 /**
  * Shared URI handler that processes both VSCode URI events and HTTP server callbacks
@@ -11,13 +11,13 @@ export class SharedUriHandler {
 	 * @returns Promise<boolean> indicating success (true) or failure (false)
 	 */
 	public static async handleUri(url: string): Promise<boolean> {
-		const parsedUrl = new URL(url)
-		const path = parsedUrl.pathname
+		const parsedUrl = new URL(url);
+		const path = parsedUrl.pathname;
 
 		// Create URLSearchParams from the query string, but preserve plus signs
 		// by replacing them with a placeholder before parsing
-		const queryString = parsedUrl.search.slice(1) // Remove leading '?'
-		const query = new URLSearchParams(queryString.replace(/\+/g, "%2B"))
+		const queryString = parsedUrl.search.slice(1); // Remove leading '?'
+		const query = new URLSearchParams(queryString.replace(/\+/g, "%2B"));
 
 		Logger.info(
 			"SharedUriHandler: Processing URI:" +
@@ -26,92 +26,122 @@ export class SharedUriHandler {
 					query: query,
 					scheme: parsedUrl.protocol,
 				}),
-		)
+		);
 
-		const visibleWebview = WebviewProvider.getVisibleInstance()
+		const visibleWebview = WebviewProvider.getVisibleInstance();
 
 		if (!visibleWebview) {
-			Logger.warn("SharedUriHandler: No visible webview found")
-			return false
+			Logger.warn("SharedUriHandler: No visible webview found");
+			return false;
 		}
 
 		try {
 			switch (path) {
 				case "/openrouter": {
-					const code = query.get("code")
+					const code = query.get("code");
 					if (code) {
-						await visibleWebview.controller.handleOpenRouterCallback(code)
-						return true
+						await visibleWebview.controller.handleOpenRouterCallback(code);
+						return true;
 					}
-					console.warn("SharedUriHandler: Missing code parameter for OpenRouter callback")
-					return false
+					console.warn(
+						"SharedUriHandler: Missing code parameter for OpenRouter callback",
+					);
+					return false;
 				}
 				case "/requesty": {
-					const code = query.get("code")
+					const code = query.get("code");
 					if (code) {
-						await visibleWebview.controller.handleRequestyCallback(code)
-						return true
+						await visibleWebview.controller.handleRequestyCallback(code);
+						return true;
 					}
-					console.warn("SharedUriHandler: Missing code parameter for Requesty callback")
-					return false
+					console.warn(
+						"SharedUriHandler: Missing code parameter for Requesty callback",
+					);
+					return false;
 				}
 				case "/auth": {
-					const provider = query.get("provider")
-					const state = query.get("state")
+					const provider = query.get("provider");
+					const state = query.get("state");
 
-					Logger.info(`SharedUriHandler - Auth callback received for ${provider} - ${path}`)
+					Logger.info(
+						`SharedUriHandler - Auth callback received for ${provider} - ${path}`,
+					);
 
-					const token = query.get("insforge_code") || query.get("access_token") || query.get("refreshToken") || query.get("idToken") || query.get("code")
+					const token =
+						query.get("insforge_code") ||
+						query.get("access_token") ||
+						query.get("refreshToken") ||
+						query.get("idToken") ||
+						query.get("code");
+					const refreshToken = query.get("refresh_token") || undefined;
 					if (token) {
-						await visibleWebview.controller.handleAuthCallback(token, state)
-						return true
+						await visibleWebview.controller.handleAuthCallback(
+							token,
+							state,
+							refreshToken,
+						);
+						return true;
 					}
-					Logger.warn("SharedUriHandler: Missing idToken parameter for auth callback")
-					return false
+					Logger.warn(
+						"SharedUriHandler: Missing idToken parameter for auth callback",
+					);
+					return false;
 				}
 				case "/auth/oca": {
-					console.log("SharedUriHandler: Oca Auth callback received:", { path: path })
+					console.log("SharedUriHandler: Oca Auth callback received:", {
+						path: path,
+					});
 
-					const code = query.get("code")
-					const state = query.get("state")
+					const code = query.get("code");
+					const state = query.get("state");
 
 					if (code && state) {
-						await visibleWebview.controller.handleOcaAuthCallback(code, state)
-						return true
+						await visibleWebview.controller.handleOcaAuthCallback(code, state);
+						return true;
 					}
-					console.warn("SharedUriHandler: Missing code parameter for auth callback")
-					return false
+					console.warn(
+						"SharedUriHandler: Missing code parameter for auth callback",
+					);
+					return false;
 				}
 				case "/task": {
-					const prompt = query.get("prompt")
+					const prompt = query.get("prompt");
 					if (prompt) {
-						await visibleWebview.controller.handleTaskCreation(prompt)
-						return true
+						await visibleWebview.controller.handleTaskCreation(prompt);
+						return true;
 					}
-					Logger.warn("SharedUriHandler: Missing prompt parameter for task creation")
-					return false
+					Logger.warn(
+						"SharedUriHandler: Missing prompt parameter for task creation",
+					);
+					return false;
 				}
 				// Match /mcp-auth/callback/{hash}
 				case path.match(/^\/mcp-auth\/callback\/[^/]+$/)?.input: {
-					const serverHash = path.split("/").pop()
-					const code = query.get("code")
-					const state = query.get("state")
+					const serverHash = path.split("/").pop();
+					const code = query.get("code");
+					const state = query.get("state");
 
 					if (!code || !serverHash) {
-						Logger.warn("SharedUriHandler: Missing code or hash in MCP OAuth callback")
-						return false
+						Logger.warn(
+							"SharedUriHandler: Missing code or hash in MCP OAuth callback",
+						);
+						return false;
 					}
 
-					await visibleWebview.controller.handleMcpOAuthCallback(serverHash, code, state)
-					return true
+					await visibleWebview.controller.handleMcpOAuthCallback(
+						serverHash,
+						code,
+						state,
+					);
+					return true;
 				}
 				default:
-					Logger.warn(`SharedUriHandler: Unknown path: ${path}`)
-					return false
+					Logger.warn(`SharedUriHandler: Unknown path: ${path}`);
+					return false;
 			}
 		} catch (error) {
-			Logger.error("SharedUriHandler: Error processing URI:", error)
-			return false
+			Logger.error("SharedUriHandler: Error processing URI:", error);
+			return false;
 		}
 	}
 }

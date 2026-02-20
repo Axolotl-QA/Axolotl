@@ -63,19 +63,15 @@ class ClineEndpoint {
 			case Environment.local:
 				return {
 					environment: Environment.local,
-					appBaseUrl:
-						envAppBaseUrl || "https://4zxsfry3.us-west.insforge.app",
-					apiBaseUrl:
-						envApiBaseUrl || "https://4zxsfry3.us-west.insforge.app",
+					appBaseUrl: envAppBaseUrl || "https://4zxsfry3.us-west.insforge.app",
+					apiBaseUrl: envApiBaseUrl || "https://4zxsfry3.us-west.insforge.app",
 					mcpBaseUrl: "https://4zxsfry3.us-west.insforge.app/v1/mcp",
 				};
 			default:
 				return {
 					environment: Environment.production,
-					appBaseUrl:
-						envAppBaseUrl || "https://4zxsfry3.us-west.insforge.app",
-					apiBaseUrl:
-						envApiBaseUrl || "https://4zxsfry3.us-west.insforge.app",
+					appBaseUrl: envAppBaseUrl || "https://qaxolotl.com",
+					apiBaseUrl: envApiBaseUrl || "https://4zxsfry3.us-west.insforge.app",
 					mcpBaseUrl: "https://4zxsfry3.us-west.insforge.app/v1/mcp",
 				};
 		}
