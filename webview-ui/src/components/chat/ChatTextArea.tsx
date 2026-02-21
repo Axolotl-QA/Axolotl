@@ -43,7 +43,6 @@ import {
 	TooltipContent,
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { useClineAuth } from "@/context/ClineAuthContext";
 import { useExtensionState } from "@/context/ExtensionStateContext";
 import { usePlatform } from "@/context/PlatformContext";
 import { cn } from "@/lib/utils";
@@ -277,7 +276,6 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
 			setShowChatModelSelector: setShowModelSelector,
 			dictationSettings,
 		} = useExtensionState();
-		const { clineUser } = useClineAuth();
 		const [isTextAreaFocused, setIsTextAreaFocused] = useState(false);
 		const [isDraggingOver, setIsDraggingOver] = useState(false);
 		const [gitCommits, setGitCommits] = useState<GitCommit[]>([]);
@@ -1851,7 +1849,6 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
 								dictationSettings?.featureEnabled && (
 									<VoiceRecorder
 										disabled={sendingDisabled}
-										isAuthenticated={!!clineUser?.uid}
 										language={dictationSettings?.dictationLanguage || "en"}
 										onProcessingStateChange={(isProcessing, message) => {
 											if (isProcessing && message) {

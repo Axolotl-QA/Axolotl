@@ -1,18 +1,18 @@
 export interface DictationSettings {
-	featureEnabled: boolean // Feature flag - whether dictation feature is available
-	dictationEnabled: boolean // User preference - whether user has enabled dictation
-	dictationLanguage: string
+	featureEnabled: boolean; // Feature flag - whether dictation feature is available
+	dictationEnabled: boolean; // User preference - whether user has enabled dictation
+	dictationLanguage: string;
 }
 
 export const DEFAULT_DICTATION_SETTINGS: DictationSettings = {
-	featureEnabled: false, // Feature flag, will be set by the extension based on platform
-	dictationEnabled: false, // Default is false while this service is in Experimental status
+	featureEnabled: true, // Feature flag - enabled on all platforms
+	dictationEnabled: true, // Enabled by default - uses Speechmatics for transcription
 	dictationLanguage: "en",
-}
+};
 
 export interface LanguageItem {
-	name: string
-	code: string
+	name: string;
+	code: string;
 }
 
 export const SUPPORTED_DICTATION_LANGUAGES: LanguageItem[] = [
@@ -73,4 +73,4 @@ export const SUPPORTED_DICTATION_LANGUAGES: LanguageItem[] = [
 	{ name: "Urdu (اردو)", code: "ur" },
 	{ name: "Vietnamese (Tiếng Việt)", code: "vi" },
 	{ name: "Welsh (Cymraeg)", code: "cy" },
-]
+];

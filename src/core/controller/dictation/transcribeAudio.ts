@@ -1,15 +1,15 @@
 import {
-	TranscribeAudioRequest,
+	type TranscribeAudioRequest,
 	Transcription,
 } from "@shared/proto/cline/dictation";
 import { HostProvider } from "@/hosts/host-provider";
-import { getVoiceTranscriptionService } from "@/services/dictation/VoiceTranscriptionService";
+import { getSpeechmaticsTranscriptionService } from "@/services/dictation/SpeechmaticsTranscriptionService";
 import { telemetryService } from "@/services/telemetry";
 import { ShowMessageType } from "@/shared/proto/host/window";
-import { Controller } from "..";
+import type { Controller } from "..";
 
 /**
- * Transcribes audio using Cline transcription service
+ * Transcribes audio using Speechmatics real-time API
  * @param controller The controller instance
  * @param request TranscribeAudioRequest containing base64 audio data
  * @returns Transcription with transcribed text or error
@@ -28,8 +28,8 @@ export const transcribeAudio = async (
 	);
 
 	try {
-		// Transcribe the audio
-		const result = await getVoiceTranscriptionService().transcribeAudio(
+		// Transcribe the audio using Speechmatics
+		const result = await getSpeechmaticsTranscriptionService().transcribeAudio(
 			request.audioBase64,
 			request.language ?? "en",
 		);

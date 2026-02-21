@@ -1073,11 +1073,10 @@ export class Controller {
 		const environment = ClineEnv.config().environment;
 		const banners = await this.getBanners();
 
-		// Set feature flag in dictation settings based on platform
+		// Set feature flag in dictation settings - enabled on all platforms
 		const updatedDictationSettings = {
 			...dictationSettings,
-			featureEnabled:
-				process.platform === "darwin" || process.platform === "linux", // Enable dictation on macOS and Linux
+			featureEnabled: true,
 		};
 
 		return {

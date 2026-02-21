@@ -177,9 +177,8 @@ const FeatureSettingsSection = ({
 								Enable Dictation
 							</VSCodeCheckbox>
 							<p className="text-xs text-description mt-1">
-								Enables speech-to-text transcription. Uses the Aqua Voice's
-								Avalon model, at $0.0065 credits per minute of audio processed.
-								5 minutes max per message.
+								Enables speech-to-text transcription powered by Speechmatics. 5
+								minutes max per message.
 							</p>
 						</div>
 					)}

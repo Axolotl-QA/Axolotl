@@ -24,7 +24,14 @@
 			"Bash(git commit:*)",
 			"Bash(git -C /Users/franklin/axolotl/Sentinel status -s)",
 			"Bash(git -C /Users/franklin/axolotl/Sentinel add axolotl-logo-source.png)",
-			"Bash(git -C /Users/franklin/axolotl/Sentinel commit --no-verify -m \"chore: add axolotl logo source asset\")"
+			"Bash(git -C /Users/franklin/axolotl/Sentinel commit --no-verify -m \"chore: add axolotl logo source asset\")",
+			"WebFetch(domain:developerweek-2026-hackathon.devpost.com)",
+			"WebFetch(domain:docs.speechmatics.com)",
+			"Bash(npm install:*)",
+			"Bash(npx tsc:*)",
+			"Bash(say:*)",
+			"Bash(ffmpeg:*)",
+			"Read(//tmp/**)"
 		]
 	},
 	"enabledMcpjsonServers": ["insforge"]

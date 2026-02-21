@@ -5,7 +5,7 @@ import { audioRecordingService } from "@/services/dictation/AudioRecordingServic
 import { telemetryService } from "@/services/telemetry";
 import { AUDIO_PROGRAM_CONFIG } from "@/shared/audioProgramConstants";
 import { ShowMessageType } from "@/shared/proto/host/window";
-import { Controller } from "..";
+import type { Controller } from "..";
 
 /**
  * Handles the installation of missing dependencies with Cline
@@ -76,25 +76,6 @@ async function handleMissingDependency(
 }
 
 /**
- * Handles sign-in errors for dictation
- */
-async function handleSignInError(
-	controller: Controller,
-	errorMessage: string,
-): Promise<void> {
-	const signInAction = "Sign in to Cline";
-	const action = await HostProvider.window.showMessage({
-		type: ShowMessageType.ERROR,
-		message: `Voice recording error: ${errorMessage}`,
-		options: { items: [signInAction] },
-	});
-
-	if (action.selectedOption === signInAction) {
-		await controller.authService.createAuthRequest();
-	}
-}
-
-/**
  * Shows a generic error message
  */
 async function showGenericError(errorMessage: string): Promise<void> {
@@ -128,12 +109,6 @@ export const startRecording = async (
 	const taskId = controller.task?.taskId;
 
 	try {
-		// Verify user authentication
-		const userInfo = controller.authService.getInfo();
-		if (!userInfo?.user?.uid) {
-			throw new Error("Please sign in to your Cline Account to use Dictation.");
-		}
-
 		// Attempt to start recording
 		const result = await audioRecordingService.startRecording();
 
@@ -164,14 +139,8 @@ export const startRecording = async (
 		const errorMessage =
 			error instanceof Error ? error.message : "Unknown error occurred";
 
-		// Handle different error types
-		if (errorMessage.includes("sign in")) {
-			// Don't await - show dialog asynchronously so frontend gets immediate response
-			handleSignInError(controller, errorMessage);
-		} else {
-			// Don't await - show dialog asynchronously so frontend gets immediate response
-			showGenericError(errorMessage);
-		}
+		// Don't await - show dialog asynchronously so frontend gets immediate response
+		showGenericError(errorMessage);
 
 		return RecordingResult.create({
 			success: false,
