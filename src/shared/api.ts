@@ -69,6 +69,7 @@ export interface ModelInfo {
 	maxTokens?: number;
 	contextWindow?: number;
 	supportsImages?: boolean;
+	supportsComputerUse?: boolean;
 	supportsPromptCache: boolean; // this value is hardcoded for now
 	supportsReasoning?: boolean; // Whether the model supports reasoning/thinking mode
 	inputPrice?: number; // Keep for non-tiered input models
@@ -748,12 +749,29 @@ export const OPENROUTER_PROVIDER_PREFERENCES: Record<
 // https://cloud.google.com/vertex-ai/generative-ai/docs/partner-models/use-claude
 // https://cloud.google.com/vertex-ai/generative-ai/pricing#partner-models
 export type VertexModelId = keyof typeof vertexModels;
-export const vertexDefaultModelId: VertexModelId = "gemini-3-pro-preview";
+export const vertexDefaultModelId: VertexModelId = "gemini-3.1-pro-preview";
 export const vertexModels = {
+	"gemini-3.1-pro-preview": {
+		maxTokens: 8192,
+		contextWindow: 1_048_576,
+		supportsImages: true,
+		supportsComputerUse: true,
+		supportsPromptCache: true,
+		supportsGlobalEndpoint: true,
+		inputPrice: 2.0,
+		outputPrice: 12.0,
+		temperature: 1.0,
+		supportsReasoning: true,
+		thinkingConfig: {
+			geminiThinkingLevel: "high",
+			supportsThinkingLevel: true,
+		},
+	},
 	"gemini-3-pro-preview": {
 		maxTokens: 8192,
 		contextWindow: 1_048_576,
 		supportsImages: true,
+		supportsComputerUse: true,
 		supportsPromptCache: true,
 		supportsGlobalEndpoint: true,
 		inputPrice: 2.0,
@@ -769,6 +787,7 @@ export const vertexModels = {
 		maxTokens: 65536,
 		contextWindow: 1_048_576,
 		supportsImages: true,
+		supportsComputerUse: true,
 		supportsPromptCache: true,
 		supportsGlobalEndpoint: true,
 		inputPrice: 0.5,
@@ -1149,12 +1168,41 @@ export const openAiModelInfoSaneDefaults: OpenAiCompatibleModelInfo = {
 // Gemini
 // https://ai.google.dev/gemini-api/docs/models/gemini
 export type GeminiModelId = keyof typeof geminiModels;
-export const geminiDefaultModelId: GeminiModelId = "gemini-3-pro-preview";
+export const geminiDefaultModelId: GeminiModelId = "gemini-3.1-pro-preview";
 export const geminiModels = {
+	"gemini-3.1-pro-preview": {
+		maxTokens: 65536,
+		contextWindow: 1_048_576,
+		supportsImages: true,
+		supportsComputerUse: true,
+		supportsPromptCache: true,
+		inputPrice: 4.0,
+		outputPrice: 18.0,
+		cacheReadsPrice: 0.4,
+		thinkingConfig: {
+			geminiThinkingLevel: "high",
+			supportsThinkingLevel: true,
+		},
+		tiers: [
+			{
+				contextWindow: 200000,
+				inputPrice: 2.0,
+				outputPrice: 12.0,
+				cacheReadsPrice: 0.2,
+			},
+			{
+				contextWindow: Infinity,
+				inputPrice: 4.0,
+				outputPrice: 18.0,
+				cacheReadsPrice: 0.4,
+			},
+		],
+	},
 	"gemini-3-pro-preview": {
 		maxTokens: 65536,
 		contextWindow: 1_048_576,
 		supportsImages: true,
+		supportsComputerUse: true,
 		supportsPromptCache: true,
 		inputPrice: 4.0,
 		outputPrice: 18.0,
@@ -1184,6 +1232,7 @@ export const geminiModels = {
 		maxTokens: 65536,
 		contextWindow: 1_048_576,
 		supportsImages: true,
+		supportsComputerUse: true,
 		supportsPromptCache: true,
 		supportsGlobalEndpoint: true,
 		inputPrice: 0.5,

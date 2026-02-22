@@ -1,75 +1,87 @@
-import { ApiHandler } from "@core/api"
-import { FileContextTracker } from "@core/context/context-tracking/FileContextTracker"
-import { ClineIgnoreController } from "@core/ignore/ClineIgnoreController"
-import { CommandPermissionController } from "@core/permissions"
-import { DiffViewProvider } from "@integrations/editor/DiffViewProvider"
-import { BrowserSession } from "@services/browser/BrowserSession"
-import { UrlContentFetcher } from "@services/browser/UrlContentFetcher"
-import { McpHub } from "@services/mcp/McpHub"
-import { ClineAsk, ClineSay } from "@shared/ExtensionMessage"
-import { ClineContent } from "@shared/messages/content"
-import { ClineDefaultTool } from "@shared/tools"
-import { ClineAskResponse } from "@shared/WebviewMessage"
-import * as vscode from "vscode"
-import { isGPT5ModelFamily, modelDoesntSupportWebp } from "@/utils/model-utils"
-import { ToolUse } from "../assistant-message"
-import { ContextManager } from "../context/context-management/ContextManager"
-import { formatResponse } from "../prompts/responses"
-import { StateManager } from "../storage/StateManager"
-import { WorkspaceRootManager } from "../workspace"
-import { ToolResponse } from "."
-import { MessageStateHandler } from "./message-state"
-import { TaskState } from "./TaskState"
-import { AutoApprove } from "./tools/autoApprove"
-import { AccessMcpResourceHandler } from "./tools/handlers/AccessMcpResourceHandler"
-import { ActModeRespondHandler } from "./tools/handlers/ActModeRespondHandler"
-import { ApplyPatchHandler } from "./tools/handlers/ApplyPatchHandler"
-import { AskFollowupQuestionToolHandler } from "./tools/handlers/AskFollowupQuestionToolHandler"
-import { AttemptCompletionHandler } from "./tools/handlers/AttemptCompletionHandler"
-import { BrowserToolHandler } from "./tools/handlers/BrowserToolHandler"
-import { CondenseHandler } from "./tools/handlers/CondenseHandler"
-import { ExecuteCommandToolHandler } from "./tools/handlers/ExecuteCommandToolHandler"
-import { GenerateExplanationToolHandler } from "./tools/handlers/GenerateExplanationToolHandler"
-import { ListCodeDefinitionNamesToolHandler } from "./tools/handlers/ListCodeDefinitionNamesToolHandler"
-import { ListFilesToolHandler } from "./tools/handlers/ListFilesToolHandler"
-import { LoadMcpDocumentationHandler } from "./tools/handlers/LoadMcpDocumentationHandler"
-import { NewTaskHandler } from "./tools/handlers/NewTaskHandler"
-import { PlanModeRespondHandler } from "./tools/handlers/PlanModeRespondHandler"
-import { ReadFileToolHandler } from "./tools/handlers/ReadFileToolHandler"
-import { ReportBugHandler } from "./tools/handlers/ReportBugHandler"
-import { SearchFilesToolHandler } from "./tools/handlers/SearchFilesToolHandler"
-import { AxolotlAnalyzeCodeHandler } from "./tools/handlers/AxolotlAnalyzeCodeHandler"
-import { AxolotlDetectChangesHandler } from "./tools/handlers/AxolotlDetectChangesHandler"
-import { AxolotlGeneratePlanHandler } from "./tools/handlers/AxolotlGeneratePlanHandler"
-import { AxolotlQAReportHandler } from "./tools/handlers/AxolotlQAReportHandler"
-import { AxolotlWebSearchHandler } from "./tools/handlers/AxolotlWebSearchHandler"
-import { SummarizeTaskHandler } from "./tools/handlers/SummarizeTaskHandler"
-import { UseMcpToolHandler } from "./tools/handlers/UseMcpToolHandler"
-import { UseSkillToolHandler } from "./tools/handlers/UseSkillToolHandler"
-import { WebFetchToolHandler } from "./tools/handlers/WebFetchToolHandler"
-import { WebSearchToolHandler } from "./tools/handlers/WebSearchToolHandler"
-import { WriteToFileToolHandler } from "./tools/handlers/WriteToFileToolHandler"
-import { IPartialBlockHandler, SharedToolHandler, ToolExecutorCoordinator } from "./tools/ToolExecutorCoordinator"
-import { ToolValidator } from "./tools/ToolValidator"
-import { TaskConfig, validateTaskConfig } from "./tools/types/TaskConfig"
-import { createUIHelpers } from "./tools/types/UIHelpers"
-import { ToolDisplayUtils } from "./tools/utils/ToolDisplayUtils"
-import { ToolResultUtils } from "./tools/utils/ToolResultUtils"
+import type { ApiHandler } from "@core/api";
+import type { FileContextTracker } from "@core/context/context-tracking/FileContextTracker";
+import type { ClineIgnoreController } from "@core/ignore/ClineIgnoreController";
+import type { CommandPermissionController } from "@core/permissions";
+import type { DiffViewProvider } from "@integrations/editor/DiffViewProvider";
+import { BrowserSession } from "@services/browser/BrowserSession";
+import { ComputerUseExecutor } from "@services/browser/ComputerUseExecutor";
+import type { UrlContentFetcher } from "@services/browser/UrlContentFetcher";
+import type { McpHub } from "@services/mcp/McpHub";
+import type { ClineAsk, ClineSay } from "@shared/ExtensionMessage";
+import type { ClineContent } from "@shared/messages/content";
+import { ClineDefaultTool } from "@shared/tools";
+import type { ClineAskResponse } from "@shared/WebviewMessage";
+import type * as vscode from "vscode";
+import { isGPT5ModelFamily, modelDoesntSupportWebp } from "@/utils/model-utils";
+import type { ToolUse } from "../assistant-message";
+import type { ContextManager } from "../context/context-management/ContextManager";
+import { formatResponse } from "../prompts/responses";
+import type { StateManager } from "../storage/StateManager";
+import type { WorkspaceRootManager } from "../workspace";
+import type { ToolResponse } from ".";
+import type { MessageStateHandler } from "./message-state";
+import type { TaskState } from "./TaskState";
+import { AutoApprove } from "./tools/autoApprove";
+import { AccessMcpResourceHandler } from "./tools/handlers/AccessMcpResourceHandler";
+import { ActModeRespondHandler } from "./tools/handlers/ActModeRespondHandler";
+import { ApplyPatchHandler } from "./tools/handlers/ApplyPatchHandler";
+import { AskFollowupQuestionToolHandler } from "./tools/handlers/AskFollowupQuestionToolHandler";
+import { AttemptCompletionHandler } from "./tools/handlers/AttemptCompletionHandler";
+import { AxolotlAnalyzeCodeHandler } from "./tools/handlers/AxolotlAnalyzeCodeHandler";
+import { AxolotlDetectChangesHandler } from "./tools/handlers/AxolotlDetectChangesHandler";
+import { AxolotlGeneratePlanHandler } from "./tools/handlers/AxolotlGeneratePlanHandler";
+import { AxolotlQAReportHandler } from "./tools/handlers/AxolotlQAReportHandler";
+import { AxolotlWebSearchHandler } from "./tools/handlers/AxolotlWebSearchHandler";
+import { BrowserToolHandler } from "./tools/handlers/BrowserToolHandler";
+import { ComputerUseToolHandler } from "./tools/handlers/ComputerUseToolHandler";
+import { CondenseHandler } from "./tools/handlers/CondenseHandler";
+import { ExecuteCommandToolHandler } from "./tools/handlers/ExecuteCommandToolHandler";
+import { GenerateExplanationToolHandler } from "./tools/handlers/GenerateExplanationToolHandler";
+import { ListCodeDefinitionNamesToolHandler } from "./tools/handlers/ListCodeDefinitionNamesToolHandler";
+import { ListFilesToolHandler } from "./tools/handlers/ListFilesToolHandler";
+import { LoadMcpDocumentationHandler } from "./tools/handlers/LoadMcpDocumentationHandler";
+import { NewTaskHandler } from "./tools/handlers/NewTaskHandler";
+import { PlanModeRespondHandler } from "./tools/handlers/PlanModeRespondHandler";
+import { ReadFileToolHandler } from "./tools/handlers/ReadFileToolHandler";
+import { ReportBugHandler } from "./tools/handlers/ReportBugHandler";
+import { SearchFilesToolHandler } from "./tools/handlers/SearchFilesToolHandler";
+import { SummarizeTaskHandler } from "./tools/handlers/SummarizeTaskHandler";
+import { UseMcpToolHandler } from "./tools/handlers/UseMcpToolHandler";
+import { UseSkillToolHandler } from "./tools/handlers/UseSkillToolHandler";
+import { WebFetchToolHandler } from "./tools/handlers/WebFetchToolHandler";
+import { WebSearchToolHandler } from "./tools/handlers/WebSearchToolHandler";
+import { WriteToFileToolHandler } from "./tools/handlers/WriteToFileToolHandler";
+import {
+	type IPartialBlockHandler,
+	SharedToolHandler,
+	ToolExecutorCoordinator,
+} from "./tools/ToolExecutorCoordinator";
+import { ToolValidator } from "./tools/ToolValidator";
+import { type TaskConfig, validateTaskConfig } from "./tools/types/TaskConfig";
+import { createUIHelpers } from "./tools/types/UIHelpers";
+import { ToolDisplayUtils } from "./tools/utils/ToolDisplayUtils";
+import { ToolResultUtils } from "./tools/utils/ToolResultUtils";
 
 export class ToolExecutor {
-	private autoApprover: AutoApprove
-	private coordinator: ToolExecutorCoordinator
+	private autoApprover: AutoApprove;
+	private computerUseExecutor: ComputerUseExecutor;
+	private coordinator: ToolExecutorCoordinator;
 
 	// Auto-approval methods using the AutoApprove class
-	private shouldAutoApproveTool(toolName: ClineDefaultTool): boolean | [boolean, boolean] {
-		return this.autoApprover.shouldAutoApproveTool(toolName)
+	private shouldAutoApproveTool(
+		toolName: ClineDefaultTool,
+	): boolean | [boolean, boolean] {
+		return this.autoApprover.shouldAutoApproveTool(toolName);
 	}
 
 	private async shouldAutoApproveToolWithPath(
 		blockname: ClineDefaultTool,
 		autoApproveActionpath: string | undefined,
 	): Promise<boolean> {
-		return this.autoApprover.shouldAutoApproveToolWithPath(blockname, autoApproveActionpath)
+		return this.autoApprover.shouldAutoApproveToolWithPath(
+			blockname,
+			autoApproveActionpath,
+		);
 	}
 
 	constructor(
@@ -112,34 +124,67 @@ export class ToolExecutor {
 			text?: string,
 			partial?: boolean,
 		) => Promise<{
-			response: ClineAskResponse
-			text?: string
-			images?: string[]
-			files?: string[]
+			response: ClineAskResponse;
+			text?: string;
+			images?: string[];
+			files?: string[];
 		}>,
-		private saveCheckpoint: (isAttemptCompletionMessage?: boolean, completionMessageTs?: number) => Promise<void>,
-		private sayAndCreateMissingParamError: (toolName: ClineDefaultTool, paramName: string, relPath?: string) => Promise<any>,
-		private removeLastPartialMessageIfExistsWithType: (type: "ask" | "say", askOrSay: ClineAsk | ClineSay) => Promise<void>,
-		private executeCommandTool: (command: string, timeoutSeconds: number | undefined) => Promise<[boolean, any]>,
+		private saveCheckpoint: (
+			isAttemptCompletionMessage?: boolean,
+			completionMessageTs?: number,
+		) => Promise<void>,
+		private sayAndCreateMissingParamError: (
+			toolName: ClineDefaultTool,
+			paramName: string,
+			relPath?: string,
+		) => Promise<any>,
+		private removeLastPartialMessageIfExistsWithType: (
+			type: "ask" | "say",
+			askOrSay: ClineAsk | ClineSay,
+		) => Promise<void>,
+		private executeCommandTool: (
+			command: string,
+			timeoutSeconds: number | undefined,
+		) => Promise<[boolean, any]>,
 		private doesLatestTaskCompletionHaveNewChanges: () => Promise<boolean>,
-		private updateFCListFromToolResponse: (taskProgress: string | undefined) => Promise<void>,
+		private updateFCListFromToolResponse: (
+			taskProgress: string | undefined,
+		) => Promise<void>,
 		private switchToActMode: () => Promise<boolean>,
 		private cancelTask: () => Promise<void>,
 
 		// Atomic hook state helpers from Task
-		private setActiveHookExecution: (hookExecution: NonNullable<typeof taskState.activeHookExecution>) => Promise<void>,
+		private setActiveHookExecution: (
+			hookExecution: NonNullable<typeof taskState.activeHookExecution>,
+		) => Promise<void>,
 		private clearActiveHookExecution: () => Promise<void>,
-		private getActiveHookExecution: () => Promise<typeof taskState.activeHookExecution>,
+		private getActiveHookExecution: () => Promise<
+			typeof taskState.activeHookExecution
+		>,
 		private runUserPromptSubmitHook: (
 			userContent: ClineContent[],
 			context: "initial_task" | "resume" | "feedback",
-		) => Promise<{ cancel?: boolean; wasCancelled?: boolean; contextModification?: string; errorMessage?: string }>,
+		) => Promise<{
+			cancel?: boolean;
+			wasCancelled?: boolean;
+			contextModification?: string;
+			errorMessage?: string;
+		}>,
 	) {
-		this.autoApprover = new AutoApprove(this.stateManager)
+		this.autoApprover = new AutoApprove(this.stateManager);
+
+		// Initialize ComputerUseExecutor with viewport dimensions from browser settings
+		const browserSettings =
+			this.stateManager.getGlobalSettingsKey("browserSettings");
+		this.computerUseExecutor = new ComputerUseExecutor(
+			this.browserSession,
+			browserSettings.viewport.width,
+			browserSettings.viewport.height,
+		);
 
 		// Initialize the coordinator and register all tool handlers
-		this.coordinator = new ToolExecutorCoordinator()
-		this.registerToolHandlers()
+		this.coordinator = new ToolExecutorCoordinator();
+		this.registerToolHandlers();
 	}
 
 	// Create a properly typed TaskConfig object for handlers
@@ -150,8 +195,11 @@ export class ToolExecutor {
 			ulid: this.ulid,
 			context: this.context,
 			mode: this.stateManager.getGlobalSettingsKey("mode"),
-			strictPlanModeEnabled: this.stateManager.getGlobalSettingsKey("strictPlanModeEnabled"),
-			yoloModeToggled: this.stateManager.getGlobalSettingsKey("yoloModeToggled"),
+			strictPlanModeEnabled: this.stateManager.getGlobalSettingsKey(
+				"strictPlanModeEnabled",
+			),
+			yoloModeToggled:
+				this.stateManager.getGlobalSettingsKey("yoloModeToggled"),
 			vscodeTerminalExecutionMode: this.vscodeTerminalExecutionMode,
 			enableParallelToolCalling: this.isParallelToolCallingEnabled(),
 			cwd: this.cwd,
@@ -160,10 +208,14 @@ export class ToolExecutor {
 			taskState: this.taskState,
 			messageState: this.messageStateHandler,
 			api: this.api,
-			autoApprovalSettings: this.stateManager.getGlobalSettingsKey("autoApprovalSettings"),
+			autoApprovalSettings: this.stateManager.getGlobalSettingsKey(
+				"autoApprovalSettings",
+			),
 			autoApprover: this.autoApprover,
-			browserSettings: this.stateManager.getGlobalSettingsKey("browserSettings"),
-			focusChainSettings: this.stateManager.getGlobalSettingsKey("focusChainSettings"),
+			browserSettings:
+				this.stateManager.getGlobalSettingsKey("browserSettings"),
+			focusChainSettings:
+				this.stateManager.getGlobalSettingsKey("focusChainSettings"),
 			services: {
 				mcpHub: this.mcpHub,
 				browserSession: this.browserSession,
@@ -174,6 +226,7 @@ export class ToolExecutor {
 				commandPermissionController: this.commandPermissionController,
 				contextManager: this.contextManager,
 				stateManager: this.stateManager,
+				computerUseExecutor: this.computerUseExecutor,
 			},
 			callbacks: {
 				say: this.say,
@@ -184,12 +237,15 @@ export class ToolExecutor {
 				cancelTask: this.cancelTask,
 				updateTaskHistory: async (_: any) => [],
 				executeCommandTool: this.executeCommandTool,
-				doesLatestTaskCompletionHaveNewChanges: this.doesLatestTaskCompletionHaveNewChanges,
+				doesLatestTaskCompletionHaveNewChanges:
+					this.doesLatestTaskCompletionHaveNewChanges,
 				updateFCListFromToolResponse: this.updateFCListFromToolResponse,
 				sayAndCreateMissingParamError: this.sayAndCreateMissingParamError,
-				removeLastPartialMessageIfExistsWithType: this.removeLastPartialMessageIfExistsWithType,
+				removeLastPartialMessageIfExistsWithType:
+					this.removeLastPartialMessageIfExistsWithType,
 				shouldAutoApproveTool: this.shouldAutoApproveTool.bind(this),
-				shouldAutoApproveToolWithPath: this.shouldAutoApproveToolWithPath.bind(this),
+				shouldAutoApproveToolWithPath:
+					this.shouldAutoApproveToolWithPath.bind(this),
 				applyLatestBrowserSettings: this.applyLatestBrowserSettings.bind(this),
 				switchToActMode: this.switchToActMode,
 				setActiveHookExecution: this.setActiveHookExecution,
@@ -198,72 +254,80 @@ export class ToolExecutor {
 				runUserPromptSubmitHook: this.runUserPromptSubmitHook,
 			},
 			coordinator: this.coordinator,
-		}
+		};
 
 		// Validate the config at runtime to catch any missing properties
-		validateTaskConfig(config)
-		return config
+		validateTaskConfig(config);
+		return config;
 	}
 
 	/**
 	 * Register all tool handlers with the coordinator
 	 */
 	private registerToolHandlers(): void {
-		const validator = new ToolValidator(this.clineIgnoreController)
+		const validator = new ToolValidator(this.clineIgnoreController);
 
 		// Register all tool handlers
-		this.coordinator.register(new ListFilesToolHandler(validator))
-		this.coordinator.register(new ReadFileToolHandler(validator))
-		this.coordinator.register(new BrowserToolHandler())
-		this.coordinator.register(new AskFollowupQuestionToolHandler())
-		this.coordinator.register(new WebFetchToolHandler())
-		this.coordinator.register(new WebSearchToolHandler())
+		this.coordinator.register(new ListFilesToolHandler(validator));
+		this.coordinator.register(new ReadFileToolHandler(validator));
+		this.coordinator.register(new BrowserToolHandler());
+		this.coordinator.register(new ComputerUseToolHandler());
+		this.coordinator.register(new AskFollowupQuestionToolHandler());
+		this.coordinator.register(new WebFetchToolHandler());
+		this.coordinator.register(new WebSearchToolHandler());
 
 		// Register WriteToFileToolHandler for all three file tools with proper typing
-		const writeHandler = new WriteToFileToolHandler(validator)
-		this.coordinator.register(writeHandler) // registers as "write_to_file" (ClineDefaultTool.FILE_NEW)
-		this.coordinator.register(new SharedToolHandler(ClineDefaultTool.FILE_EDIT, writeHandler))
-		this.coordinator.register(new SharedToolHandler(ClineDefaultTool.NEW_RULE, writeHandler))
+		const writeHandler = new WriteToFileToolHandler(validator);
+		this.coordinator.register(writeHandler); // registers as "write_to_file" (ClineDefaultTool.FILE_NEW)
+		this.coordinator.register(
+			new SharedToolHandler(ClineDefaultTool.FILE_EDIT, writeHandler),
+		);
+		this.coordinator.register(
+			new SharedToolHandler(ClineDefaultTool.NEW_RULE, writeHandler),
+		);
 
-		this.coordinator.register(new ListCodeDefinitionNamesToolHandler(validator))
-		this.coordinator.register(new SearchFilesToolHandler(validator))
-		this.coordinator.register(new ExecuteCommandToolHandler(validator))
-		this.coordinator.register(new UseMcpToolHandler())
-		this.coordinator.register(new AccessMcpResourceHandler())
-		this.coordinator.register(new LoadMcpDocumentationHandler())
-		this.coordinator.register(new UseSkillToolHandler())
-		this.coordinator.register(new PlanModeRespondHandler())
-		this.coordinator.register(new ActModeRespondHandler())
-		this.coordinator.register(new NewTaskHandler())
-		this.coordinator.register(new AttemptCompletionHandler())
-		this.coordinator.register(new CondenseHandler())
-		this.coordinator.register(new SummarizeTaskHandler(validator))
-		this.coordinator.register(new ReportBugHandler())
-		this.coordinator.register(new ApplyPatchHandler(validator))
-		this.coordinator.register(new GenerateExplanationToolHandler())
-		this.coordinator.register(new AxolotlQAReportHandler())
-		this.coordinator.register(new AxolotlDetectChangesHandler())
-		this.coordinator.register(new AxolotlGeneratePlanHandler())
-		this.coordinator.register(new AxolotlAnalyzeCodeHandler())
-		this.coordinator.register(new AxolotlWebSearchHandler())
+		this.coordinator.register(
+			new ListCodeDefinitionNamesToolHandler(validator),
+		);
+		this.coordinator.register(new SearchFilesToolHandler(validator));
+		this.coordinator.register(new ExecuteCommandToolHandler(validator));
+		this.coordinator.register(new UseMcpToolHandler());
+		this.coordinator.register(new AccessMcpResourceHandler());
+		this.coordinator.register(new LoadMcpDocumentationHandler());
+		this.coordinator.register(new UseSkillToolHandler());
+		this.coordinator.register(new PlanModeRespondHandler());
+		this.coordinator.register(new ActModeRespondHandler());
+		this.coordinator.register(new NewTaskHandler());
+		this.coordinator.register(new AttemptCompletionHandler());
+		this.coordinator.register(new CondenseHandler());
+		this.coordinator.register(new SummarizeTaskHandler(validator));
+		this.coordinator.register(new ReportBugHandler());
+		this.coordinator.register(new ApplyPatchHandler(validator));
+		this.coordinator.register(new GenerateExplanationToolHandler());
+		this.coordinator.register(new AxolotlQAReportHandler());
+		this.coordinator.register(new AxolotlDetectChangesHandler());
+		this.coordinator.register(new AxolotlGeneratePlanHandler());
+		this.coordinator.register(new AxolotlAnalyzeCodeHandler());
+		this.coordinator.register(new AxolotlWebSearchHandler());
 	}
 
 	/**
 	 * Main entry point for tool execution - called by Task class
 	 */
 	public async executeTool(block: ToolUse): Promise<void> {
-		await this.execute(block)
+		await this.execute(block);
 	}
 
 	/**
 	 * Updates the browser settings
 	 */
 	public async applyLatestBrowserSettings() {
-		await this.browserSession.dispose()
-		const apiHandlerModel = this.api.getModel()
-		const useWebp = this.api ? !modelDoesntSupportWebp(apiHandlerModel) : true
-		this.browserSession = new BrowserSession(this.stateManager, useWebp)
-		return this.browserSession
+		await this.browserSession.dispose();
+		const apiHandlerModel = this.api.getModel();
+		const useWebp = this.api ? !modelDoesntSupportWebp(apiHandlerModel) : true;
+		this.browserSession = new BrowserSession(this.stateManager, useWebp);
+		this.computerUseExecutor.updateBrowserSession(this.browserSession);
+		return this.browserSession;
 	}
 
 	/**
@@ -276,14 +340,18 @@ export class ToolExecutor {
 	 * @param error The error that occurred
 	 * @param block The tool use block that caused the error
 	 */
-	private async handleError(action: string, error: Error, block: ToolUse): Promise<void> {
-		console.log(error)
-		const errorString = `Error ${action}: ${error.message}`
-		await this.say("error", errorString)
+	private async handleError(
+		action: string,
+		error: Error,
+		block: ToolUse,
+	): Promise<void> {
+		console.log(error);
+		const errorString = `Error ${action}: ${error.message}`;
+		await this.say("error", errorString);
 
 		// Create error response for the tool
-		const errorResponse = formatResponse.toolError(errorString)
-		this.pushToolResult(errorResponse, block)
+		const errorResponse = formatResponse.toolError(errorString);
+		this.pushToolResult(errorResponse, block);
 	}
 
 	/**
@@ -306,12 +374,12 @@ export class ToolExecutor {
 			(block: ToolUse) => ToolDisplayUtils.getToolDescription(block),
 			this.coordinator,
 			this.taskState.toolUseIdMap,
-		)
+		);
 		// Mark that a tool has been used (only matters when parallel tool calling is disabled)
 		if (!this.isParallelToolCallingEnabled()) {
-			this.taskState.didAlreadyUseTool = true
+			this.taskState.didAlreadyUseTool = true;
 		}
-	}
+	};
 
 	/**
 	 * Check if parallel tool calling is enabled.
@@ -320,8 +388,11 @@ export class ToolExecutor {
 	 * 2. The current model is GPT-5 (which handles parallel tools well)
 	 */
 	private isParallelToolCallingEnabled(): boolean {
-		const modelId = this.api.getModel().id
-		return this.stateManager.getGlobalSettingsKey("enableParallelToolCalling") || isGPT5ModelFamily(modelId)
+		const modelId = this.api.getModel().id;
+		return (
+			this.stateManager.getGlobalSettingsKey("enableParallelToolCalling") ||
+			isGPT5ModelFamily(modelId)
+		);
 	}
 
 	/**
@@ -332,7 +403,7 @@ export class ToolExecutor {
 		ClineDefaultTool.FILE_EDIT,
 		ClineDefaultTool.NEW_RULE,
 		ClineDefaultTool.APPLY_PATCH,
-	]
+	];
 
 	/**
 	 * Execute a tool through the coordinator if it's registered.
@@ -353,28 +424,31 @@ export class ToolExecutor {
 		// The toolUseIdMap is updated at the point of transformation in index.ts
 
 		if (!this.coordinator.has(block.name)) {
-			return false // Tool not handled by coordinator
+			return false; // Tool not handled by coordinator
 		}
 
-		const config = this.asToolConfig()
+		const config = this.asToolConfig();
 
 		try {
 			// Check if user rejected a previous tool
 			if (this.taskState.didRejectTool) {
 				const reason = block.partial
 					? "Tool was interrupted and not executed due to user rejecting a previous tool."
-					: "Skipping tool due to user rejecting a previous tool."
-				this.createToolRejectionMessage(block, reason)
-				return true
+					: "Skipping tool due to user rejecting a previous tool.";
+				this.createToolRejectionMessage(block, reason);
+				return true;
 			}
 
 			// Check if a tool has already been used in this message (only enforced when parallel tool calling is disabled)
-			if (!this.isParallelToolCallingEnabled() && this.taskState.didAlreadyUseTool) {
+			if (
+				!this.isParallelToolCallingEnabled() &&
+				this.taskState.didAlreadyUseTool
+			) {
 				this.taskState.userMessageContent.push({
 					type: "text",
 					text: formatResponse.toolAlreadyUsed(block.name),
-				})
-				return true
+				});
+				return true;
 			}
 
 			// Logic for plan-mode tool call restrictions
@@ -384,29 +458,32 @@ export class ToolExecutor {
 				block.name &&
 				this.isPlanModeToolRestricted(block.name)
 			) {
-				const errorMessage = `Tool '${block.name}' is not available in PLAN MODE. This tool is restricted to ACT MODE for file modifications. Only use tools available for PLAN MODE when in that mode.`
-				await this.say("error", errorMessage)
-				this.pushToolResult(formatResponse.toolError(errorMessage), block)
-				return true
+				const errorMessage = `Tool '${block.name}' is not available in PLAN MODE. This tool is restricted to ACT MODE for file modifications. Only use tools available for PLAN MODE when in that mode.`;
+				await this.say("error", errorMessage);
+				this.pushToolResult(formatResponse.toolError(errorMessage), block);
+				return true;
 			}
 
 			// Close browser for non-browser tools
-			if (block.name !== "browser_action") {
-				await this.browserSession.closeBrowser()
+			if (
+				block.name !== ClineDefaultTool.BROWSER &&
+				block.name !== ClineDefaultTool.COMPUTER_USE
+			) {
+				await this.browserSession.closeBrowser();
 			}
 
 			// Handle partial blocks
 			if (block.partial) {
-				await this.handlePartialBlock(block, config)
-				return true
+				await this.handlePartialBlock(block, config);
+				return true;
 			}
 
 			// Handle complete blocks
-			await this.handleCompleteBlock(block, config)
-			return true
+			await this.handleCompleteBlock(block, config);
+			return true;
 		} catch (error) {
-			await this.handleError(`executing ${block.name}`, error as Error, block)
-			return true
+			await this.handleError(`executing ${block.name}`, error as Error, block);
+			return true;
 		}
 	}
 
@@ -420,7 +497,7 @@ export class ToolExecutor {
 	 * @returns true if the tool is restricted in plan mode, false otherwise
 	 */
 	private isPlanModeToolRestricted(toolName: ClineDefaultTool): boolean {
-		return ToolExecutor.PLAN_MODE_RESTRICTED_TOOLS.includes(toolName)
+		return ToolExecutor.PLAN_MODE_RESTRICTED_TOOLS.includes(toolName);
 	}
 
 	/**
@@ -437,7 +514,7 @@ export class ToolExecutor {
 		this.taskState.userMessageContent.push({
 			type: "text",
 			text: `${reason} ${ToolDisplayUtils.getToolDescription(block, this.coordinator)}`,
-		})
+		});
 	}
 
 	/**
@@ -447,37 +524,42 @@ export class ToolExecutor {
 	 * @param contextModification The context string from the hook output
 	 * @param source The hook source name ("PreToolUse" or "PostToolUse")
 	 */
-	private addHookContextToConversation(contextModification: string | undefined, source: string): void {
+	private addHookContextToConversation(
+		contextModification: string | undefined,
+		source: string,
+	): void {
 		if (!contextModification) {
-			return
+			return;
 		}
 
-		const contextText = contextModification.trim()
+		const contextText = contextModification.trim();
 		if (!contextText) {
-			return
+			return;
 		}
 
 		// Extract context type from first line if specified (e.g., "WORKSPACE_RULES: ...")
-		const lines = contextText.split("\n")
-		const firstLine = lines[0]
-		let contextType = "general"
-		let content = contextText
+		const lines = contextText.split("\n");
+		const firstLine = lines[0];
+		let contextType = "general";
+		let content = contextText;
 
 		// Check if first line specifies a type: "TYPE: content"
-		const typeMatchRegex = /^([A-Z_]+):\s*(.*)/
-		const typeMatch = typeMatchRegex.exec(firstLine)
+		const typeMatchRegex = /^([A-Z_]+):\s*(.*)/;
+		const typeMatch = typeMatchRegex.exec(firstLine);
 		if (typeMatch) {
-			contextType = typeMatch[1].toLowerCase()
-			const remainingLines = lines.slice(1).filter((l: string) => l.trim())
-			content = typeMatch[2] ? [typeMatch[2], ...remainingLines].join("\n") : remainingLines.join("\n")
+			contextType = typeMatch[1].toLowerCase();
+			const remainingLines = lines.slice(1).filter((l: string) => l.trim());
+			content = typeMatch[2]
+				? [typeMatch[2], ...remainingLines].join("\n")
+				: remainingLines.join("\n");
 		}
 
 		const hookContextBlock = {
 			type: "text" as const,
 			text: `<hook_context source="${source}" type="${contextType}">\n${content}\n</hook_context>`,
-		}
+		};
 
-		this.taskState.userMessageContent.push(hookContextBlock)
+		this.taskState.userMessageContent.push(hookContextBlock);
 	}
 
 	/**
@@ -497,9 +579,9 @@ export class ToolExecutor {
 		executionSuccess: boolean,
 		executionStartTime: number,
 	): Promise<boolean> {
-		const { executeHook } = await import("../hooks/hook-executor")
+		const { executeHook } = await import("../hooks/hook-executor");
 
-		const executionTimeMs = Date.now() - executionStartTime
+		const executionTimeMs = Date.now() - executionStartTime;
 
 		const postToolResult = await executeHook({
 			hookName: "PostToolUse",
@@ -507,7 +589,10 @@ export class ToolExecutor {
 				postToolUse: {
 					toolName: block.name,
 					parameters: block.params,
-					result: typeof toolResult === "string" ? toolResult : JSON.stringify(toolResult),
+					result:
+						typeof toolResult === "string"
+							? toolResult
+							: JSON.stringify(toolResult),
 					success: executionSuccess,
 					executionTimeMs,
 				},
@@ -520,21 +605,25 @@ export class ToolExecutor {
 			taskId: this.taskId,
 			hooksEnabled: true, // Already checked by caller
 			toolName: block.name,
-		})
+		});
 
 		// Handle cancellation request
 		if (postToolResult.cancel === true) {
-			const errorMessage = postToolResult.errorMessage || "Hook requested task cancellation"
-			await this.say("error", errorMessage)
-			return true
+			const errorMessage =
+				postToolResult.errorMessage || "Hook requested task cancellation";
+			await this.say("error", errorMessage);
+			return true;
 		}
 
 		// Add context modification to the conversation if provided
 		if (postToolResult.contextModification) {
-			this.addHookContextToConversation(postToolResult.contextModification, "PostToolUse")
+			this.addHookContextToConversation(
+				postToolResult.contextModification,
+				"PostToolUse",
+			);
 		}
 
-		return false
+		return false;
 	}
 
 	/**
@@ -549,17 +638,20 @@ export class ToolExecutor {
 	 * @param block The partial tool use block with incomplete parameters
 	 * @param config The task configuration containing all necessary context
 	 */
-	private async handlePartialBlock(block: ToolUse, config: TaskConfig): Promise<void> {
+	private async handlePartialBlock(
+		block: ToolUse,
+		config: TaskConfig,
+	): Promise<void> {
 		// NOTE: We don't push tool results in partial blocks because this is only for UI streaming.
 		// The ToolExecutor will handle pushToolResult() when the complete block is processed.
 		// This maintains separation of concerns: partial = UI updates, complete = final state changes.
-		const handler = this.coordinator.getHandler(block.name)
+		const handler = this.coordinator.getHandler(block.name);
 
 		// Check if handler supports partial blocks with proper typing
 		if (handler && "handlePartialBlock" in handler) {
-			const uiHelpers = createUIHelpers(config)
-			const partialHandler = handler as IPartialBlockHandler
-			await partialHandler.handlePartialBlock(block, uiHelpers)
+			const uiHelpers = createUIHelpers(config);
+			const partialHandler = handler as IPartialBlockHandler;
+			await partialHandler.handlePartialBlock(block, uiHelpers);
 		}
 	}
 
@@ -581,82 +673,102 @@ export class ToolExecutor {
 	 * @param block The complete tool use block with all parameters
 	 * @param config The task configuration containing all necessary context
 	 */
-	private async handleCompleteBlock(block: ToolUse, config: any): Promise<void> {
+	private async handleCompleteBlock(
+		block: ToolUse,
+		config: any,
+	): Promise<void> {
 		// Check abort flag at the very start to prevent execution after cancellation
 		if (this.taskState.abort) {
-			return
+			return;
 		}
 
 		// Check if hooks are enabled via user setting
-		const hooksEnabled = this.stateManager.getGlobalSettingsKey("hooksEnabled")
+		const hooksEnabled = this.stateManager.getGlobalSettingsKey("hooksEnabled");
 
 		// Track if we need to cancel after hooks complete
-		let shouldCancelAfterHook = false
+		let shouldCancelAfterHook = false;
 
-		let executionSuccess = true
-		let toolResult: any = null
-		let toolWasExecuted = false
-		const executionStartTime = Date.now()
+		let executionSuccess = true;
+		let toolResult: any = null;
+		let toolWasExecuted = false;
+		const executionStartTime = Date.now();
 
 		try {
 			// Final abort check immediately before tool execution
 			if (this.taskState.abort) {
-				return
+				return;
 			}
 
 			// Execute the actual tool
-			toolResult = await this.coordinator.execute(config, block)
-			toolWasExecuted = true
-			this.pushToolResult(toolResult, block)
+			toolResult = await this.coordinator.execute(config, block);
+			toolWasExecuted = true;
+			this.pushToolResult(toolResult, block);
 
 			// Track the last executed tool for consecutive call detection (used by act_mode_respond)
-			this.taskState.lastToolName = block.name
+			this.taskState.lastToolName = block.name;
 
 			// Check abort before running PostToolUse hook (success path)
 			if (this.taskState.abort) {
-				return
+				return;
 			}
 
 			// Run PostToolUse hook for successful tool execution
 			// Skip for attempt_completion since it marks task completion, not actual work
 			if (hooksEnabled && block.name !== "attempt_completion") {
-				const hookRequestedCancel = await this.runPostToolUseHook(block, toolResult, executionSuccess, executionStartTime)
+				const hookRequestedCancel = await this.runPostToolUseHook(
+					block,
+					toolResult,
+					executionSuccess,
+					executionStartTime,
+				);
 				if (hookRequestedCancel) {
-					await config.callbacks.cancelTask()
-					shouldCancelAfterHook = true
+					await config.callbacks.cancelTask();
+					shouldCancelAfterHook = true;
 				}
 			}
 		} catch (error) {
-			executionSuccess = false
-			toolResult = formatResponse.toolError(`Tool execution failed: ${error}`)
+			executionSuccess = false;
+			toolResult = formatResponse.toolError(`Tool execution failed: ${error}`);
 
 			// Check abort before running PostToolUse hook (error path)
 			if (this.taskState.abort) {
-				throw error
+				throw error;
 			}
 
 			// Run PostToolUse hook for failed tool execution
 			// Skip for attempt_completion since it marks task completion, not actual work
-			if (toolWasExecuted && hooksEnabled && block.name !== "attempt_completion") {
-				const hookRequestedCancel = await this.runPostToolUseHook(block, toolResult, executionSuccess, executionStartTime)
+			if (
+				toolWasExecuted &&
+				hooksEnabled &&
+				block.name !== "attempt_completion"
+			) {
+				const hookRequestedCancel = await this.runPostToolUseHook(
+					block,
+					toolResult,
+					executionSuccess,
+					executionStartTime,
+				);
 				if (hookRequestedCancel) {
-					await config.callbacks.cancelTask()
-					shouldCancelAfterHook = true
+					await config.callbacks.cancelTask();
+					shouldCancelAfterHook = true;
 				}
 			}
 
 			// Re-throw the error after PostToolUse completes
-			throw error
+			throw error;
 		}
 
 		// Early return if hook requested cancellation
 		if (shouldCancelAfterHook) {
-			return
+			return;
 		}
 
 		// Handle focus chain updates
-		if (!block.partial && this.stateManager.getGlobalSettingsKey("focusChainSettings").enabled) {
-			await this.updateFCListFromToolResponse(block.params.task_progress)
+		if (
+			!block.partial &&
+			this.stateManager.getGlobalSettingsKey("focusChainSettings").enabled
+		) {
+			await this.updateFCListFromToolResponse(block.params.task_progress);
 		}
 	}
 }

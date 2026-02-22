@@ -92,6 +92,11 @@ export const recommendedModels = [
 		label: "NEW",
 	},
 	{
+		id: "google/gemini-3.1-pro-preview",
+		description: "Gemini 3.1 Pro with enhanced reasoning and 1M context",
+		label: "NEW",
+	},
+	{
 		id: "google/gemini-3-pro-preview",
 		description: "1M context window for large codebases",
 		label: "1M CTX",

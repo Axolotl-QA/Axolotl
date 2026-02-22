@@ -163,10 +163,7 @@ export async function createOpenRouterStream(
 			...messages,
 		]);
 	}
-	if (
-		model.id.startsWith("google/gemini-3.0") ||
-		model.id === "google/gemini-3.0"
-	) {
+	if (model.id.includes("gemini-3")) {
 		// Recommended value from google
 		temperature = 1.0;
 	}

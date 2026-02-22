@@ -1,4 +1,4 @@
-import type { OnboardingModel } from "../proto/cline/state"
+import type { OnboardingModel } from "../proto/cline/state";
 
 /**
  * The list of models available to new users during the onboarding flow.
@@ -39,8 +39,8 @@ export const CLINE_ONBOARDING_MODELS: OnboardingModel[] = [
 	},
 	{
 		group: "frontier",
-		id: "google/gemini-3-pro-preview",
-		name: "Gemini 3.0 Pro",
+		id: "google/gemini-3.1-pro-preview",
+		name: "Gemini 3.1 Pro",
 		badge: "Preview",
 		score: 97,
 		latency: 3,
@@ -101,4 +101,4 @@ export const CLINE_ONBOARDING_MODELS: OnboardingModel[] = [
 			tiers: [],
 		},
 	},
-]
+];
