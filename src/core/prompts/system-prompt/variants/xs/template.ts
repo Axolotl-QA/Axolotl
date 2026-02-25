@@ -1,4 +1,4 @@
-import { SystemPromptSection } from "../../templates/placeholders"
+import { SystemPromptSection } from "../../templates/placeholders";
 
 export const baseTemplate = `{{${SystemPromptSection.AGENT_ROLE}}}
 
@@ -73,4 +73,6 @@ Include options/trade-offs when helpful, ask if plan matches, then add the exact
 
 ## {{${SystemPromptSection.SYSTEM_INFO}}}
 
-## {{${SystemPromptSection.USER_INSTRUCTIONS}}}`
+## {{${SystemPromptSection.USER_INSTRUCTIONS}}}
+
+## {{${SystemPromptSection.AXOLOTL_QA_WORKFLOW}}}`;

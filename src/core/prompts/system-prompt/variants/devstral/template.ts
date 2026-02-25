@@ -1,4 +1,4 @@
-import { SystemPromptSection } from "../../templates/placeholders"
+import { SystemPromptSection } from "../../templates/placeholders";
 
 export const baseTemplate = `{{${SystemPromptSection.AGENT_ROLE}}}
 
@@ -50,4 +50,8 @@ export const baseTemplate = `{{${SystemPromptSection.AGENT_ROLE}}}
 
 ====
 
-{{${SystemPromptSection.USER_INSTRUCTIONS}}}`
+{{${SystemPromptSection.USER_INSTRUCTIONS}}}
+
+====
+
+{{${SystemPromptSection.AXOLOTL_QA_WORKFLOW}}}`;

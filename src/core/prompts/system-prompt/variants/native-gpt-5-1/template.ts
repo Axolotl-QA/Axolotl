@@ -1,4 +1,4 @@
-import { SystemPromptSection } from "../../templates/placeholders"
+import { SystemPromptSection } from "../../templates/placeholders";
 
 /**
  * Base template for GPT-5 variant with structured sections
@@ -45,8 +45,12 @@ export const BASE = `{{${SystemPromptSection.AGENT_ROLE}}}
 
 ====
 
-{{${SystemPromptSection.USER_INSTRUCTIONS}}}`
+{{${SystemPromptSection.USER_INSTRUCTIONS}}}
+
+====
+
+{{${SystemPromptSection.AXOLOTL_QA_WORKFLOW}}}`;
 
 export const GPT_5_1_TEMPLATE_OVERRIDES = {
 	BASE,
-} as const
+} as const;

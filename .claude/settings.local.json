@@ -31,8 +31,11 @@
 			"Bash(npx tsc:*)",
 			"Bash(say:*)",
 			"Bash(ffmpeg:*)",
-			"Read(//tmp/**)"
+			"Read(//tmp/**)",
+			"WebFetch(domain:openrouter.ai)",
+			"WebFetch(domain:platform.minimax.io)"
 		]
 	},
-	"enabledMcpjsonServers": ["insforge"]
+	"enabledMcpjsonServers": ["insforge"],
+	"enableAllProjectMcpServers": true
 }
