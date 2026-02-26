@@ -1,22 +1,22 @@
-import { ApiProvider } from "./api"
+import type { ApiProvider } from "./api";
 
 export interface BrowserSettings {
 	// Viewport size settings
 	viewport: {
-		width: number
-		height: number
-	}
+		width: number;
+		height: number;
+	};
 	// Chrome installation to use
 	// chromeType: "chromium" | "system"
-	remoteBrowserHost?: string
-	remoteBrowserEnabled?: boolean
-	chromeExecutablePath?: string
-	disableToolUse?: boolean
-	customArgs?: string
+	remoteBrowserHost?: string;
+	remoteBrowserEnabled?: boolean;
+	chromeExecutablePath?: string;
+	disableToolUse?: boolean;
+	customArgs?: string;
 	// Vision model for browser screenshots (used when primary model doesn't support images)
-	visionModelProvider?: ApiProvider // e.g., "anthropic", "openai"
-	visionModelId?: string // e.g., "claude-sonnet-4-20250514", "gpt-4o"
-	visionModelApiKey?: string // API key for the vision model
+	visionModelProvider?: ApiProvider; // e.g., "anthropic", "openai"
+	visionModelId?: string; // e.g., "claude-sonnet-4-20250514", "gpt-4o"
+	visionModelApiKey?: string; // API key for the vision model
 }
 
 export const DEFAULT_BROWSER_SETTINGS: BrowserSettings = {
@@ -34,12 +34,12 @@ export const DEFAULT_BROWSER_SETTINGS: BrowserSettings = {
 	// This enables browser_action tool even for text-only models like MiniMax
 	// The system will automatically use the API key from the main configuration
 	visionModelProvider: "anthropic",
-	visionModelId: "claude-sonnet-4-20250514",
-}
+	visionModelId: "claude-sonnet-4-5-20250929",
+};
 
 export const BROWSER_VIEWPORT_PRESETS = {
 	"Large Desktop (1280x800)": { width: 1280, height: 800 },
 	"Small Desktop (900x600)": { width: 900, height: 600 },
 	"Tablet (768x1024)": { width: 768, height: 1024 },
 	"Mobile (360x640)": { width: 360, height: 640 },
-} as const
+} as const;

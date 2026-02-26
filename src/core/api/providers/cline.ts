@@ -1,282 +1,409 @@
-import { ModelInfo, openRouterDefaultModelId, openRouterDefaultModelInfo } from "@shared/api"
-import { shouldSkipReasoningForModel } from "@utils/model-utils"
-import axios from "axios"
-import OpenAI from "openai"
-import type { ChatCompletionTool as OpenAITool } from "openai/resources/chat/completions"
-import { ClineEnv } from "@/config"
-import { ClineAccountService } from "@/services/account/ClineAccountService"
-import { AuthService } from "@/services/auth/AuthService"
-import { buildClineExtraHeaders } from "@/services/EnvUtils"
-import { Logger } from "@/services/logging/Logger"
-import { CLINE_ACCOUNT_AUTH_ERROR_MESSAGE } from "@/shared/ClineAccount"
-import { ClineStorageMessage } from "@/shared/messages/content"
-import { fetch, getAxiosSettings } from "@/shared/net"
-import { ApiHandler, CommonApiHandlerOptions } from "../"
-import { withRetry } from "../retry"
-import { createOpenRouterStream } from "../transform/openrouter-stream"
-import { ApiStream, ApiStreamUsageChunk } from "../transform/stream"
-import { ToolCallProcessor } from "../transform/tool-call-processor"
-import { OpenRouterErrorResponse } from "./types"
+import {
+	type AnthropicModelId,
+	anthropicDefaultModelId,
+	anthropicModels,
+	CLAUDE_SONNET_1M_SUFFIX,
+	type MinimaxModelId,
+	type ModelInfo,
+	minimaxModels,
+} from "@shared/api";
+import { ClineEnv } from "@/config";
+import { AuthService } from "@/services/auth/AuthService";
+import { CLINE_ACCOUNT_AUTH_ERROR_MESSAGE } from "@/shared/ClineAccount";
+import type { ClineStorageMessage } from "@/shared/messages/content";
+import { fetch } from "@/shared/net";
+import type { ApiHandler, CommonApiHandlerOptions } from "../";
+import { withRetry } from "../retry";
+import { sanitizeAnthropicMessages } from "../transform/anthropic-format";
+import type { ApiStream } from "../transform/stream";
 
 interface ClineHandlerOptions extends CommonApiHandlerOptions {
-	ulid?: string
-	taskId?: string
-	reasoningEffort?: string
-	thinkingBudgetTokens?: number
-	openRouterProviderSorting?: string
-	openRouterModelId?: string
-	openRouterModelInfo?: ModelInfo
-	clineAccountId?: string
-	geminiThinkingLevel?: string
+	ulid?: string;
+	taskId?: string;
+	reasoningEffort?: string;
+	thinkingBudgetTokens?: number;
+	openRouterProviderSorting?: string;
+	openRouterModelId?: string;
+	openRouterModelInfo?: ModelInfo;
+	clineAccountId?: string;
+	geminiThinkingLevel?: string;
 }
 
+// Map OpenRouter model IDs to Anthropic native model IDs
+const OPENROUTER_TO_ANTHROPIC: Record<string, string> = {
+	"anthropic/claude-sonnet-4.5": "claude-sonnet-4-5-20250929",
+	"anthropic/claude-sonnet-4": "claude-sonnet-4-20250514",
+	"anthropic/claude-opus-4": "claude-opus-4-20250514",
+	"anthropic/claude-opus-4.1": "claude-opus-4-1-20250805",
+	"anthropic/claude-haiku-3.5": "claude-3-5-haiku-20241022",
+	"anthropic/claude-haiku-4.5": "claude-haiku-4-5-20251001",
+	"anthropic/claude-3.7-sonnet": "claude-3-7-sonnet-20250219",
+	"anthropic/claude-opus-4.5": "claude-opus-4-5-20251101",
+};
+
 export class ClineHandler implements ApiHandler {
-	private options: ClineHandlerOptions
-	private clineAccountService = ClineAccountService.getInstance()
-	private _authService: AuthService
-	private client: OpenAI | undefined
-	private readonly _baseUrl = ClineEnv.config().apiBaseUrl
-	lastGenerationId?: string
-	private lastRequestId?: string
+	private options: ClineHandlerOptions;
+	private _authService: AuthService;
+	private readonly _baseUrl = ClineEnv.config().apiBaseUrl;
 
 	constructor(options: ClineHandlerOptions) {
-		this.options = options
-		this._authService = AuthService.getInstance()
-	}
-
-	private async ensureClient(): Promise<OpenAI> {
-		const clineAccountAuthToken = await this._authService.getAuthToken()
-		if (!clineAccountAuthToken) {
-			throw new Error(CLINE_ACCOUNT_AUTH_ERROR_MESSAGE)
-		}
-		if (!this.client) {
-			try {
-				const defaultHeaders: Record<string, string> = {
-					"HTTP-Referer": "https://cline.bot",
-					"X-Title": "Cline",
-					"X-Task-ID": this.options.ulid || "",
-				}
-				Object.assign(defaultHeaders, await buildClineExtraHeaders())
-
-				this.client = new OpenAI({
-					baseURL: `${this._baseUrl}/api/v1`,
-					apiKey: clineAccountAuthToken,
-					defaultHeaders,
-					// Capture real HTTP request ID from initial streaming response headers
-					fetch: async (...args: Parameters<typeof fetch>): Promise<Awaited<ReturnType<typeof fetch>>> => {
-						const [input, init] = args
-						const resp = await fetch(input, init)
-						try {
-							let urlStr = ""
-							if (typeof input === "string") {
-								urlStr = input
-							} else if (input instanceof URL) {
-								urlStr = input.toString()
-							} else if (typeof (input as { url?: unknown }).url === "string") {
-								urlStr = (input as { url: string }).url
-							}
-							// Only record for chat completions (the primary streaming request)
-							if (urlStr.includes("/chat/completions")) {
-								const rid = resp.headers.get("x-request-id") || resp.headers.get("request-id")
-								if (rid) {
-									this.lastRequestId = rid
-								}
-							}
-						} catch {
-							// ignore header capture errors
-						}
-						return resp
-					},
-				})
-			} catch (error: any) {
-				throw new Error(`Error creating Cline client: ${error.message}`)
-			}
-		}
-		// Ensure the client is always using the latest auth token
-		this.client.apiKey = clineAccountAuthToken
-		return this.client
+		this.options = options;
+		this._authService = AuthService.getInstance();
 	}
 
 	@withRetry()
-	async *createMessage(systemPrompt: string, messages: ClineStorageMessage[], tools?: OpenAITool[]): ApiStream {
+	async *createMessage(
+		systemPrompt: string,
+		messages: ClineStorageMessage[],
+		tools?: any[],
+	): ApiStream {
+		const authToken = await this._authService.getAuthToken();
+		if (!authToken) {
+			throw new Error(CLINE_ACCOUNT_AUTH_ERROR_MESSAGE);
+		}
+
+		const model = this.getModel();
+		const isMiniMax = model.id.startsWith("MiniMax");
+		const modelId = model.id.endsWith(CLAUDE_SONNET_1M_SUFFIX)
+			? model.id.slice(0, -CLAUDE_SONNET_1M_SUFFIX.length)
+			: model.id;
+
+		// MiniMax doesn't support reasoning/thinking
+		const budget_tokens = this.options.thinkingBudgetTokens || 0;
+		const reasoningOn =
+			!isMiniMax &&
+			(model.info.supportsReasoning ?? false) &&
+			budget_tokens !== 0;
+		const nativeToolsOn = tools?.length && tools.length > 0;
+
+		// Build Anthropic-format request body (both Anthropic and MiniMax use this format)
+		let anthropicMessages = sanitizeAnthropicMessages(
+			messages,
+			model.info.supportsPromptCache ?? false,
+		);
+
+		// MiniMax doesn't support thinking blocks — filter them out
+		if (isMiniMax) {
+			anthropicMessages = this.filterThinkingBlocks(anthropicMessages);
+		}
+
+		const requestBody: Record<string, any> = {
+			model: modelId,
+			max_tokens: model.info.maxTokens || 8192,
+			temperature: isMiniMax ? 1.0 : reasoningOn ? undefined : 0,
+			system: model.info.supportsPromptCache
+				? [
+						{
+							text: systemPrompt,
+							type: "text",
+							cache_control: { type: "ephemeral" },
+						},
+					]
+				: [{ text: systemPrompt, type: "text" }],
+			messages: anthropicMessages,
+			stream: true,
+		};
+
+		if (nativeToolsOn) {
+			requestBody.tools = tools!.map((t: any) => {
+				if (t.function) {
+					return {
+						name: t.function.name,
+						description: t.function.description,
+						input_schema: t.function.parameters,
+					};
+				}
+				return t;
+			});
+			if (!reasoningOn) {
+				requestBody.tool_choice = { type: "any" };
+			}
+		}
+
+		if (reasoningOn) {
+			requestBody.thinking = { type: "enabled", budget_tokens };
+		}
+
+		// Send to InsForge proxy
+		const response = await fetch(`${this._baseUrl}/functions/anthropic-proxy`, {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+				Authorization: `Bearer ${authToken}`,
+				"X-Task-ID": this.options.ulid || "",
+			},
+			body: JSON.stringify(requestBody),
+		});
+
+		if (!response.ok) {
+			const errText = await response.text();
+			if (response.status === 402) {
+				throw new Error(
+					"Insufficient credits. Please add credits to your Axolotl account to continue.",
+				);
+			}
+			throw new Error(`Axolotl API Error ${response.status}: ${errText}`);
+		}
+
+		// Parse Anthropic SSE stream
+		yield* this.parseAnthropicSSE(response.body!);
+	}
+
+	private async *parseAnthropicSSE(
+		body: ReadableStream<Uint8Array>,
+	): ApiStream {
+		const reader = body.getReader();
+		const decoder = new TextDecoder();
+		let buffer = "";
+		const lastToolCall = { id: "", name: "", arguments: "" };
+
 		try {
-			const client = await this.ensureClient()
+			while (true) {
+				const { done, value } = await reader.read();
+				if (done) break;
 
-			this.lastGenerationId = undefined
-			this.lastRequestId = undefined
+				buffer += decoder.decode(value, { stream: true });
+				const lines = buffer.split("\n");
+				buffer = lines.pop() || "";
 
-			let didOutputUsage: boolean = false
+				for (const line of lines) {
+					if (!line.startsWith("data: ")) continue;
+					const dataStr = line.slice(6).trim();
+					if (dataStr === "[DONE]") continue;
 
-			const stream = await createOpenRouterStream(
-				client,
-				systemPrompt,
-				messages,
-				this.getModel(),
-				this.options.reasoningEffort,
-				this.options.thinkingBudgetTokens,
-				this.options.openRouterProviderSorting,
-				tools,
-				this.options.geminiThinkingLevel,
-			)
-
-			const toolCallProcessor = new ToolCallProcessor()
-
-			for await (const chunk of stream) {
-				Logger.debug("ClineHandler chunk:" + JSON.stringify(chunk))
-				// openrouter returns an error object instead of the openai sdk throwing an error
-				if ("error" in chunk) {
-					const error = chunk.error as OpenRouterErrorResponse["error"]
-					console.error(`Cline API Error: ${error?.code} - ${error?.message}`)
-					// Include metadata in the error message if available
-					const metadataStr = error.metadata ? `\nMetadata: ${JSON.stringify(error.metadata, null, 2)}` : ""
-					throw new Error(`Cline API Error ${error.code}: ${error.message}${metadataStr}`)
-				}
-
-				if (!this.lastGenerationId && chunk.id) {
-					this.lastGenerationId = chunk.id
-				}
-
-				// Check for mid-stream error via finish_reason
-				const choice = chunk.choices?.[0]
-				// OpenRouter may return finish_reason = "error" with error details
-				if ((choice?.finish_reason as string) === "error") {
-					const choiceWithError = choice as any
-					if (choiceWithError.error) {
-						const error = choiceWithError.error
-						console.error(`Cline Mid-Stream Error: ${error.code || error.type || "Unknown"} - ${error.message}`)
-						throw new Error(`Cline Mid-Stream Error: ${error.code || error.type || "Unknown"} - ${error.message}`)
-					} else {
-						throw new Error(
-							"Cline Mid-Stream Error: Stream terminated with error status but no error details provided",
-						)
-					}
-				}
-
-				const delta = choice?.delta
-
-				if (delta?.content) {
-					yield {
-						type: "text",
-						text: delta.content,
-					}
-				}
-
-				if (delta?.tool_calls) {
-					yield* toolCallProcessor.processToolCallDeltas(delta.tool_calls)
-				}
-
-				// Reasoning tokens are returned separately from the content
-				// Skip reasoning content for Grok 4 models since it only displays "thinking" without providing useful information
-				if ("reasoning" in delta && delta.reasoning && !shouldSkipReasoningForModel(this.options.openRouterModelId)) {
-					yield {
-						type: "reasoning",
-						reasoning: typeof delta.reasoning === "string" ? delta.reasoning : JSON.stringify(delta.reasoning),
-					}
-				}
-
-				/* 
-				OpenRouter passes reasoning details that we can pass back unmodified in api requests to preserve reasoning traces for model
-				  - The reasoning_details array in each chunk may contain one or more reasoning objects
-				  - For encrypted reasoning, the content may appear as [REDACTED] in streaming responses
-				  - The complete reasoning sequence is built by concatenating all chunks in order
-				See: https://openrouter.ai/docs/use-cases/reasoning-tokens#preserving-reasoning-blocks
-				*/
-				if (
-					"reasoning_details" in delta &&
-					delta.reasoning_details &&
-					// @ts-ignore-next-line
-					delta?.reasoning_details?.length && // exists and non-0
-					!shouldSkipReasoningForModel(this.options.openRouterModelId)
-				) {
-					yield {
-						type: "reasoning",
-						reasoning: "",
-						details: delta.reasoning_details,
-					}
-				}
-
-				if (!didOutputUsage && chunk.usage) {
-					// @ts-ignore-next-line
-					let totalCost = (chunk.usage.cost || 0) + (chunk.usage.cost_details?.upstream_inference_cost || 0)
-
-					if (["x-ai/grok-code-fast-1", "kwaipilot/kat-coder-pro"].includes(this.getModel().id)) {
-						totalCost = 0
+					let event: any;
+					try {
+						event = JSON.parse(dataStr);
+					} catch {
+						continue;
 					}
 
-					yield {
-						type: "usage",
-						cacheWriteTokens: 0,
-						cacheReadTokens: chunk.usage.prompt_tokens_details?.cached_tokens || 0,
-						inputTokens: (chunk.usage.prompt_tokens || 0) - (chunk.usage.prompt_tokens_details?.cached_tokens || 0),
-						outputTokens: chunk.usage.completion_tokens || 0,
-						totalCost,
+					switch (event.type) {
+						case "message_start": {
+							const usage = event.message?.usage;
+							if (usage) {
+								yield {
+									type: "usage",
+									inputTokens: usage.input_tokens || 0,
+									outputTokens: usage.output_tokens || 0,
+									cacheWriteTokens:
+										usage.cache_creation_input_tokens || undefined,
+									cacheReadTokens: usage.cache_read_input_tokens || undefined,
+								};
+							}
+							break;
+						}
+
+						case "message_delta": {
+							if (event.usage) {
+								yield {
+									type: "usage",
+									inputTokens: 0,
+									outputTokens: event.usage.output_tokens || 0,
+								};
+							}
+							break;
+						}
+
+						case "content_block_start": {
+							const block = event.content_block;
+							if (!block) break;
+
+							switch (block.type) {
+								case "thinking":
+									yield {
+										type: "reasoning",
+										reasoning: block.thinking || "",
+										signature: block.signature,
+									};
+									break;
+								case "redacted_thinking":
+									yield {
+										type: "reasoning",
+										reasoning: "[Redacted thinking block]",
+										redacted_data: block.data,
+									};
+									break;
+								case "tool_use":
+									if (block.id && block.name) {
+										lastToolCall.id = block.id;
+										lastToolCall.name = block.name;
+										lastToolCall.arguments = "";
+									}
+									break;
+								case "text":
+									if (event.index > 0) {
+										yield { type: "text", text: "\n" };
+									}
+									if (block.text) {
+										yield { type: "text", text: block.text };
+									}
+									break;
+							}
+							break;
+						}
+
+						case "content_block_delta": {
+							const delta = event.delta;
+							if (!delta) break;
+
+							switch (delta.type) {
+								case "thinking_delta":
+									yield { type: "reasoning", reasoning: delta.thinking };
+									break;
+								case "signature_delta":
+									if (delta.signature) {
+										yield {
+											type: "reasoning",
+											reasoning: "",
+											signature: delta.signature,
+										};
+									}
+									break;
+								case "text_delta":
+									yield { type: "text", text: delta.text };
+									break;
+								case "input_json_delta":
+									if (
+										lastToolCall.id &&
+										lastToolCall.name &&
+										delta.partial_json
+									) {
+										yield {
+											type: "tool_calls",
+											tool_call: {
+												...lastToolCall,
+												function: {
+													...lastToolCall,
+													id: lastToolCall.id,
+													name: lastToolCall.name,
+													arguments: delta.partial_json,
+												},
+											},
+										};
+									}
+									break;
+							}
+							break;
+						}
+
+						case "content_block_stop":
+							lastToolCall.id = "";
+							lastToolCall.name = "";
+							lastToolCall.arguments = "";
+							break;
+
+						case "error": {
+							const errMsg = event.error?.message || "Unknown Anthropic error";
+							throw new Error(`Axolotl API Error: ${errMsg}`);
+						}
 					}
-					didOutputUsage = true
 				}
 			}
-
-			// Fallback to generation endpoint if usage chunk not returned
-			if (!didOutputUsage) {
-				console.warn("Cline API did not return usage chunk, fetching from generation endpoint")
-				const apiStreamUsage = await this.getApiStreamUsage()
-				if (apiStreamUsage) {
-					yield apiStreamUsage
-				}
-			}
-		} catch (error) {
-			console.error("Cline API Error:", error)
-			throw error
+		} finally {
+			reader.releaseLock();
 		}
-	}
-
-	async getApiStreamUsage(): Promise<ApiStreamUsageChunk | undefined> {
-		if (this.lastGenerationId) {
-			try {
-				const clineAccountAuthToken = await this._authService.getAuthToken()
-				if (!clineAccountAuthToken) {
-					throw new Error(CLINE_ACCOUNT_AUTH_ERROR_MESSAGE)
-				}
-				const headers: Record<string, string> = {
-					// Align with backend auth expectations
-					Authorization: `Bearer ${clineAccountAuthToken}`,
-				}
-				Object.assign(headers, await buildClineExtraHeaders())
-
-				const response = await axios.get(`${this.clineAccountService.baseUrl}/generation?id=${this.lastGenerationId}`, {
-					headers,
-					timeout: 15_000, // this request hangs sometimes
-					...getAxiosSettings(),
-				})
-
-				const generation = response.data
-				return {
-					type: "usage",
-					cacheWriteTokens: 0,
-					cacheReadTokens: generation?.native_tokens_cached || 0,
-					// openrouter generation endpoint fails often
-					inputTokens: (generation?.native_tokens_prompt || 0) - (generation?.native_tokens_cached || 0),
-					outputTokens: generation?.native_tokens_completion || 0,
-					totalCost: generation?.total_cost || 0,
-				}
-			} catch (error) {
-				// ignore if fails
-				console.error("Error fetching cline generation details:", error)
-			}
-		}
-		return undefined
-	}
-
-	// Expose the last HTTP request ID captured from response headers (X-Request-ID)
-	getLastRequestId(): string | undefined {
-		return this.lastRequestId
 	}
 
 	getModel(): { id: string; info: ModelInfo } {
-		const modelId = this.options.openRouterModelId
-		const modelInfo = this.options.openRouterModelInfo
-		if (modelId && modelInfo) {
-			return { id: modelId, info: modelInfo }
+		const openRouterModelId = this.options.openRouterModelId;
+		const openRouterModelInfo = this.options.openRouterModelInfo;
+
+		if (openRouterModelId) {
+			// Check if it's a MiniMax model
+			if (openRouterModelId in minimaxModels) {
+				return {
+					id: openRouterModelId,
+					info: minimaxModels[openRouterModelId as MinimaxModelId],
+				};
+			}
+
+			// Try to map OpenRouter ID to Anthropic native ID
+			const anthropicId = OPENROUTER_TO_ANTHROPIC[openRouterModelId];
+			if (anthropicId && anthropicId in anthropicModels) {
+				return {
+					id: anthropicId,
+					info: anthropicModels[anthropicId as AnthropicModelId],
+				};
+			}
+
+			// If it's already an Anthropic native ID
+			if (openRouterModelId in anthropicModels) {
+				return {
+					id: openRouterModelId,
+					info: anthropicModels[openRouterModelId as AnthropicModelId],
+				};
+			}
+
+			// Fallback with provided info
+			if (openRouterModelInfo) {
+				const nativeId =
+					OPENROUTER_TO_ANTHROPIC[openRouterModelId] || openRouterModelId;
+				return { id: nativeId, info: openRouterModelInfo };
+			}
 		}
-		return { id: openRouterDefaultModelId, info: openRouterDefaultModelInfo }
+
+		// Default to Anthropic default
+		return {
+			id: anthropicDefaultModelId,
+			info: anthropicModels[anthropicDefaultModelId],
+		};
+	}
+
+	/**
+	 * Filter out thinking blocks from messages for MiniMax compatibility.
+	 */
+	private filterThinkingBlocks(
+		messages: ClineStorageMessage[],
+	): ClineStorageMessage[] {
+		const plain = JSON.parse(JSON.stringify(messages)) as ClineStorageMessage[];
+		return plain.map((message) => {
+			if (
+				typeof message.content === "string" ||
+				!Array.isArray(message.content)
+			) {
+				return message;
+			}
+			const filtered = message.content
+				.filter((block: any) => {
+					const t = String(block?.type || "").toLowerCase();
+					return (
+						t !== "thinking" &&
+						t !== "redacted_thinking" &&
+						!("thinking" in (block || {}))
+					);
+				})
+				.map((block: any) => {
+					const t = String(block?.type || "").toLowerCase();
+					if (t === "text") return { type: "text", text: block.text || "" };
+					if (t === "tool_use")
+						return {
+							type: "tool_use",
+							id: block.id,
+							name: block.name,
+							input: block.input,
+						};
+					if (t === "tool_result") {
+						const r: any = {
+							type: "tool_result",
+							tool_use_id: block.tool_use_id,
+						};
+						if (block.content !== undefined) r.content = block.content;
+						if (block.is_error !== undefined) r.is_error = block.is_error;
+						return r;
+					}
+					if (t === "image") return { type: "image", source: block.source };
+					const cleaned: any = { type: block.type };
+					for (const key of Object.keys(block)) {
+						if (!["signature", "thinking", "summary", "data"].includes(key))
+							cleaned[key] = block[key];
+					}
+					return cleaned;
+				});
+			return {
+				role: message.role,
+				content: filtered.length > 0 ? filtered : [{ type: "text", text: "" }],
+			};
+		});
 	}
 }
