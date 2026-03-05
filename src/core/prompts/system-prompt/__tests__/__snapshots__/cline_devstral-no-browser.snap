@@ -263,10 +263,10 @@ Usage:
 <load_mcp_documentation>
 </load_mcp_documentation>
 
-## sentinel_qa_report
-Description: Generate and display a Sentinel QA test report. Use this tool ONLY after:
+## axolotl_qa_report
+Description: Generate and display a Axolotl QA test report. Use this tool ONLY after:
 1. Completing all test execution
-2. Cleaning up ALL injected SENTINEL_TEST_LOG statements
+2. Cleaning up ALL injected AXOLOTL_TEST_LOG statements
 
 **IMPORTANT**: You MUST cleanup injected logs BEFORE calling this tool. Do NOT leave test logs in the code!
 Parameters:
@@ -296,21 +296,21 @@ Parameters:
   "risks": ["identified risks or concerns"],
   "recommendations": ["suggested improvements"]
 }
-- logs_cleanup_summary: (optional) Summary of log cleanup performed. If you injected any SENTINEL_TEST_LOG statements, you MUST provide this to confirm cleanup was done.
+- logs_cleanup_summary: (optional) Summary of log cleanup performed. If you injected any AXOLOTL_TEST_LOG statements, you MUST provide this to confirm cleanup was done.
 
 Format: "Removed N logs from M files: file1.ts (lines X,Y), file2.ts (line Z)" or "No logs were injected" if no logs were added.
 
 If logs were injected but this field is empty, you have NOT completed the cleanup phase!
 Usage:
-<sentinel_qa_report>
+<axolotl_qa_report>
 <report_json>{"summary":{"total_tests":3,"passed":2,"failed":1,"skipped":0,"verdict":"MERGEABLE_WITH_RISKS"},"tests":[...],"risks":["Edge case not handled"],"recommendations":["Add input validation"]}</report_json>
 <logs_cleanup_summary>Removed 3 logs from 2 files: src/auth/login.ts (lines 15, 23), src/components/Form.tsx (line 45)</logs_cleanup_summary>
-</sentinel_qa_report>
+</axolotl_qa_report>
 
-## sentinel_detect_changes
-Description: Detect and analyze code changes for Sentinel QA testing. This tool identifies files that have been modified based on the specified source (uncommitted changes, PR, or specific files) and prepares them for testing.
+## axolotl_detect_changes
+Description: Detect and analyze code changes for Axolotl QA testing. This tool identifies files that have been modified based on the specified source (uncommitted changes, PR, or specific files) and prepares them for testing.
 
-Use this tool as the FIRST step in a Sentinel QA workflow to:
+Use this tool as the FIRST step in a Axolotl QA workflow to:
 1. Detect which files have changed
 2. Get the diff content for analysis
 3. Allow the user to confirm the test scope before proceeding
@@ -327,15 +327,15 @@ Examples: "123", "#123", "https://github.com/owner/repo/pull/123"
 Example: ["src/auth/login.ts", "src/components/LoginForm.tsx"]
 - prd_description: (optional) Optional PRD or feature description provided by the user. This context helps understand what the changes are supposed to do.
 Usage:
-<sentinel_detect_changes>
+<axolotl_detect_changes>
 <source>uncommitted</source>
 <pr_identifier>123</pr_identifier>
 <file_paths>["src/auth/login.ts"]</file_paths>
 <prd_description>User login with email and password validation</prd_description>
-</sentinel_detect_changes>
+</axolotl_detect_changes>
 
-## sentinel_generate_plan
-Description: Generate a comprehensive test plan for Sentinel QA testing. This is a two-step process:
+## axolotl_generate_plan
+Description: Generate a comprehensive test plan for Axolotl QA testing. This is a two-step process:
 
 **Step 1 (without test_cases):** Call this tool with changed_files to get instructions for generating test cases. You should:
 1. Read the changed files to understand the code
@@ -347,9 +347,9 @@ Description: Generate a comprehensive test plan for Sentinel QA testing. This is
 2. Save it for user review
 3. Allow the user to modify before execution
 
-Use this tool AFTER sentinel_detect_changes has confirmed the test scope.
+Use this tool AFTER axolotl_detect_changes has confirmed the test scope.
 Parameters:
-- changed_files: (required) A JSON array of file paths that were detected for testing. This should come from the sentinel_detect_changes result.
+- changed_files: (required) A JSON array of file paths that were detected for testing. This should come from the axolotl_detect_changes result.
 Example: ["src/auth/login.ts", "src/components/LoginForm.tsx"]
 - test_cases: (optional) A JSON array of test cases YOU generate after analyzing the code. Each test case must have:
 - id: Unique identifier (e.g., "TC001")
@@ -378,18 +378,18 @@ Example:
 - code_analysis: (optional) Optional code analysis or context gathered from reading the changed files. Include relevant function signatures, component structures, or business logic that should be tested.
 - diff_content: (optional) Optional diff content showing the actual changes. This helps understand what specifically changed and needs testing.
 Usage:
-<sentinel_generate_plan>
+<axolotl_generate_plan>
 <changed_files>["src/auth/login.ts", "src/components/LoginForm.tsx"]</changed_files>
 <test_cases>[{"id":"TC001","name":"Login success","category":"functional","description":"...","steps":["..."],"expectedResult":"...","priority":"high"}]</test_cases>
 <prd_description>User login with email and password, showing appropriate error messages on failure</prd_description>
 <code_analysis>LoginForm component has email/password fields with validation. handleSubmit calls authService.login()</code_analysis>
-<diff_content>The git diff content from sentinel_detect_changes</diff_content>
-</sentinel_generate_plan>
+<diff_content>The git diff content from axolotl_detect_changes</diff_content>
+</axolotl_generate_plan>
 
-## sentinel_analyze_code
-Description: Analyze code structure and search for patterns in the specified files for Sentinel QA testing. This tool combines AST-based code structure analysis with regex pattern search to help understand the code before generating test cases.
+## axolotl_analyze_code
+Description: Analyze code structure and search for patterns in the specified files for Axolotl QA testing. This tool combines AST-based code structure analysis with regex pattern search to help understand the code before generating test cases.
 
-Use this tool AFTER sentinel_detect_changes to deeply analyze the changed files before calling sentinel_generate_plan.
+Use this tool AFTER axolotl_detect_changes to deeply analyze the changed files before calling axolotl_generate_plan.
 
 The tool provides:
 1. **Code Structure Analysis**: Extracts class, function, method, and interface definitions using AST parsing
@@ -398,7 +398,7 @@ The tool provides:
 
 Output is automatically truncated to prevent context overflow (max 100KB).
 Parameters:
-- file_paths: (required) A JSON array of file paths to analyze. These should be the files detected by sentinel_detect_changes.
+- file_paths: (required) A JSON array of file paths to analyze. These should be the files detected by axolotl_detect_changes.
 Example: ["src/auth/login.ts", "src/components/LoginForm.tsx"]
 Maximum 20 files will be analyzed.
 - analysis_type: (required) The type of analysis to perform. Must be one of:
@@ -414,12 +414,36 @@ Examples:
 - focus_areas: (optional) Optional hints about what aspects of the code to focus on. This helps the AI understand the testing context.
 Examples: "error handling, input validation", "authentication flow", "form submission"
 Usage:
-<sentinel_analyze_code>
+<axolotl_analyze_code>
 <file_paths>["src/auth/login.ts", "src/components/LoginForm.tsx"]</file_paths>
 <analysis_type>both</analysis_type>
 <search_pattern>throw|catch|error</search_pattern>
 <focus_areas>error handling, validation</focus_areas>
-</sentinel_analyze_code>
+</axolotl_analyze_code>
+
+## axolotl_web_search
+Description: Search the web for real-time information to help with Axolotl QA testing. This tool uses the You.com API to search for best practices, testing patterns, documentation, and known issues related to the code being tested.
+
+**STRONGLY SUGGESTED**: Use this tool AFTER axolotl_analyze_code and BEFORE axolotl_generate_plan. The code analysis tells you WHAT the code does; this tool tells you HOW it should be tested.
+
+Use this tool to search for:
+1. **Testing best practices**: Recommended testing approaches for specific frameworks or patterns found in the code
+2. **Known issues**: Known bugs or vulnerabilities related to libraries or APIs used in the code
+3. **Documentation**: Official documentation on APIs or libraries used in the changed code
+4. **Error patterns**: Common error patterns and how to test for them
+
+Results are printed to the terminal and returned for your analysis to improve test plan quality.
+Parameters:
+- search_query: (required) The search query to send to You.com. Be specific and include relevant context.
+Examples:
+- "best practices for testing React form validation"
+- "common security vulnerabilities in JWT authentication"
+- "how to test WebSocket connections in Node.js"
+- "known issues with React 18 concurrent mode"
+Usage:
+<axolotl_web_search>
+<search_query>best practices for testing React form validation</search_query>
+</axolotl_web_search>
 
 # Tool Use Examples
 

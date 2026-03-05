@@ -1,4 +1,4 @@
-import type { ToolParamName, ToolUse } from "@core/assistant-message"
+import type { ToolParamName, ToolUse } from "@core/assistant-message";
 
 /**
  * Shared constants for tool validation and configuration
@@ -29,7 +29,7 @@ export const TASK_CONFIG_KEYS = [
 	"focusChainSettings",
 	"callbacks",
 	"coordinator",
-] as const
+] as const;
 
 /**
  * Expected keys for TaskServices interface validation
@@ -45,7 +45,8 @@ export const TASK_SERVICES_KEYS = [
 	"commandPermissionController",
 	"contextManager",
 	"stateManager",
-] as const
+	"computerUseExecutor",
+] as const;
 
 /**
  * Expected keys for TaskCallbacks interface validation
@@ -70,7 +71,15 @@ export const TASK_CALLBACKS_KEYS = [
 	"clearActiveHookExecution",
 	"getActiveHookExecution",
 	"runUserPromptSubmitHook",
-] as const
+] as const;
+
+/**
+ * Optional keys in TaskServices that are not required during validation
+ * Keep this in sync with optional fields in the TaskServices interface
+ */
+export const OPTIONAL_TASK_SERVICES_KEYS: ReadonlySet<string> = new Set([
+	"computerUseExecutor",
+]);
 
 /**
  * Tools that require a path parameter
@@ -84,26 +93,36 @@ export const PATH_REQUIRED_TOOLS = [
 	"list_files",
 	"list_code_definition_names",
 	"search_files",
-] as const
+] as const;
 
 /**
  * Browser action types for validation
  */
-export const BROWSER_ACTIONS = ["launch", "click", "type", "scroll_down", "scroll_up", "close"] as const
+export const BROWSER_ACTIONS = [
+	"launch",
+	"click",
+	"type",
+	"scroll_down",
+	"scroll_up",
+	"close",
+] as const;
 
 /**
  * Common validation error patterns
  */
-export const VALIDATION_ERROR_PATTERNS = ["Missing required parameter", "blocked by .clineignore"] as const
+export const VALIDATION_ERROR_PATTERNS = [
+	"Missing required parameter",
+	"blocked by .clineignore",
+] as const;
 
 /**
  * Type helpers for better type safety
  */
-export type TaskConfigKey = (typeof TASK_CONFIG_KEYS)[number]
-export type TaskServicesKey = (typeof TASK_SERVICES_KEYS)[number]
-export type TaskCallbacksKey = (typeof TASK_CALLBACKS_KEYS)[number]
-export type PathRequiredTool = (typeof PATH_REQUIRED_TOOLS)[number]
-export type BrowserAction = (typeof BROWSER_ACTIONS)[number]
+export type TaskConfigKey = (typeof TASK_CONFIG_KEYS)[number];
+export type TaskServicesKey = (typeof TASK_SERVICES_KEYS)[number];
+export type TaskCallbacksKey = (typeof TASK_CALLBACKS_KEYS)[number];
+export type PathRequiredTool = (typeof PATH_REQUIRED_TOOLS)[number];
+export type BrowserAction = (typeof BROWSER_ACTIONS)[number];
 
 /**
  * Shared utility functions for tools
@@ -117,12 +136,16 @@ export type BrowserAction = (typeof BROWSER_ACTIONS)[number]
  * - Optionally matches whitespace before the tag
  * - Matches '<' or '</' optionally followed by any subset of characters from the tag name
  */
-export function removeClosingTag(block: ToolUse, tag: ToolParamName, text?: string): string {
+export function removeClosingTag(
+	block: ToolUse,
+	tag: ToolParamName,
+	text?: string,
+): string {
 	if (!block.partial) {
-		return text || ""
+		return text || "";
 	}
 	if (!text) {
-		return ""
+		return "";
 	}
 
 	const tagRegex = new RegExp(
@@ -131,6 +154,6 @@ export function removeClosingTag(block: ToolUse, tag: ToolParamName, text?: stri
 			.map((char) => `(?:${char})?`)
 			.join("")}$`,
 		"g",
-	)
-	return text.replace(tagRegex, "")
+	);
+	return text.replace(tagRegex, "");
 }

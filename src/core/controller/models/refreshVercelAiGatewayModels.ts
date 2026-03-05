@@ -2,13 +2,13 @@ import {
 	ensureCacheDirectoryExists,
 	GlobalFileNames,
 } from "@core/storage/disk";
-import { ModelInfo } from "@shared/api";
+import type { ModelInfo } from "@shared/api";
 import { fileExistsAtPath } from "@utils/fs";
 import axios from "axios";
 import fs from "fs/promises";
 import path from "path";
 import { getAxiosSettings } from "@/shared/net";
-import { Controller } from "..";
+import type { Controller } from "..";
 
 /**
  * Derives thinkingConfig from model ID and tags.
@@ -72,11 +72,8 @@ function deriveTemperature(modelId: string): number | undefined {
 		return 0.7;
 	}
 
-	// Gemini 3.0 recommends temperature 1.0
-	if (
-		modelId.startsWith("google/gemini-3.0") ||
-		modelId === "google/gemini-3.0"
-	) {
+	// Gemini 3.x recommends temperature 1.0
+	if (modelId.includes("gemini-3")) {
 		return 1.0;
 	}
 

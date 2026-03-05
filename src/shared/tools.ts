@@ -1,8 +1,8 @@
-import { Tool as AnthropicTool } from "@anthropic-ai/sdk/resources/index"
-import { FunctionDeclaration as GoogleTool } from "@google/genai"
-import { ChatCompletionTool as OpenAITool } from "openai/resources/chat/completions"
+import type { Tool as AnthropicTool } from "@anthropic-ai/sdk/resources/index";
+import type { FunctionDeclaration as GoogleTool } from "@google/genai";
+import type { ChatCompletionTool as OpenAITool } from "openai/resources/chat/completions";
 
-export type ClineTool = OpenAITool | AnthropicTool | GoogleTool
+export type ClineTool = OpenAITool | AnthropicTool | GoogleTool;
 
 // Define available tool ids
 export enum ClineDefaultTool {
@@ -37,11 +37,14 @@ export enum ClineDefaultTool {
 	AXOLOTL_GENERATE_PLAN = "axolotl_generate_plan",
 	AXOLOTL_ANALYZE_CODE = "axolotl_analyze_code",
 	AXOLOTL_WEB_SEARCH = "axolotl_web_search",
+	COMPUTER_USE = "computer_use_action",
 }
 
 // Array of all tool names for compatibility
 // Automatically generated from the enum values
-export const toolUseNames = Object.values(ClineDefaultTool) as ClineDefaultTool[]
+export const toolUseNames = Object.values(
+	ClineDefaultTool,
+) as ClineDefaultTool[];
 
 // Tools that are safe to run in parallel with the initial checkpoint commit
 // These are tools that do not modify the workspace state
@@ -56,4 +59,4 @@ export const READ_ONLY_TOOLS = [
 	ClineDefaultTool.WEB_FETCH,
 	ClineDefaultTool.USE_SKILL,
 	ClineDefaultTool.AXOLOTL_WEB_SEARCH,
-] as const
+] as const;
