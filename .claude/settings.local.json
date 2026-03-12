@@ -33,9 +33,11 @@
 			"Bash(ffmpeg:*)",
 			"Read(//tmp/**)",
 			"WebFetch(domain:openrouter.ai)",
-			"WebFetch(domain:platform.minimax.io)"
+			"WebFetch(domain:platform.minimax.io)",
+			"WebSearch",
+			"WebFetch(domain:docs.anthropic.com)"
 		]
 	},
-	"enabledMcpjsonServers": ["insforge"],
-	"enableAllProjectMcpServers": true
+	"enableAllProjectMcpServers": true,
+	"enabledMcpjsonServers": ["insforge"]
 }
