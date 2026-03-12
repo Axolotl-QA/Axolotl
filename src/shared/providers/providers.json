@@ -1,10 +1,6 @@
 {
 	"list": [
 		{
-			"value": "cline",
-			"label": "Axolotl"
-		},
-		{
 			"value": "openrouter",
 			"label": "OpenRouter"
 		},
