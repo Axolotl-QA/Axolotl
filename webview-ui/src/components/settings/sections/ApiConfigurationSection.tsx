@@ -13,10 +13,12 @@ import { useApiConfigurationHandlers } from "../utils/useApiConfigurationHandler
 
 interface ApiConfigurationSectionProps {
 	renderSectionHeader?: (tabId: string) => JSX.Element | null;
+	allowedProviders?: string[];
 }
 
 const ApiConfigurationSection = ({
 	renderSectionHeader,
+	allowedProviders,
 }: ApiConfigurationSectionProps) => {
 	const { planActSeparateModelsSetting, mode, apiConfiguration } =
 		useExtensionState();
@@ -57,11 +59,19 @@ const ApiConfigurationSection = ({
 
 						{/* Content container */}
 						<div className="-mb-3">
-							<ApiOptions currentMode={currentTab} showModelOptions={true} />
+							<ApiOptions
+								allowedProviders={allowedProviders}
+								currentMode={currentTab}
+								showModelOptions={true}
+							/>
 						</div>
 					</div>
 				) : (
-					<ApiOptions currentMode={mode} showModelOptions={true} />
+					<ApiOptions
+						allowedProviders={allowedProviders}
+						currentMode={mode}
+						showModelOptions={true}
+					/>
 				)}
 
 				<ApiKeyField

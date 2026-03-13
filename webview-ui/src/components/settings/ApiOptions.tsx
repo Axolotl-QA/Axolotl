@@ -70,6 +70,7 @@ interface ApiOptionsProps {
 	modelIdErrorMessage?: string;
 	isPopup?: boolean;
 	currentMode: Mode;
+	allowedProviders?: string[];
 }
 
 // This is necessary to ensure dropdown opens downward, important for when this is used in popup
@@ -102,6 +103,7 @@ const ApiOptions = ({
 	modelIdErrorMessage,
 	isPopup,
 	currentMode,
+	allowedProviders,
 }: ApiOptionsProps) => {
 	// Use full context state for immediate save payload
 	const { apiConfiguration, remoteConfigSettings } = useExtensionState();
@@ -165,8 +167,15 @@ const ApiOptions = ({
 			);
 		}
 
+		// Filter by allowed providers if specified (used in onboarding)
+		if (allowedProviders && allowedProviders.length > 0) {
+			providers = providers.filter((option) =>
+				allowedProviders.includes(option.value),
+			);
+		}
+
 		return providers;
-	}, [remoteConfigSettings]);
+	}, [remoteConfigSettings, allowedProviders]);
 
 	const currentProviderLabel = useMemo(() => {
 		return (

@@ -217,6 +217,9 @@ const SettingsView = ({ onDone, targetSection }: SettingsViewProps) => {
 
 		// Special props for specific components
 		const props: any = { renderSectionHeader };
+		if (activeTab === "api-config") {
+			props.allowedProviders = ["anthropic", "openai-native", "minimax"];
+		}
 		if (activeTab === "about") {
 			props.version = version;
 		}

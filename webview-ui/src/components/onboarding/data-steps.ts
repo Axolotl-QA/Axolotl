@@ -5,10 +5,10 @@ export enum NEW_USER_TYPE {
 }
 
 type UserTypeSelection = {
-	title: string
-	description: string
-	type: NEW_USER_TYPE
-}
+	title: string;
+	description: string;
+	type: NEW_USER_TYPE;
+};
 
 export const STEP_CONFIG = {
 	0: {
@@ -35,20 +35,30 @@ export const STEP_CONFIG = {
 	},
 	[NEW_USER_TYPE.BYOK]: {
 		title: "Configure your provider",
-		buttons: [
-			{ text: "Continue", action: "done", variant: "default" },
-			{ text: "Back", action: "back", variant: "secondary" },
-		],
+		buttons: [{ text: "Continue", action: "done", variant: "default" }],
 	},
 	2: {
 		title: "Almost there!",
-		description: "Complete account creation in your browser. Then come back here to finish up.",
+		description:
+			"Complete account creation in your browser. Then come back here to finish up.",
 		buttons: [{ text: "Back", action: "back", variant: "secondary" }],
 	},
-} as const
+} as const;
 
 export const USER_TYPE_SELECTIONS: UserTypeSelection[] = [
-	{ title: "Absolutely Free", description: "Get started at no cost", type: NEW_USER_TYPE.FREE },
-	{ title: "Frontier Model", description: "Claude 4.5, GPT-5 Codex, etc", type: NEW_USER_TYPE.POWER },
-	{ title: "Bring my own API key", description: "Use Axolotl with your provider of choice", type: NEW_USER_TYPE.BYOK },
-]
+	{
+		title: "Absolutely Free",
+		description: "Get started at no cost",
+		type: NEW_USER_TYPE.FREE,
+	},
+	{
+		title: "Frontier Model",
+		description: "Claude 4.5, GPT-5 Codex, etc",
+		type: NEW_USER_TYPE.POWER,
+	},
+	{
+		title: "Bring my own API key",
+		description: "Use Axolotl with your provider of choice",
+		type: NEW_USER_TYPE.BYOK,
+	},
+];

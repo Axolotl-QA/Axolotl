@@ -14,6 +14,7 @@ import { memo, useCallback, useState } from "react";
 import VoiceRecorder from "@/components/chat/VoiceRecorder";
 import { useExtensionState } from "@/context/ExtensionStateContext";
 import { TaskServiceClient } from "@/services/grpc-client";
+import FileSearchInput from "./FileSearchInput";
 
 type TestSource = "uncommitted" | "pr" | "files";
 
@@ -318,6 +319,7 @@ const AxolotlWelcome = ({ showHistoryView }: AxolotlWelcomeProps) => {
 					{testSource === "pr" && (
 						<div style={{ marginBottom: "16px" }}>
 							<label
+								htmlFor="pr-input"
 								style={{
 									display: "flex",
 									alignItems: "center",
@@ -331,6 +333,7 @@ const AxolotlWelcome = ({ showHistoryView }: AxolotlWelcomeProps) => {
 								PR URL or Number
 							</label>
 							<input
+								id="pr-input"
 								className="axolotl-input"
 								onChange={(e) => setPrInput(e.target.value)}
 								placeholder="e.g., https://github.com/owner/repo/pull/123 or #123"
@@ -344,6 +347,7 @@ const AxolotlWelcome = ({ showHistoryView }: AxolotlWelcomeProps) => {
 					{testSource === "files" && (
 						<div style={{ marginBottom: "16px" }}>
 							<label
+								htmlFor="target-files-input"
 								style={{
 									display: "flex",
 									alignItems: "center",
@@ -356,9 +360,9 @@ const AxolotlWelcome = ({ showHistoryView }: AxolotlWelcomeProps) => {
 								<FileCode size={12} />
 								Target Files (code to test)
 							</label>
-							<textarea
+							<FileSearchInput
 								className="axolotl-input"
-								onChange={(e) => setTargetFiles(e.target.value)}
+								onChange={setTargetFiles}
 								placeholder="e.g., @/src/auth/login.ts or paste file paths..."
 								rows={2}
 								value={targetFiles}
@@ -378,6 +382,7 @@ const AxolotlWelcome = ({ showHistoryView }: AxolotlWelcomeProps) => {
 					{/* PRD Description Input (shown for all modes) */}
 					<div style={{ marginBottom: "16px" }}>
 						<label
+							htmlFor="prd-description-input"
 							style={{
 								display: "flex",
 								alignItems: "center",
@@ -392,6 +397,7 @@ const AxolotlWelcome = ({ showHistoryView }: AxolotlWelcomeProps) => {
 						</label>
 						<div style={{ position: "relative" }}>
 							<textarea
+								id="prd-description-input"
 								className="axolotl-input"
 								onChange={(e) => setPrdDescription(e.target.value)}
 								placeholder="Describe what the feature should do, e.g., 'User can login with email and password, show error on failure'"
@@ -484,9 +490,17 @@ const AxolotlWelcome = ({ showHistoryView }: AxolotlWelcomeProps) => {
 							<>
 								{recentTests.map((item) => (
 									<div
+										role="button"
+										tabIndex={0}
 										className="axolotl-history-item"
 										key={item.id}
 										onClick={() => handleHistorySelect(item.id)}
+										onKeyDown={(e) => {
+											if (e.key === "Enter" || e.key === " ") {
+												e.preventDefault();
+												handleHistorySelect(item.id);
+											}
+										}}
 									>
 										<div
 											style={{
