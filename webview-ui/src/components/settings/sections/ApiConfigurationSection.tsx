@@ -1,7 +1,10 @@
-import { UpdateSettingsRequest } from "@shared/proto/cline/state";
+import {
+	DictationSettings as DictationSettingsProto,
+	UpdateSettingsRequest,
+} from "@shared/proto/cline/state";
 import type { Mode } from "@shared/storage/types";
 import { VSCodeCheckbox } from "@vscode/webview-ui-toolkit/react";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { useExtensionState } from "@/context/ExtensionStateContext";
 import { StateServiceClient } from "@/services/grpc-client";
 import { TabButton } from "../../mcp/configuration/McpConfigurationView";
@@ -81,6 +84,8 @@ const ApiConfigurationSection = ({
 					signupUrl="https://api.you.com"
 				/>
 
+				<SpeechmaticsApiKeyField />
+
 				<div className="mb-[5px]">
 					<VSCodeCheckbox
 						checked={planActSeparateModelsSetting}
@@ -124,3 +129,31 @@ const ApiConfigurationSection = ({
 };
 
 export default ApiConfigurationSection;
+
+const SpeechmaticsApiKeyField = () => {
+	const { dictationSettings } = useExtensionState();
+
+	const handleChange = useCallback(
+		async (value: string) => {
+			const updated = DictationSettingsProto.create({
+				featureEnabled: dictationSettings?.featureEnabled ?? true,
+				dictationEnabled: dictationSettings?.dictationEnabled ?? true,
+				dictationLanguage: dictationSettings?.dictationLanguage ?? "en",
+				speechmaticsApiKey: value,
+			});
+			await StateServiceClient.updateSettings(
+				UpdateSettingsRequest.create({ dictationSettings: updated }),
+			);
+		},
+		[dictationSettings],
+	);
+
+	return (
+		<ApiKeyField
+			initialValue={dictationSettings?.speechmaticsApiKey || ""}
+			onChange={handleChange}
+			providerName="Speechmatics (Dictation)"
+			signupUrl="https://portal.speechmatics.com/"
+		/>
+	);
+};

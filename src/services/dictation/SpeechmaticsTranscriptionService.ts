@@ -1,7 +1,6 @@
 import { Logger } from "@services/logging/Logger";
 import WebSocket from "ws";
 
-const SPEECHMATICS_API_KEY = "oYXE9lQBLDUGcmzkpV9PyFoB3ObjYpcg";
 const SPEECHMATICS_WS_URL = "wss://eu2.rt.speechmatics.com/v2";
 
 interface SpeechmaticsResult {
@@ -32,7 +31,14 @@ export class SpeechmaticsTranscriptionService {
 	async transcribeAudio(
 		audioBase64: string,
 		language?: string,
+		apiKey?: string,
 	): Promise<{ text?: string; error?: string }> {
+		if (!apiKey) {
+			return {
+				error:
+					"Speechmatics API key is not configured. Please set it in Settings > Features > Dictation.",
+			};
+		}
 		const lang = language || "en";
 
 		return new Promise((resolve) => {
@@ -68,7 +74,7 @@ export class SpeechmaticsTranscriptionService {
 
 			const ws = new WebSocket(SPEECHMATICS_WS_URL, {
 				headers: {
-					Authorization: `Bearer ${SPEECHMATICS_API_KEY}`,
+					Authorization: `Bearer ${apiKey}`,
 				},
 			});
 

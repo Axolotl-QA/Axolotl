@@ -2,12 +2,14 @@ export interface DictationSettings {
 	featureEnabled: boolean; // Feature flag - whether dictation feature is available
 	dictationEnabled: boolean; // User preference - whether user has enabled dictation
 	dictationLanguage: string;
+	speechmaticsApiKey: string; // User's own Speechmatics API key
 }
 
 export const DEFAULT_DICTATION_SETTINGS: DictationSettings = {
 	featureEnabled: true, // Feature flag - enabled on all platforms
 	dictationEnabled: true, // Enabled by default - uses Speechmatics for transcription
 	dictationLanguage: "en",
+	speechmaticsApiKey: "",
 };
 
 export interface LanguageItem {

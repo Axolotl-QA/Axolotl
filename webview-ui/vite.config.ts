@@ -1,10 +1,10 @@
 /// <reference types="vitest/config" />
 
-import { writeFileSync } from "node:fs"
-import tailwindcss from "@tailwindcss/vite"
-import react from "@vitejs/plugin-react-swc"
-import { resolve } from "path"
-import { defineConfig, type Plugin, ViteDevServer } from "vite"
+import { writeFileSync } from "node:fs";
+import tailwindcss from "@tailwindcss/vite";
+import react from "@vitejs/plugin-react-swc";
+import { resolve } from "path";
+import { defineConfig, type Plugin, type ViteDevServer } from "vite";
 
 // Custom plugin to write the server port to a file
 const writePortToFile = (): Plugin => {
@@ -12,30 +12,33 @@ const writePortToFile = (): Plugin => {
 		name: "write-port-to-file",
 		configureServer(server: ViteDevServer) {
 			server.httpServer?.once("listening", () => {
-				const address = server.httpServer?.address()
-				const port = typeof address === "object" && address ? address.port : null
+				const address = server.httpServer?.address();
+				const port =
+					typeof address === "object" && address ? address.port : null;
 
 				if (port) {
-					const portFilePath = resolve(__dirname, ".vite-port")
-					writeFileSync(portFilePath, port.toString())
+					const portFilePath = resolve(__dirname, ".vite-port");
+					writeFileSync(portFilePath, port.toString());
 				} else {
-					console.warn("[writePortToFile] Could not determine server port")
+					console.warn("[writePortToFile] Could not determine server port");
 				}
-			})
+			});
 		},
-	}
-}
+	};
+};
 
-const isDevBuild = process.argv.includes("--dev-build")
+const isDevBuild = process.argv.includes("--dev-build");
 
 // Valid platforms, these should the keys in platform-configs.json
-const VALID_PLATFORMS = ["vscode", "standalone"]
-const platform = process.env.PLATFORM || "vscode" // Default to vscode
+const VALID_PLATFORMS = ["vscode", "standalone"];
+const platform = process.env.PLATFORM || "vscode"; // Default to vscode
 
 if (!VALID_PLATFORMS.includes(platform)) {
-	throw new Error(`Invalid PLATFORM "${platform}". Must be one of: ${VALID_PLATFORMS.join(", ")}`)
+	throw new Error(
+		`Invalid PLATFORM "${platform}". Must be one of: ${VALID_PLATFORMS.join(", ")}`,
+	);
 }
-console.log("Building webview for", platform)
+console.log("Building webview for", platform);
 
 export default defineConfig({
 	optimizeDeps: {
@@ -102,6 +105,7 @@ export default defineConfig({
 		chunkSizeWarningLimit: 100000,
 	},
 	server: {
+		open: false,
 		port: 25463,
 		hmr: {
 			host: "localhost",
@@ -118,14 +122,22 @@ export default defineConfig({
 		process: JSON.stringify({
 			platform: JSON.stringify(process?.platform),
 			env: {
-				NODE_ENV: JSON.stringify(process?.env?.IS_DEV ? "development" : "production"),
-				CLINE_ENVIRONMENT: JSON.stringify(process?.env?.CLINE_ENVIRONMENT ?? "production"),
+				NODE_ENV: JSON.stringify(
+					process?.env?.IS_DEV ? "development" : "production",
+				),
+				CLINE_ENVIRONMENT: JSON.stringify(
+					process?.env?.CLINE_ENVIRONMENT ?? "production",
+				),
 				IS_DEV: JSON.stringify(process?.env?.IS_DEV),
 				IS_TEST: JSON.stringify(process?.env?.IS_TEST),
 				CI: JSON.stringify(process?.env?.CI),
 				// PostHog environment variables
-				TELEMETRY_SERVICE_API_KEY: JSON.stringify(process?.env?.TELEMETRY_SERVICE_API_KEY),
-				ERROR_SERVICE_API_KEY: JSON.stringify(process?.env?.ERROR_SERVICE_API_KEY),
+				TELEMETRY_SERVICE_API_KEY: JSON.stringify(
+					process?.env?.TELEMETRY_SERVICE_API_KEY,
+				),
+				ERROR_SERVICE_API_KEY: JSON.stringify(
+					process?.env?.ERROR_SERVICE_API_KEY,
+				),
 			},
 		}),
 	},
@@ -138,4 +150,4 @@ export default defineConfig({
 			"@utils": resolve(__dirname, "./src/utils"),
 		},
 	},
-})
+});

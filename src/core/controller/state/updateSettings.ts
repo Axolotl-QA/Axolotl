@@ -5,20 +5,20 @@ import {
 	PlanActMode,
 	McpDisplayMode as ProtoMcpDisplayMode,
 	OpenaiReasoningEffort as ProtoOpenaiReasoningEffort,
-	UpdateSettingsRequest,
+	type UpdateSettingsRequest,
 } from "@shared/proto/cline/state";
 import { convertProtoToApiProvider } from "@shared/proto-conversions/models/api-configuration-conversion";
-import { OpenaiReasoningEffort } from "@shared/storage/types";
-import { TelemetrySetting } from "@shared/TelemetrySetting";
+import type { OpenaiReasoningEffort } from "@shared/storage/types";
+import type { TelemetrySetting } from "@shared/TelemetrySetting";
 import { ClineEnv } from "@/config";
 import { fetchRemoteConfig } from "@/core/storage/remote-config/fetch";
 import { clearRemoteConfig } from "@/core/storage/remote-config/utils";
 import { HostProvider } from "@/hosts/host-provider";
-import { McpDisplayMode } from "@/shared/McpDisplayMode";
+import type { McpDisplayMode } from "@/shared/McpDisplayMode";
 import { ShowMessageType } from "@/shared/proto/host/window";
 import { telemetryService } from "../../../services/telemetry";
-import { BrowserSettings as SharedBrowserSettings } from "../../../shared/BrowserSettings";
-import { Controller } from "..";
+import type { BrowserSettings as SharedBrowserSettings } from "../../../shared/BrowserSettings";
+import type { Controller } from "..";
 import { accountLogoutClicked } from "../account/accountLogoutClicked";
 
 /**
@@ -256,10 +256,16 @@ export async function updateSettings(
 
 		if (request.dictationSettings !== undefined) {
 			// Convert from protobuf format (snake_case) to TypeScript format (camelCase)
+			const existingSettings =
+				controller.stateManager.getGlobalSettingsKey("dictationSettings");
 			const dictationSettings = {
 				featureEnabled: request.dictationSettings.featureEnabled ?? true,
 				dictationEnabled: request.dictationSettings.dictationEnabled ?? true,
 				dictationLanguage: request.dictationSettings.dictationLanguage ?? "en",
+				speechmaticsApiKey:
+					request.dictationSettings.speechmaticsApiKey ??
+					existingSettings?.speechmaticsApiKey ??
+					"",
 			};
 			controller.stateManager.setGlobalState(
 				"dictationSettings",

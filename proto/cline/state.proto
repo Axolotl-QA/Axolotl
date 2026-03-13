@@ -239,6 +239,7 @@ message DictationSettings {
   bool feature_enabled = 1;
   bool dictation_enabled = 2;
   string dictation_language = 3;
+  string speechmatics_api_key = 4;
 }
 message State {
   string state_json = 1;

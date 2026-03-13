@@ -28,10 +28,16 @@ export const transcribeAudio = async (
 	);
 
 	try {
+		// Get the API key from dictation settings
+		const dictationSettings =
+			controller.stateManager.getGlobalSettingsKey("dictationSettings");
+		const speechmaticsApiKey = dictationSettings?.speechmaticsApiKey;
+
 		// Transcribe the audio using Speechmatics
 		const result = await getSpeechmaticsTranscriptionService().transcribeAudio(
 			request.audioBase64,
 			request.language ?? "en",
+			speechmaticsApiKey,
 		);
 		const durationMs = Date.now() - startTime;
 

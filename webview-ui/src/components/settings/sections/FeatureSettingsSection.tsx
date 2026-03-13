@@ -178,7 +178,8 @@ const FeatureSettingsSection = ({
 							</VSCodeCheckbox>
 							<p className="text-xs text-description mt-1">
 								Enables speech-to-text transcription powered by Speechmatics. 5
-								minutes max per message.
+								minutes max per message. Set your Speechmatics API key in API
+								Configuration.
 							</p>
 						</div>
 					)}
