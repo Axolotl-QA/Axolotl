@@ -35,7 +35,8 @@
 			"WebFetch(domain:openrouter.ai)",
 			"WebFetch(domain:platform.minimax.io)",
 			"WebSearch",
-			"WebFetch(domain:docs.anthropic.com)"
+			"WebFetch(domain:docs.anthropic.com)",
+			"Bash(git add:*)"
 		]
 	},
 	"enableAllProjectMcpServers": true,
