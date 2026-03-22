@@ -211,7 +211,11 @@ After completing the QA session, evaluate whether you learned new information ab
 
 export async function getAxolotlQAWorkflow(
 	_variant: PromptVariant,
-	_context: SystemPromptContext,
+	context: SystemPromptContext,
 ): Promise<string | undefined> {
+	if (context.axolotlQaEnabled === false) {
+		return undefined;
+	}
+
 	return AXOLOTL_QA_WORKFLOW_TEXT;
 }

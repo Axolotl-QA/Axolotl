@@ -331,6 +331,7 @@ const USER_SETTINGS_FIELDS = {
 	enableParallelToolCalling: { default: false as boolean },
 	backgroundEditEnabled: { default: false as boolean },
 	skillsEnabled: { default: false as boolean },
+	axolotlQaEnabled: { default: true as boolean },
 	optOutOfRemoteConfig: { default: false as boolean },
 
 	// OpenTelemetry configuration

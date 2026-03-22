@@ -111,6 +111,7 @@ export interface SystemPromptContext {
 	readonly localAgentsRulesFileInstructions?: string;
 	readonly clineIgnoreInstructions?: string;
 	readonly axolotlMdInstructions?: string;
+	readonly axolotlQaEnabled?: boolean;
 	readonly preferredLanguageInstructions?: string;
 	readonly browserSettings?: BrowserSettings;
 	readonly isTesting?: boolean;

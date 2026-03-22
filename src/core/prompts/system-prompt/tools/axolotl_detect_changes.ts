@@ -1,13 +1,14 @@
-import { ModelFamily } from "@/shared/prompts"
-import { ClineDefaultTool } from "@/shared/tools"
-import type { ClineToolSpec } from "../spec"
+import { ModelFamily } from "@/shared/prompts";
+import { ClineDefaultTool } from "@/shared/tools";
+import type { ClineToolSpec } from "../spec";
 
-const id = ClineDefaultTool.AXOLOTL_DETECT_CHANGES
+const id = ClineDefaultTool.AXOLOTL_DETECT_CHANGES;
 
 const GENERIC: ClineToolSpec = {
 	variant: ModelFamily.GENERIC,
 	id,
 	name: "axolotl_detect_changes",
+	contextRequirements: (context) => context.axolotlQaEnabled !== false,
 	description: `Detect and analyze code changes for Axolotl QA testing. This tool identifies files that have been modified based on the specified source (uncommitted changes, PR, or specific files) and prepares them for testing.
 
 Use this tool as the FIRST step in a Axolotl QA workflow to:
@@ -47,6 +48,6 @@ Example: ["src/auth/login.ts", "src/components/LoginForm.tsx"]`,
 			usage: "User login with email and password validation",
 		},
 	],
-}
+};
 
-export const axolotl_detect_changes_variants = [GENERIC]
+export const axolotl_detect_changes_variants = [GENERIC];

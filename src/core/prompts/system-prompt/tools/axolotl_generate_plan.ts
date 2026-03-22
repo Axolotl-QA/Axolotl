@@ -1,13 +1,14 @@
-import { ModelFamily } from "@/shared/prompts"
-import { ClineDefaultTool } from "@/shared/tools"
-import type { ClineToolSpec } from "../spec"
+import { ModelFamily } from "@/shared/prompts";
+import { ClineDefaultTool } from "@/shared/tools";
+import type { ClineToolSpec } from "../spec";
 
-const id = ClineDefaultTool.AXOLOTL_GENERATE_PLAN
+const id = ClineDefaultTool.AXOLOTL_GENERATE_PLAN;
 
 const GENERIC: ClineToolSpec = {
 	variant: ModelFamily.GENERIC,
 	id,
 	name: "axolotl_generate_plan",
+	contextRequirements: (context) => context.axolotlQaEnabled !== false,
 	description: `Generate a comprehensive test plan for Axolotl QA testing. This is a two-step process:
 
 **Step 1 (without test_cases):** Call this tool with changed_files to get instructions for generating test cases. You should:
@@ -55,19 +56,22 @@ Example:
     "priority": "high"
   }
 ]`,
-			usage: '[{"id":"TC001","name":"Login success","category":"functional","description":"...","steps":["..."],"expectedResult":"...","priority":"high"}]',
+			usage:
+				'[{"id":"TC001","name":"Login success","category":"functional","description":"...","steps":["..."],"expectedResult":"...","priority":"high"}]',
 		},
 		{
 			name: "prd_description",
 			required: false,
 			instruction: `The PRD or feature description that explains what the code should do. This helps generate more accurate and relevant test cases.`,
-			usage: "User login with email and password, showing appropriate error messages on failure",
+			usage:
+				"User login with email and password, showing appropriate error messages on failure",
 		},
 		{
 			name: "code_analysis",
 			required: false,
 			instruction: `Optional code analysis or context gathered from reading the changed files. Include relevant function signatures, component structures, or business logic that should be tested.`,
-			usage: "LoginForm component has email/password fields with validation. handleSubmit calls authService.login()",
+			usage:
+				"LoginForm component has email/password fields with validation. handleSubmit calls authService.login()",
 		},
 		{
 			name: "diff_content",
@@ -76,6 +80,6 @@ Example:
 			usage: "The git diff content from axolotl_detect_changes",
 		},
 	],
-}
+};
 
-export const axolotl_generate_plan_variants = [GENERIC]
+export const axolotl_generate_plan_variants = [GENERIC];

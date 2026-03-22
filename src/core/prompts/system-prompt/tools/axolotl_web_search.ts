@@ -1,13 +1,14 @@
-import { ModelFamily } from "@/shared/prompts"
-import { ClineDefaultTool } from "@/shared/tools"
-import type { ClineToolSpec } from "../spec"
+import { ModelFamily } from "@/shared/prompts";
+import { ClineDefaultTool } from "@/shared/tools";
+import type { ClineToolSpec } from "../spec";
 
-const id = ClineDefaultTool.AXOLOTL_WEB_SEARCH
+const id = ClineDefaultTool.AXOLOTL_WEB_SEARCH;
 
 const GENERIC: ClineToolSpec = {
 	variant: ModelFamily.GENERIC,
 	id,
 	name: "axolotl_web_search",
+	contextRequirements: (context) => context.axolotlQaEnabled !== false,
 	description: `Search the web for real-time information to help with Axolotl QA testing. This tool uses the You.com API to search for best practices, testing patterns, documentation, and known issues related to the code being tested.
 
 **STRONGLY SUGGESTED**: Use this tool AFTER axolotl_analyze_code and BEFORE axolotl_generate_plan. The code analysis tells you WHAT the code does; this tool tells you HOW it should be tested.
@@ -32,6 +33,6 @@ Examples:
 			usage: "best practices for testing React form validation",
 		},
 	],
-}
+};
 
-export const axolotl_web_search_variants = [GENERIC]
+export const axolotl_web_search_variants = [GENERIC];

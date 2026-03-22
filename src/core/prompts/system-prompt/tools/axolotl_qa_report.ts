@@ -1,13 +1,14 @@
-import { ModelFamily } from "@/shared/prompts"
-import { ClineDefaultTool } from "@/shared/tools"
-import type { ClineToolSpec } from "../spec"
+import { ModelFamily } from "@/shared/prompts";
+import { ClineDefaultTool } from "@/shared/tools";
+import type { ClineToolSpec } from "../spec";
 
-const id = ClineDefaultTool.AXOLOTL_QA_REPORT
+const id = ClineDefaultTool.AXOLOTL_QA_REPORT;
 
 const GENERIC: ClineToolSpec = {
 	variant: ModelFamily.GENERIC,
 	id,
 	name: "axolotl_qa_report",
+	contextRequirements: (context) => context.axolotlQaEnabled !== false,
 	description: `Generate and display a Axolotl QA test report. Use this tool ONLY after:
 1. Completing all test execution
 2. Cleaning up ALL injected AXOLOTL_TEST_LOG statements
@@ -43,7 +44,8 @@ const GENERIC: ClineToolSpec = {
   "risks": ["identified risks or concerns"],
   "recommendations": ["suggested improvements"]
 }`,
-			usage: '{"summary":{"total_tests":3,"passed":2,"failed":1,"skipped":0,"verdict":"MERGEABLE_WITH_RISKS"},"tests":[...],"risks":["Edge case not handled"],"recommendations":["Add input validation"]}',
+			usage:
+				'{"summary":{"total_tests":3,"passed":2,"failed":1,"skipped":0,"verdict":"MERGEABLE_WITH_RISKS"},"tests":[...],"risks":["Edge case not handled"],"recommendations":["Add input validation"]}',
 		},
 		{
 			name: "logs_cleanup_summary",
@@ -53,9 +55,10 @@ const GENERIC: ClineToolSpec = {
 Format: "Removed N logs from M files: file1.ts (lines X,Y), file2.ts (line Z)" or "No logs were injected" if no logs were added.
 
 If logs were injected but this field is empty, you have NOT completed the cleanup phase!`,
-			usage: "Removed 3 logs from 2 files: src/auth/login.ts (lines 15, 23), src/components/Form.tsx (line 45)",
+			usage:
+				"Removed 3 logs from 2 files: src/auth/login.ts (lines 15, 23), src/components/Form.tsx (line 45)",
 		},
 	],
-}
+};
 
-export const axolotl_qa_report_variants = [GENERIC]
+export const axolotl_qa_report_variants = [GENERIC];

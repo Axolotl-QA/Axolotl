@@ -2222,7 +2222,11 @@ export class Task {
 			agentsLocalToggles,
 		);
 
-		const axolotlMdInstructions = await getAxolotlMdInstructions(this.cwd);
+		const axolotlQaEnabled =
+			this.stateManager.getGlobalSettingsKey("axolotlQaEnabled") ?? true;
+		const axolotlMdInstructions = axolotlQaEnabled
+			? await getAxolotlMdInstructions(this.cwd)
+			: undefined;
 
 		const clineIgnoreContent = this.clineIgnoreController.clineIgnoreContent;
 		let clineIgnoreInstructions: string | undefined;
@@ -2288,6 +2292,7 @@ export class Task {
 			localAgentsRulesFileInstructions,
 			clineIgnoreInstructions,
 			axolotlMdInstructions,
+			axolotlQaEnabled,
 			preferredLanguageInstructions,
 			browserSettings:
 				this.stateManager.getGlobalSettingsKey("browserSettings"),

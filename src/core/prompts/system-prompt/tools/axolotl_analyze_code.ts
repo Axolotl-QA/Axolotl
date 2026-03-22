@@ -1,13 +1,14 @@
-import { ModelFamily } from "@/shared/prompts"
-import { ClineDefaultTool } from "@/shared/tools"
-import type { ClineToolSpec } from "../spec"
+import { ModelFamily } from "@/shared/prompts";
+import { ClineDefaultTool } from "@/shared/tools";
+import type { ClineToolSpec } from "../spec";
 
-const id = ClineDefaultTool.AXOLOTL_ANALYZE_CODE
+const id = ClineDefaultTool.AXOLOTL_ANALYZE_CODE;
 
 const GENERIC: ClineToolSpec = {
 	variant: ModelFamily.GENERIC,
 	id,
 	name: "axolotl_analyze_code",
+	contextRequirements: (context) => context.axolotlQaEnabled !== false,
 	description: `Analyze code structure and search for patterns in the specified files for Axolotl QA testing. This tool combines AST-based code structure analysis with regex pattern search to help understand the code before generating test cases.
 
 Use this tool AFTER axolotl_detect_changes to deeply analyze the changed files before calling axolotl_generate_plan.
@@ -55,6 +56,6 @@ Examples: "error handling, input validation", "authentication flow", "form submi
 			usage: "error handling, validation",
 		},
 	],
-}
+};
 
-export const axolotl_analyze_code_variants = [GENERIC]
+export const axolotl_analyze_code_variants = [GENERIC];
