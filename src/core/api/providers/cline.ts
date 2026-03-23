@@ -7,7 +7,7 @@ import {
 	type ModelInfo,
 	minimaxModels,
 } from "@shared/api";
-import { ClineEnv } from "@/config";
+import { AxolotlEnv } from "@/config";
 import { AuthService } from "@/services/auth/AuthService";
 import { CLINE_ACCOUNT_AUTH_ERROR_MESSAGE } from "@/shared/ClineAccount";
 import type { ClineStorageMessage } from "@/shared/messages/content";
@@ -44,7 +44,7 @@ const OPENROUTER_TO_ANTHROPIC: Record<string, string> = {
 export class ClineHandler implements ApiHandler {
 	private options: ClineHandlerOptions;
 	private _authService: AuthService;
-	private readonly _baseUrl = ClineEnv.config().apiBaseUrl;
+	private readonly _baseUrl = AxolotlEnv.config().apiBaseUrl;
 
 	constructor(options: ClineHandlerOptions) {
 		this.options = options;

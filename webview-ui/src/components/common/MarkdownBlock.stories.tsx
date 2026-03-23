@@ -125,11 +125,10 @@ export const WithLinks: Story = {
 	args: {
 		markdown: `Check out these resources:
 
-- Official documentation: https://github.com/cline/cline
-- API reference: https://api.cline.bot/docs
-- Support forum: https://community.cline.bot
+- Official documentation: https://github.com/Axolotl-QA/Axolotl
+- Website: https://qaxolotl.com
 
-You can also visit our website at https://cline.bot for more information.`,
+You can also visit our website at https://qaxolotl.com for more information.`,
 		compact: false,
 		showCursor: false,
 	},

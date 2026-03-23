@@ -2,7 +2,7 @@ import { McpServer } from "@shared/mcp";
 import { StringRequest } from "@shared/proto/cline/common";
 import { McpDownloadResponse } from "@shared/proto/cline/mcp";
 import axios from "axios";
-import { ClineEnv } from "@/config";
+import { AxolotlEnv } from "@/config";
 import { getAxiosSettings } from "@/shared/net";
 import { Controller } from "..";
 import { sendChatButtonClickedEvent } from "../ui/subscribeToChatButtonClicked";
@@ -37,7 +37,7 @@ export async function downloadMcp(
 
 		// Fetch server details from marketplace
 		const response = await axios.post<McpDownloadResponse>(
-			`${ClineEnv.config().mcpBaseUrl}/download`,
+			`${AxolotlEnv.config().mcpBaseUrl}/download`,
 			{ mcpId },
 			{
 				headers: { "Content-Type": "application/json" },

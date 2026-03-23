@@ -584,7 +584,7 @@ const ClineRulesToggleModal: React.FC = () => {
 									conversation.{" "}
 									<VSCodeLink
 										className="text-xs"
-										href="https://docs.cline.bot/features/cline-rules"
+										href="https://qaxolotl.com/docs/features/cline-rules"
 										style={{ display: "inline", fontSize: "inherit" }}
 									>
 										Docs
@@ -601,7 +601,7 @@ const ClineRulesToggleModal: React.FC = () => {
 									in the chat.{" "}
 									<VSCodeLink
 										className="text-xs inline"
-										href="https://docs.cline.bot/features/slash-commands/workflows"
+										href="https://qaxolotl.com/docs/features/slash-commands/workflows"
 									>
 										Docs
 									</VSCodeLink>
@@ -797,7 +797,7 @@ const ClineRulesToggleModal: React.FC = () => {
 										Toggle to enable/disable (chmod +x/-x).{" "}
 										<VSCodeLink
 											className="text-xs"
-											href="https://docs.cline.bot/features/hooks"
+											href="https://qaxolotl.com/docs/features/hooks"
 											style={{ display: "inline", fontSize: "inherit" }}
 										>
 											Docs

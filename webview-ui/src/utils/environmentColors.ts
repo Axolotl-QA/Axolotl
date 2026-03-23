@@ -28,14 +28,13 @@ export const getEnvironmentColor = (environment: Environment | undefined, type: 
 			: "var(--vscode-foreground)" // Default for production
 }
 
-export function getClineEnvironmentClassname(environment: Environment | undefined, type = "text") {
+export function getAxolotlEnvironmentClassname(environment: Environment | undefined, type = "text") {
 	if (type === "border") {
 		switch (environment) {
 			case "local":
 				return "border-(--vscode-activityWarningBadge-background)"
 			case "staging":
 				return "border-(--vscode-focusBorder)"
-			case "production":
 			default:
 				return "border-(--vscode-editorGroup-border)"
 		}
@@ -46,7 +45,6 @@ export function getClineEnvironmentClassname(environment: Environment | undefine
 			return "var(--vscode-activityWarningBadge-background)"
 		case "staging":
 			return "var(--vscode-focusBorder)"
-		case "production":
 		default:
 			return "var(--vscode-foreground)"
 	}

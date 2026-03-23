@@ -3,7 +3,7 @@ import {
 	type EmptyRequest,
 	String as ProtoString,
 } from "@shared/proto/cline/common";
-import { ClineEnv } from "@/config";
+import { AxolotlEnv } from "@/config";
 import type { Controller } from "@/core/controller";
 import {
 	getRequestRegistry,
@@ -272,7 +272,7 @@ export class AuthService {
 		let user: any = null;
 		if (this._clineAuthInfo && this._authenticated) {
 			const userInfo = this._clineAuthInfo.userInfo;
-			this._clineAuthInfo.userInfo.appBaseUrl = ClineEnv.config()?.appBaseUrl;
+			this._clineAuthInfo.userInfo.appBaseUrl = AxolotlEnv.config()?.appBaseUrl;
 
 			user = UserInfo.create({
 				// TODO: create proto for new user info type

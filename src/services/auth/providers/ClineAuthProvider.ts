@@ -1,5 +1,5 @@
 import type { JwtPayload } from "jwt-decode";
-import { ClineEnv, type EnvironmentConfig } from "@/config";
+import { AxolotlEnv, type EnvironmentConfig } from "@/config";
 import type { Controller } from "@/core/controller";
 import {
 	AuthInvalidTokenError,
@@ -86,7 +86,7 @@ export class ClineAuthProvider {
 	private readonly RETRY_DELAY_MS = 30000; // 30 seconds
 
 	get config(): EnvironmentConfig {
-		return ClineEnv.config();
+		return AxolotlEnv.config();
 	}
 
 	/**

@@ -5,7 +5,7 @@ import type { McpMarketplaceItem } from "@shared/mcp"
 import type { RemoteConfig } from "@shared/remote-config/schema"
 import axios from "axios"
 import * as sinon from "sinon"
-import { ClineEnv } from "@/config"
+import { AxolotlEnv } from "@/config"
 import { HostProvider } from "@/hosts/host-provider"
 
 /**
@@ -258,7 +258,7 @@ describe("Controller Marketplace Filtering", () => {
 
 			sinon.assert.calledOnce(axiosGetStub)
 			const callArgs = axiosGetStub.firstCall.args
-			callArgs[0].should.equal(`${ClineEnv.config().mcpBaseUrl}/marketplace`)
+			callArgs[0].should.equal(`${AxolotlEnv.config().mcpBaseUrl}/marketplace`)
 		})
 
 		it("should handle API errors gracefully", async () => {

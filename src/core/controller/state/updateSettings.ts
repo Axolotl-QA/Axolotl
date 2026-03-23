@@ -10,7 +10,7 @@ import {
 import { convertProtoToApiProvider } from "@shared/proto-conversions/models/api-configuration-conversion";
 import type { OpenaiReasoningEffort } from "@shared/storage/types";
 import type { TelemetrySetting } from "@shared/TelemetrySetting";
-import { ClineEnv } from "@/config";
+import { AxolotlEnv } from "@/config";
 import { fetchRemoteConfig } from "@/core/storage/remote-config/fetch";
 import { clearRemoteConfig } from "@/core/storage/remote-config/utils";
 import { HostProvider } from "@/hosts/host-provider";
@@ -33,7 +33,7 @@ export async function updateSettings(
 ): Promise<Empty> {
 	try {
 		if (request.clineEnv !== undefined) {
-			ClineEnv.setEnvironment(request.clineEnv);
+			AxolotlEnv.setEnvironment(request.clineEnv);
 			await accountLogoutClicked(controller, Empty.create());
 		}
 

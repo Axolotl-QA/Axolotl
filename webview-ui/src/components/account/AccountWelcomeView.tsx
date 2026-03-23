@@ -29,8 +29,8 @@ export const AccountWelcomeView = () => {
 			</VSCodeButton>
 
 			<p className="text-(--vscode-descriptionForeground) text-xs text-center m-0">
-				By continuing, you agree to the <VSCodeLink href="https://cline.bot/tos">Terms of Service</VSCodeLink> and{" "}
-				<VSCodeLink href="https://cline.bot/privacy">Privacy Policy.</VSCodeLink>
+				By continuing, you agree to the <VSCodeLink href="https://qaxolotl.com/tos">Terms of Service</VSCodeLink> and{" "}
+				<VSCodeLink href="https://qaxolotl.com/privacy">Privacy Policy.</VSCodeLink>
 			</p>
 		</div>
 	)

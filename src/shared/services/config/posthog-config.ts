@@ -37,10 +37,10 @@ const useDevEnv = process.env.IS_DEV === "true" || process.env.CLINE_ENVIRONMENT
  * NOTE: The development environment variables should be retrieved from 1password shared vault.
  */
 export const posthogConfig: PostHogClientConfig = {
-	apiKey: BUILD_CONSTANTS.TELEMETRY_SERVICE_API_KEY,
-	errorTrackingApiKey: BUILD_CONSTANTS.ERROR_SERVICE_API_KEY,
-	host: "https://data.cline.bot",
-	uiHost: useDevEnv ? "https://us.i.posthog.com" : "https://us.posthog.com",
+	apiKey: undefined,
+	errorTrackingApiKey: undefined,
+	host: "",
+	uiHost: "",
 }
 
 const isTestEnv = process.env.E2E_TEST === "true" || process.env.IS_TEST === "true"

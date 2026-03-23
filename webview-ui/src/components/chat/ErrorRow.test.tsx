@@ -83,7 +83,7 @@ describe("ErrorRow", () => {
 						total_spent: 10.5,
 						total_promotions: 5.0,
 						message: "You have run out of credits.",
-						buy_credits_url: "https://app.cline.bot/dashboard",
+						buy_credits_url: "https://qaxolotl.com/dashboard",
 					},
 				},
 			}

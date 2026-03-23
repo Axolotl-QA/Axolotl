@@ -7,7 +7,7 @@ import type {
 	UserResponse,
 } from "@shared/ClineAccount";
 import axios, { type AxiosRequestConfig, type AxiosResponse } from "axios";
-import { ClineEnv } from "@/config";
+import { AxolotlEnv } from "@/config";
 import { CLINE_API_ENDPOINT } from "@/shared/cline/api";
 import { getAxiosSettings } from "@/shared/net";
 import { AuthService } from "../auth/AuthService";
@@ -37,7 +37,7 @@ export class ClineAccountService {
 	 * @returns The base URL as a string
 	 */
 	get baseUrl(): string {
-		return ClineEnv.config().apiBaseUrl;
+		return AxolotlEnv.config().apiBaseUrl;
 	}
 
 	/**

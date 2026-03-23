@@ -1,5 +1,5 @@
 import { String } from "@shared/proto/cline/common"
-import { ClineEnv } from "@/config"
+import { AxolotlEnv } from "@/config"
 import { Controller } from "@/core/controller"
 import { setWelcomeViewCompleted } from "@/core/controller/state/setWelcomeViewCompleted"
 import { WebviewProvider } from "@/core/webview"
@@ -45,7 +45,7 @@ export class AuthServiceMock extends AuthService {
 
 	override async createAuthRequest(): Promise<String> {
 		// Use URL object for more graceful query construction
-		const authUrl = new URL(ClineEnv.config().apiBaseUrl)
+		const authUrl = new URL(AxolotlEnv.config().apiBaseUrl)
 		const authUrlString = authUrl.toString()
 		// Call the parent implementation
 		if (this._authenticated && this._clineAuthInfo) {
@@ -55,7 +55,7 @@ export class AuthServiceMock extends AuthService {
 
 		try {
 			// Use token exchange endpoint like ClineAuthProvider
-			const tokenExchangeUri = new URL(CLINE_API_ENDPOINT.TOKEN_EXCHANGE, ClineEnv.config().apiBaseUrl)
+			const tokenExchangeUri = new URL(CLINE_API_ENDPOINT.TOKEN_EXCHANGE, AxolotlEnv.config().apiBaseUrl)
 			const tokenType = "personal"
 			const testCode = `test-${tokenType}-token`
 
@@ -94,7 +94,7 @@ export class AuthServiceMock extends AuthService {
 					displayName: authData.userInfo.name,
 					createdAt: new Date().toISOString(),
 					organizations: authData.organizations,
-					appBaseUrl: ClineEnv.config().appBaseUrl,
+					appBaseUrl: AxolotlEnv.config().appBaseUrl,
 					subject: authData.userInfo.subject,
 				},
 				provider: this._provider?.name || "mock",

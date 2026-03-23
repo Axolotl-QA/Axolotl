@@ -1,5 +1,5 @@
 import type { UsageTransaction as ClineAccountUsageTransaction, PaymentTransaction } from "@shared/ClineAccount"
-import { isClineInternalTester } from "@shared/internal/account"
+import { isAxolotlInternalTester } from "@shared/internal/account"
 import type { UserOrganization } from "@shared/proto/cline/account"
 import { EmptyRequest } from "@shared/proto/cline/common"
 import { VSCodeButton, VSCodeDivider, VSCodeDropdown, VSCodeOption, VSCodeTag } from "@vscode/webview-ui-toolkit/react"
@@ -11,7 +11,7 @@ import { type ClineUser, handleSignOut } from "@/context/ClineAuthContext"
 import { useExtensionState } from "@/context/ExtensionStateContext"
 import { cn } from "@/lib/utils"
 import { AccountServiceClient } from "@/services/grpc-client"
-import { getClineEnvironmentClassname } from "@/utils/environmentColors"
+import { getAxolotlEnvironmentClassname } from "@/utils/environmentColors"
 import VSCodeButtonLink from "../common/VSCodeButtonLink"
 import { updateSetting } from "../settings/utils/settingsHandlers"
 import { AccountWelcomeView } from "./AccountWelcomeView"
@@ -41,11 +41,11 @@ type CachedData = {
 	lastFetchTime: number
 }
 
-const ClineEnvOptions = ["Production", "Staging", "Local"] as const
+const AxolotlEnvOptions = ["Production", "Staging", "Local"] as const
 
 const AccountView = ({ onDone, clineUser, organizations, activeOrganization }: AccountViewProps) => {
 	const { environment } = useExtensionState()
-	const titleColor = getClineEnvironmentClassname(environment)
+	const titleColor = getAxolotlEnvironmentClassname(environment)
 
 	return (
 		<div className="fixed inset-0 flex flex-col overflow-hidden pt-[10px] pl-[20px]">
@@ -129,7 +129,7 @@ export const ClineAccountView = ({ clineUser, userOrganizations, activeOrganizat
 	// Track if initial mount fetch has completed to avoid duplicate fetches
 	const initialFetchCompleteRef = useRef<boolean>(false)
 
-	const isClineTester = useMemo(() => (email ? isClineInternalTester(email) : false), [email])
+	const isClineTester = useMemo(() => (email ? isAxolotlInternalTester(email) : false), [email])
 
 	const fetchUserCredit = useCallback(async () => {
 		try {
@@ -238,7 +238,7 @@ export const ClineAccountView = ({ clineUser, userOrganizations, activeOrganizat
 		fetchCreditBalance(dropdownValue)
 	}, 60000)
 
-	const clineUrl = appBaseUrl || "https://app.cline.bot"
+	const clineUrl = appBaseUrl || "https://qaxolotl.com"
 
 	// Fetch balance on mount
 	useEffect(() => {
@@ -409,7 +409,7 @@ export const ClineAccountView = ({ clineUser, userOrganizations, activeOrganizat
 									updateSetting("clineEnv", value.toLowerCase())
 								}
 							}}>
-							{ClineEnvOptions.map((env) => (
+							{AxolotlEnvOptions.map((env) => (
 								<VSCodeOption key={env} value={env}>
 									{env}
 								</VSCodeOption>

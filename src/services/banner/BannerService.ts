@@ -1,7 +1,7 @@
 import type { Banner, BannerRules, BannersResponse } from "@shared/ClineBanner"
 import { BannerActionType, type BannerCardData } from "@shared/cline/banner"
 import axios from "axios"
-import { ClineEnv } from "@/config"
+import { AxolotlEnv } from "@/config"
 import type { Controller } from "@/core/controller"
 import { HostProvider } from "@/hosts/host-provider"
 import { getAxiosSettings } from "@/shared/net"
@@ -15,7 +15,7 @@ import { Logger } from "../logging/Logger"
  */
 export class BannerService {
 	private static instance: BannerService | null = null
-	private readonly _baseUrl = ClineEnv.config().apiBaseUrl
+	private readonly _baseUrl = AxolotlEnv.config().apiBaseUrl
 	private _cachedBanners: Banner[] = []
 	private _lastFetchTime: number = 0
 	private readonly CACHE_DURATION_MS = 5 * 60 * 1000 // 5 minutes

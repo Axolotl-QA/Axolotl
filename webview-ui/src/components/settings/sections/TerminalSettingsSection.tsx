@@ -206,7 +206,7 @@ export const TerminalSettingsSection: React.FC<
 							<strong>Having terminal issues?</strong> Check our{" "}
 							<a
 								className="text-(--vscode-textLink-foreground) underline hover:no-underline"
-								href="https://docs.cline.bot/troubleshooting/terminal-quick-fixes"
+								href="https://qaxolotl.com/docs/troubleshooting/terminal-quick-fixes"
 								rel="noopener noreferrer"
 								target="_blank"
 							>
@@ -215,7 +215,7 @@ export const TerminalSettingsSection: React.FC<
 							or the{" "}
 							<a
 								className="text-(--vscode-textLink-foreground) underline hover:no-underline"
-								href="https://docs.cline.bot/troubleshooting/terminal-integration-guide"
+								href="https://qaxolotl.com/docs/troubleshooting/terminal-integration-guide"
 								rel="noopener noreferrer"
 								target="_blank"
 							>

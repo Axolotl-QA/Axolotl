@@ -85,9 +85,9 @@ export const BANNER_DATA: BannerCardData[] = [
 	{
 		id: "info-banner-v1",
 		icon: "lightbulb",
-		title: "Use Cline in Right Sidebar",
+		title: "Use Axolotl in Right Sidebar",
 		description:
-			"For the best experience, drag the Cline icon to your right sidebar. This keeps your file explorer and editor visible while you chat with Cline, making it easier to navigate your codebase and see changes in real-time. [See how →](https://docs.cline.bot/features/customization/opening-cline-in-sidebar)",
+			"For the best experience, drag the Axolotl icon to your right sidebar. This keeps your file explorer and editor visible while you chat with Axolotl, making it easier to navigate your codebase and see changes in real-time.",
 	},
 
 	// Announcement with conditional actions based on user auth state
@@ -95,7 +95,7 @@ export const BANNER_DATA: BannerCardData[] = [
 		id: "new-model-opus-4-5-cline-users",
 		icon: "megaphone",
 		title: "Claude Opus 4.5 Now Available",
-		description: "State-of-the-art performance at 3x lower cost than Opus 4.1. Available now in the Cline provider.",
+		description: "State-of-the-art performance at 3x lower cost than Opus 4.1. Available now.",
 		actions: [
 			{
 				title: "Try Now",
@@ -103,21 +103,21 @@ export const BANNER_DATA: BannerCardData[] = [
 				arg: "anthropic/claude-opus-4.5",
 			},
 		],
-		isClineUserOnly: true, // Only Cline users see this
+		isClineUserOnly: true,
 	},
 
 	{
 		id: "new-model-opus-4-5-non-cline-users",
 		icon: "megaphone",
 		title: "Claude Opus 4.5 Now Available",
-		description: "State-of-the-art performance at 3x lower cost than Opus 4.1. Available now in the Cline provider.",
+		description: "State-of-the-art performance at 3x lower cost than Opus 4.1.",
 		actions: [
 			{
 				title: "Get Started",
 				action: BannerActionType.ShowAccount,
 			},
 		],
-		isClineUserOnly: false, // Only non-Cline users see this
+		isClineUserOnly: false,
 	},
 
 	// Platform-specific banner (macOS/Linux)
@@ -127,7 +127,7 @@ export const BANNER_DATA: BannerCardData[] = [
 		title: "CLI & Subagents Available",
 		platforms: ["mac", "linux"] satisfies BannerCardData["platforms"],
 		description:
-			"Use Cline in your terminal and enable subagent capabilities. [Learn more](https://docs.cline.bot/cline-cli/overview)",
+			"Use Axolotl in your terminal and enable subagent capabilities.",
 		actions: [
 			{
 				title: "Install",
@@ -144,9 +144,9 @@ export const BANNER_DATA: BannerCardData[] = [
 	{
 		id: "cli-info-windows-v1",
 		icon: "terminal",
-		title: "Cline CLI Info",
+		title: "Axolotl CLI Info",
 		platforms: ["windows"] satisfies BannerCardData["platforms"],
 		description:
-			"Available for macOS and Linux. Coming soon to other platforms. [Learn more](https://docs.cline.bot/cline-cli/overview)",
+			"Available for macOS and Linux. Coming soon to other platforms.",
 	},
 ]

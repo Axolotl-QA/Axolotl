@@ -1,5 +1,5 @@
 {
-	"name": "claude-dev",
+	"name": "axolotl-qa",
 	"displayName": "Axolotl",
 	"description": "Autonomous coding agent right in your IDE, capable of creating/editing files, running commands, using the browser, and more with your permission every step of the way.",
 	"version": "3.50.0",
@@ -11,12 +11,12 @@
 		"name": "Axolotl"
 	},
 	"license": "Apache-2.0",
-	"publisher": "saoudrizwan",
+	"publisher": "ZhuolunLi",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/cline/cline"
 	},
-	"homepage": "https://cline.bot",
+	"homepage": "https://qaxolotl.com",
 	"categories": [
 		"AI",
 		"Chat",
@@ -26,9 +26,9 @@
 		"Testing"
 	],
 	"keywords": [
-		"cline",
-		"claude",
-		"dev",
+		"axolotl",
+		"qa",
+		"testing",
 		"mcp",
 		"openrouter",
 		"coding",

@@ -112,7 +112,7 @@ export const WhatsNewModal: React.FC<WhatsNewModalProps> = ({
 							<strong>Skills:</strong> Extend Axolotl with instruction sets for
 							specialized tasks.{" "}
 							<a
-								href="https://docs.cline.bot/features/skills"
+								href="https://qaxolotl.com/docs/features/skills"
 								style={{ color: "var(--vscode-textLink-foreground)" }}
 							>
 								Learn more
@@ -122,7 +122,7 @@ export const WhatsNewModal: React.FC<WhatsNewModalProps> = ({
 							<strong>Web Search:</strong> Improved websearch tooling in Axolotl
 							provider.{" "}
 							<a
-								href="https://docs.cline.bot/features/web-tools"
+								href="https://qaxolotl.com/docs/features/web-tools"
 								style={{ color: "var(--vscode-textLink-foreground)" }}
 							>
 								Learn more

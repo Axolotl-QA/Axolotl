@@ -61,7 +61,7 @@ const GeneralSettingsSection = ({
 						code, prompts, or personal information are ever sent. See our{" "}
 						<VSCodeLink
 							className="text-inherit"
-							href="https://docs.cline.bot/more-info/telemetry"
+							href="https://qaxolotl.com/docs/more-info/telemetry"
 							style={{ fontSize: "inherit", textDecoration: "underline" }}
 						>
 							telemetry overview
@@ -69,7 +69,7 @@ const GeneralSettingsSection = ({
 						and{" "}
 						<VSCodeLink
 							className="text-inherit"
-							href="https://cline.bot/privacy"
+							href="https://qaxolotl.com/privacy"
 							style={{ fontSize: "inherit", textDecoration: "underline" }}
 						>
 							privacy policy

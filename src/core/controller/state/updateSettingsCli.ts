@@ -9,7 +9,7 @@ import {
 import { convertProtoToApiProvider } from "@shared/proto-conversions/models/api-configuration-conversion";
 import { Settings } from "@shared/storage/state-keys";
 import { TelemetrySetting } from "@shared/TelemetrySetting";
-import { ClineEnv } from "@/config";
+import { AxolotlEnv } from "@/config";
 import { HostProvider } from "@/hosts/host-provider";
 import { ShowMessageType } from "@/shared/proto/host/window";
 import { Mode, OpenaiReasoningEffort } from "@/shared/storage/types";
@@ -50,7 +50,7 @@ export async function updateSettingsCli(
 
 	try {
 		if (request.environment !== undefined) {
-			ClineEnv.setEnvironment(request.environment);
+			AxolotlEnv.setEnvironment(request.environment);
 			await accountLogoutClicked(controller, Empty.create());
 		}
 

@@ -24,7 +24,7 @@ import pWaitFor from "p-wait-for";
 import * as path from "path";
 import type { FolderLockWithRetryResult } from "src/core/locks/types";
 import type * as vscode from "vscode";
-import { ClineEnv } from "@/config";
+import { AxolotlEnv } from "@/config";
 import { HostProvider } from "@/hosts/host-provider";
 import { ExtensionRegistryInfo } from "@/registry";
 import { AuthService } from "@/services/auth/AuthService";
@@ -704,7 +704,7 @@ export class Controller {
 	// MCP Marketplace
 	private async fetchMcpMarketplaceFromApi(): Promise<McpMarketplaceCatalog> {
 		const response = await axios.get(
-			`${ClineEnv.config().mcpBaseUrl}/marketplace`,
+			`${AxolotlEnv.config().mcpBaseUrl}/marketplace`,
 			{
 				headers: {
 					"Content-Type": "application/json",
@@ -1070,7 +1070,7 @@ export class Controller {
 		const platform = process.platform as Platform;
 		const distinctId = getDistinctId();
 		const version = ExtensionRegistryInfo.version;
-		const environment = ClineEnv.config().environment;
+		const environment = AxolotlEnv.config().environment;
 		const banners = await this.getBanners();
 
 		// Set feature flag in dictation settings - enabled on all platforms

@@ -14,8 +14,8 @@ interface CreditLimitErrorProps {
 }
 
 const DEFAULT_BUY_CREDITS_URL = {
-	USER: "https://app.cline.bot/dashboard/account?tab=credits&redirect=true",
-	ORG: "https://app.cline.bot/dashboard/organization?tab=credits&redirect=true",
+	USER: "https://qaxolotl.com/dashboard/account?tab=credits&redirect=true",
+	ORG: "https://qaxolotl.com/dashboard/organization?tab=credits&redirect=true",
 }
 
 const CreditLimitError: React.FC<CreditLimitErrorProps> = ({

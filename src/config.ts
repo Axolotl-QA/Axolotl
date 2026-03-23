@@ -11,10 +11,10 @@ export interface EnvironmentConfig {
 	mcpBaseUrl: string;
 }
 
-class ClineEndpoint {
-	public static instance = new ClineEndpoint();
+class AxolotlEndpoint {
+	public static instance = new AxolotlEndpoint();
 	public static get config() {
-		return ClineEndpoint.instance.config();
+		return AxolotlEndpoint.instance.config();
 	}
 
 	private environment: Environment = Environment.production;
@@ -46,7 +46,7 @@ class ClineEndpoint {
 				this.environment = Environment.production;
 				break;
 		}
-		console.info("Cline environment updated: ", this.environment);
+		console.info("Axolotl environment updated: ", this.environment);
 	}
 
 	public getEnvironment(): EnvironmentConfig {
@@ -56,9 +56,9 @@ class ClineEndpoint {
 			case Environment.staging:
 				return {
 					environment: Environment.staging,
-					appBaseUrl: envAppBaseUrl || "https://staging-app.cline.bot",
-					apiBaseUrl: envApiBaseUrl || "https://core-api.staging.int.cline.bot",
-					mcpBaseUrl: "https://core-api.staging.int.cline.bot/v1/mcp",
+					appBaseUrl: envAppBaseUrl || "https://qaxolotl.com",
+					apiBaseUrl: envApiBaseUrl || "https://4zxsfry3.us-west.insforge.app",
+					mcpBaseUrl: "https://4zxsfry3.us-west.insforge.app/v1/mcp",
 				};
 			case Environment.local:
 				return {
@@ -81,7 +81,7 @@ class ClineEndpoint {
 /**
  * Singleton instance to access the current environment configuration.
  * Usage:
- * - ClineEnv.config() to get the current config.
- * - ClineEnv.setEnvironment(Environment.local) to change the environment.
+ * - AxolotlEnv.config() to get the current config.
+ * - AxolotlEnv.setEnvironment(Environment.local) to change the environment.
  */
-export const ClineEnv = ClineEndpoint.instance;
+export const AxolotlEnv = AxolotlEndpoint.instance;
