@@ -95,6 +95,8 @@ axolotl_generate_plan
 
 **IMPORTANT**: Do NOT call axolotl_generate_plan without test_cases. Use the code analysis from Phase 2 and web search results from Phase 2.5 to generate comprehensive test cases.
 
+**Plan Modification**: If the user requests changes to the test plan, call \`axolotl_generate_plan\` again with the updated \`test_cases\` AND set \`existing_plan_path\` to the file path of the previous plan. This updates the existing plan file in-place instead of creating a new one.
+
 ## Phase 4: Inject Logs (REQUIRED - MUST TRACK)
 
 **Before testing, inject logging statements for evidence capture.**

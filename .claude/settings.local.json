@@ -36,7 +36,11 @@
 			"WebFetch(domain:platform.minimax.io)",
 			"WebSearch",
 			"WebFetch(domain:docs.anthropic.com)",
-			"Bash(git add:*)"
+			"Bash(git add:*)",
+			"Bash(git remote:*)",
+			"Bash(git fetch:*)",
+			"Bash(grep:*)",
+			"Bash(find /Users/lizhuolun/cursor/Axolotl-QA/Axolotl -type f \\\\\\(-name *.md \\\\\\) ! -path */node_modules/*)"
 		]
 	},
 	"enableAllProjectMcpServers": true,

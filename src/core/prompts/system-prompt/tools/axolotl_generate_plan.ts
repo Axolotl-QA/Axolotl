@@ -79,6 +79,12 @@ Example:
 			instruction: `Optional diff content showing the actual changes. This helps understand what specifically changed and needs testing.`,
 			usage: "The git diff content from axolotl_detect_changes",
 		},
+		{
+			name: "existing_plan_path",
+			required: false,
+			instruction: `When modifying an existing test plan based on user feedback, provide the file path of the previous plan. The updated plan will overwrite this file instead of creating a new one. This keeps the plan history clean and avoids file clutter.`,
+			usage: "axolotl_test_plan_2025-01-15T10-30-00.md",
+		},
 	],
 };
 

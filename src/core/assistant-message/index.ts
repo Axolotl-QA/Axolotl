@@ -66,6 +66,7 @@ export const toolParamNames = [
 	"analysis_type",
 	"search_pattern",
 	"focus_areas",
+	"existing_plan_path",
 	// Axolotl web search parameters
 	"search_query",
 	// Computer Use parameters

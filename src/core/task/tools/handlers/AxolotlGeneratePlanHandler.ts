@@ -1,12 +1,19 @@
-import type { ToolUse } from "@core/assistant-message"
-import { formatResponse } from "@core/prompts/responses"
-import path from "path"
-import type { ClineSayAxolotlGeneratePlan, AxolotlTestCase, AxolotlTestPlan } from "@/shared/ExtensionMessage"
-import { ClineDefaultTool } from "@/shared/tools"
-import type { ToolResponse } from "../../index"
-import type { IPartialBlockHandler, IToolHandler } from "../ToolExecutorCoordinator"
-import type { TaskConfig } from "../types/TaskConfig"
-import type { StronglyTypedUIHelpers } from "../types/UIHelpers"
+import type { ToolUse } from "@core/assistant-message";
+import { formatResponse } from "@core/prompts/responses";
+import path from "path";
+import type {
+	AxolotlTestCase,
+	AxolotlTestPlan,
+	ClineSayAxolotlGeneratePlan,
+} from "@/shared/ExtensionMessage";
+import { ClineDefaultTool } from "@/shared/tools";
+import type { ToolResponse } from "../../index";
+import type {
+	IPartialBlockHandler,
+	IToolHandler,
+} from "../ToolExecutorCoordinator";
+import type { TaskConfig } from "../types/TaskConfig";
+import type { StronglyTypedUIHelpers } from "../types/UIHelpers";
 
 /**
  * Helper to create a stringified ClineSayAxolotlGeneratePlan message
@@ -17,60 +24,76 @@ function createPlanMessage(
 	planFilePath?: string,
 	error?: string,
 ): string {
-	const message: ClineSayAxolotlGeneratePlan = { status }
+	const message: ClineSayAxolotlGeneratePlan = { status };
 	if (plan) {
-		message.plan = plan
+		message.plan = plan;
 	}
 	if (planFilePath) {
-		message.planFilePath = planFilePath
+		message.planFilePath = planFilePath;
 	}
 	if (error) {
-		message.error = error
+		message.error = error;
 	}
-	return JSON.stringify(message)
+	return JSON.stringify(message);
 }
 
-export class AxolotlGeneratePlanHandler implements IToolHandler, IPartialBlockHandler {
-	readonly name = ClineDefaultTool.AXOLOTL_GENERATE_PLAN
+export class AxolotlGeneratePlanHandler
+	implements IToolHandler, IPartialBlockHandler
+{
+	readonly name = ClineDefaultTool.AXOLOTL_GENERATE_PLAN;
 
 	getDescription(block: ToolUse): string {
-		return `[${block.name}]`
+		return `[${block.name}]`;
 	}
 
-	async handlePartialBlock(_block: ToolUse, uiHelpers: StronglyTypedUIHelpers): Promise<void> {
+	async handlePartialBlock(
+		_block: ToolUse,
+		uiHelpers: StronglyTypedUIHelpers,
+	): Promise<void> {
 		// Show loading message for partial blocks
-		const messageText = createPlanMessage("generating")
-		await uiHelpers.say("axolotl_generate_plan", messageText, undefined, undefined, true)
+		const messageText = createPlanMessage("generating");
+		await uiHelpers.say(
+			"axolotl_generate_plan",
+			messageText,
+			undefined,
+			undefined,
+			true,
+		);
 	}
 
 	async execute(config: TaskConfig, block: ToolUse): Promise<ToolResponse> {
-		const changedFilesRaw: string | undefined = block.params.changed_files
-		const prdDescription: string | undefined = block.params.prd_description
-		const codeAnalysis: string | undefined = block.params.code_analysis
-		const diffContent: string | undefined = block.params.diff_content
-		const testCasesJson: string | undefined = block.params.test_cases
+		const changedFilesRaw: string | undefined = block.params.changed_files;
+		const prdDescription: string | undefined = block.params.prd_description;
+		const codeAnalysis: string | undefined = block.params.code_analysis;
+		const diffContent: string | undefined = block.params.diff_content;
+		const testCasesJson: string | undefined = block.params.test_cases;
+		const existingPlanPath: string | undefined =
+			block.params.existing_plan_path;
 
 		// Validate required parameters
 		if (!changedFilesRaw) {
-			config.taskState.consecutiveMistakeCount++
-			return await config.callbacks.sayAndCreateMissingParamError(this.name, "changed_files")
+			config.taskState.consecutiveMistakeCount++;
+			return await config.callbacks.sayAndCreateMissingParamError(
+				this.name,
+				"changed_files",
+			);
 		}
 
-		config.taskState.consecutiveMistakeCount = 0
+		config.taskState.consecutiveMistakeCount = 0;
 
 		// Parse changed files
-		let changedFiles: string[]
+		let changedFiles: string[];
 		try {
-			changedFiles = JSON.parse(changedFilesRaw)
+			changedFiles = JSON.parse(changedFilesRaw);
 			if (!Array.isArray(changedFiles)) {
-				throw new Error("changed_files must be a JSON array")
+				throw new Error("changed_files must be a JSON array");
 			}
 		} catch {
 			// Try splitting by comma or newline if not valid JSON
 			changedFiles = changedFilesRaw
 				.split(/[,\n]/)
 				.map((f) => f.trim())
-				.filter((f) => f)
+				.filter((f) => f);
 		}
 
 		// If no test_cases provided, return instructions for the AI to generate them
@@ -128,7 +151,7 @@ ${diffContent ? `**Diff Summary:**\n${diffContent.substring(0, 1000)}${diffConte
 **Priorities:** high, medium, low
 
 Generate at least 5-10 meaningful test cases based on actual code analysis.`,
-			)
+			);
 		}
 
 		// Show loading message
@@ -138,14 +161,16 @@ Generate at least 5-10 meaningful test cases based on actual code analysis.`,
 			undefined,
 			undefined,
 			true,
-		)
+		);
 
 		try {
 			// Parse AI-generated test cases
-			let testCases: AxolotlTestCase[]
+			let testCases: AxolotlTestCase[];
 			try {
-				const parsed = JSON.parse(testCasesJson)
-				testCases = Array.isArray(parsed) ? parsed : parsed.test_cases || parsed.testCases || []
+				const parsed = JSON.parse(testCasesJson);
+				testCases = Array.isArray(parsed)
+					? parsed
+					: parsed.test_cases || parsed.testCases || [];
 
 				// Validate test case structure - tc is any from JSON parse
 				testCases = testCases.map((tc: any, index: number) => ({
@@ -153,20 +178,23 @@ Generate at least 5-10 meaningful test cases based on actual code analysis.`,
 					name: tc.name || "Unnamed Test",
 					category: tc.category || "functional",
 					description: tc.description || "",
-					steps: Array.isArray(tc.steps) ? tc.steps : [tc.steps || "Perform test"],
-					expectedResult: tc.expectedResult || tc.expected_result || "Test passes",
+					steps: Array.isArray(tc.steps)
+						? tc.steps
+						: [tc.steps || "Perform test"],
+					expectedResult:
+						tc.expectedResult || tc.expected_result || "Test passes",
 					priority: tc.priority || "medium",
-				}))
+				}));
 			} catch {
 				return formatResponse.toolError(
 					`Failed to parse test_cases JSON. Please provide a valid JSON array of test cases.`,
-				)
+				);
 			}
 
 			if (testCases.length === 0) {
 				return formatResponse.toolError(
 					`No test cases provided. Please generate test cases based on code analysis.`,
-				)
+				);
 			}
 
 			const testPlan: AxolotlTestPlan = {
@@ -175,40 +203,55 @@ Generate at least 5-10 meaningful test cases based on actual code analysis.`,
 				testCases,
 				totalTests: testCases.length,
 				summary: `Generated ${testCases.length} test cases for ${changedFiles.length} file(s)`,
-			}
+			};
 
 			// Generate markdown content for the test plan with mermaid diagram
-			const markdownContent = this.generateMarkdown(testPlan)
+			const markdownContent = this.generateMarkdown(testPlan);
 
-			// Save to disk
-			const timestamp = new Date().toISOString().replace(/[:.]/g, "-").substring(0, 19)
-			const planFileName = `axolotl_test_plan_${timestamp}.md`
-			const planFilePath = path.join(config.cwd, planFileName)
+			// Save to disk — reuse existing plan file when modifying, otherwise create new
+			let planFilePath: string;
+			let planFileName: string;
+			if (existingPlanPath) {
+				planFilePath = path.isAbsolute(existingPlanPath)
+					? existingPlanPath
+					: path.join(config.cwd, existingPlanPath);
+				planFileName = path.basename(planFilePath);
+			} else {
+				const timestamp = new Date()
+					.toISOString()
+					.replace(/[:.]/g, "-")
+					.substring(0, 19);
+				planFileName = `axolotl_test_plan_${timestamp}.md`;
+				planFilePath = path.join(config.cwd, planFileName);
+			}
 
 			// Use diffViewProvider to show streaming effect (lines turning green)
-			const diffViewProvider = config.services.diffViewProvider
+			const diffViewProvider = config.services.diffViewProvider;
 
 			// Open the file in diff view (creates empty file if doesn't exist)
-			await diffViewProvider.open(planFilePath, { displayPath: planFileName })
+			await diffViewProvider.open(planFilePath, { displayPath: planFileName });
 
 			// Stream content line by line with visual effect
-			const lines = markdownContent.split("\n")
+			const lines = markdownContent.split("\n");
 			for (let i = 0; i < lines.length; i++) {
-				const partialContent = lines.slice(0, i + 1).join("\n")
-				await diffViewProvider.update(partialContent, false)
+				const partialContent = lines.slice(0, i + 1).join("\n");
+				await diffViewProvider.update(partialContent, false);
 				// Small delay for visual effect (10ms per line for smooth animation)
-				await new Promise((resolve) => setTimeout(resolve, 10))
+				await new Promise((resolve) => setTimeout(resolve, 10));
 			}
 
 			// Finalize the content
-			await diffViewProvider.update(markdownContent, true)
+			await diffViewProvider.update(markdownContent, true);
 
 			// Save the file
-			await diffViewProvider.saveChanges()
-			await diffViewProvider.reset()
+			await diffViewProvider.saveChanges();
+			await diffViewProvider.reset();
 
 			// Ask user for confirmation
-			const confirmMessage = this.buildConfirmationMessage(testPlan, planFilePath)
+			const confirmMessage = this.buildConfirmationMessage(
+				testPlan,
+				planFilePath,
+			);
 
 			const { response, text: userFeedback } = await config.callbacks.ask(
 				"axolotl_confirm_plan",
@@ -216,10 +259,14 @@ Generate at least 5-10 meaningful test cases based on actual code analysis.`,
 					message: confirmMessage,
 					plan: testPlan,
 					planFilePath: planFilePath,
-					options: ["Proceed with testing", "Let me edit the plan first", "Cancel"],
+					options: [
+						"Proceed with testing",
+						"Let me edit the plan first",
+						"Cancel",
+					],
 				}),
 				false,
-			)
+			);
 
 			// Handle user response
 			// 1. Reject button → cancel
@@ -230,14 +277,16 @@ Generate at least 5-10 meaningful test cases based on actual code analysis.`,
 					undefined,
 					undefined,
 					false,
-				)
-				return formatResponse.toolResult("User rejected the Axolotl QA test plan.")
+				);
+				return formatResponse.toolResult(
+					"User rejected the Axolotl QA test plan.",
+				);
 			}
 
 			// 2. User provided text feedback (via message, or typed text + clicked Approve)
-			const feedbackText = userFeedback?.trim()
+			const feedbackText = userFeedback?.trim();
 			if (feedbackText) {
-				const feedbackLower = feedbackText.toLowerCase()
+				const feedbackLower = feedbackText.toLowerCase();
 
 				// Explicit cancel
 				if (feedbackLower.includes("cancel")) {
@@ -247,13 +296,21 @@ Generate at least 5-10 meaningful test cases based on actual code analysis.`,
 						undefined,
 						undefined,
 						false,
-					)
-					return formatResponse.toolResult("User cancelled the Axolotl QA test plan generation.")
+					);
+					return formatResponse.toolResult(
+						"User cancelled the Axolotl QA test plan generation.",
+					);
 				}
 
 				// Any other text = user wants to modify the plan
 				// Show user feedback in UI
-				await config.callbacks.say("user_feedback", feedbackText, undefined, undefined, false)
+				await config.callbacks.say(
+					"user_feedback",
+					feedbackText,
+					undefined,
+					undefined,
+					false,
+				);
 
 				await config.callbacks.say(
 					"axolotl_generate_plan",
@@ -261,7 +318,7 @@ Generate at least 5-10 meaningful test cases based on actual code analysis.`,
 					undefined,
 					undefined,
 					false,
-				)
+				);
 
 				return formatResponse.toolResult(
 					`User provided feedback on the test plan. Please modify the test plan based on their feedback and call axolotl_generate_plan again with updated test_cases.
@@ -276,9 +333,9 @@ ${feedbackText}
 Instructions:
 1. Review the user's feedback carefully
 2. Modify, add, or remove test cases as requested
-3. Call axolotl_generate_plan again with the updated test_cases parameter
+3. Call axolotl_generate_plan again with the updated test_cases parameter AND existing_plan_path="${planFileName}" to update the existing plan file
 4. The user will review the modified plan again`,
-				)
+				);
 			}
 
 			// 3. Approve with no text → proceed
@@ -288,7 +345,7 @@ Instructions:
 				undefined,
 				undefined,
 				false,
-			)
+			);
 
 			// Build the response with test plan details for the next phase
 			return formatResponse.toolResult(
@@ -315,10 +372,11 @@ Remember to:
 - Take screenshots at each verification step
 - Capture console logs as evidence
 - Clean up injected logs after testing`,
-			)
+			);
 		} catch (error) {
-			const errorMessage = error instanceof Error ? error.message : "Unknown error"
-			console.error("Error in axolotl_generate_plan:", errorMessage)
+			const errorMessage =
+				error instanceof Error ? error.message : "Unknown error";
+			console.error("Error in axolotl_generate_plan:", errorMessage);
 
 			await config.callbacks.say(
 				"axolotl_generate_plan",
@@ -326,21 +384,25 @@ Remember to:
 				undefined,
 				undefined,
 				false,
-			)
+			);
 
-			return formatResponse.toolError(`Failed to generate test plan: ${errorMessage}`)
+			return formatResponse.toolError(
+				`Failed to generate test plan: ${errorMessage}`,
+			);
 		}
 	}
 
 	private generateMarkdown(plan: AxolotlTestPlan): string {
-		const now = new Date().toISOString()
+		const now = new Date().toISOString();
 
 		const testsByCategory = {
 			functional: plan.testCases.filter((t) => t.category === "functional"),
 			edge_case: plan.testCases.filter((t) => t.category === "edge_case"),
-			error_handling: plan.testCases.filter((t) => t.category === "error_handling"),
+			error_handling: plan.testCases.filter(
+				(t) => t.category === "error_handling",
+			),
 			ui_ux: plan.testCases.filter((t) => t.category === "ui_ux"),
-		}
+		};
 
 		const formatTestCase = (tc: AxolotlTestCase) => `
 ### ${tc.id}: ${tc.name}
@@ -354,10 +416,10 @@ ${tc.steps.map((s, i) => `${i + 1}. ${s}`).join("\n")}
 
 **Expected Result:** ${tc.expectedResult}
 
----`
+---`;
 
 		// Generate mermaid flowchart for test flow
-		const mermaidDiagram = this.generateMermaidDiagram(plan)
+		const mermaidDiagram = this.generateMermaidDiagram(plan);
 
 		return `# 🎯 Axolotl QA Test Plan
 
@@ -420,16 +482,16 @@ ${testsByCategory.ui_ux.length > 0 ? testsByCategory.ui_ux.map(formatTestCase).j
 ---
 
 *This test plan was generated by Axolotl QA. You can edit this file to add, remove, or modify test cases before running the tests.*
-`
+`;
 	}
 
 	private generateMermaidDiagram(plan: AxolotlTestPlan): string {
-		const lines: string[] = ["flowchart TD"]
+		const lines: string[] = ["flowchart TD"];
 
 		// Start node
-		lines.push("    Start([🚀 Start QA]) --> Setup")
-		lines.push("    Setup[📋 Setup Environment] --> TestPhase")
-		lines.push("")
+		lines.push("    Start([🚀 Start QA]) --> Setup");
+		lines.push("    Setup[📋 Setup Environment] --> TestPhase");
+		lines.push("");
 
 		// Group tests by category
 		const categories = [
@@ -437,62 +499,69 @@ ${testsByCategory.ui_ux.length > 0 ? testsByCategory.ui_ux.map(formatTestCase).j
 			{ key: "edge_case", label: "Edge Cases", icon: "🟡" },
 			{ key: "error_handling", label: "Error Handling", icon: "🔴" },
 			{ key: "ui_ux", label: "UI/UX Tests", icon: "🔵" },
-		]
+		];
 
-		const hasTests: string[] = []
+		const hasTests: string[] = [];
 
 		for (const cat of categories) {
-			const tests = plan.testCases.filter((t) => t.category === cat.key)
+			const tests = plan.testCases.filter((t) => t.category === cat.key);
 			if (tests.length > 0) {
-				hasTests.push(cat.key)
+				hasTests.push(cat.key);
 			}
 		}
 
 		// Create subgraphs for each category with tests
 		if (hasTests.length > 0) {
-			lines.push("    TestPhase{Test Categories}")
-			lines.push("")
+			lines.push("    TestPhase{Test Categories}");
+			lines.push("");
 
 			for (let i = 0; i < hasTests.length; i++) {
-				const cat = categories.find((c) => c.key === hasTests[i])!
-				const tests = plan.testCases.filter((t) => t.category === cat.key)
-				const catId = cat.key.replace("_", "")
+				const cat = categories.find((c) => c.key === hasTests[i])!;
+				const tests = plan.testCases.filter((t) => t.category === cat.key);
+				const catId = cat.key.replace("_", "");
 
-				lines.push(`    TestPhase --> ${catId}Sub`)
-				lines.push(`    subgraph ${catId}Sub["${cat.icon} ${cat.label}"]`)
+				lines.push(`    TestPhase --> ${catId}Sub`);
+				lines.push(`    subgraph ${catId}Sub["${cat.icon} ${cat.label}"]`);
 
 				for (let j = 0; j < tests.length; j++) {
-					const tc = tests[j]
-					const nodeId = `${catId}${j}`
-					const shortName = tc.name.length > 25 ? tc.name.substring(0, 25) + "..." : tc.name
-					lines.push(`        ${nodeId}["${tc.id}: ${shortName}"]`)
+					const tc = tests[j];
+					const nodeId = `${catId}${j}`;
+					const shortName =
+						tc.name.length > 25 ? tc.name.substring(0, 25) + "..." : tc.name;
+					lines.push(`        ${nodeId}["${tc.id}: ${shortName}"]`);
 				}
 
-				lines.push("    end")
-				lines.push(`    ${catId}Sub --> Report`)
-				lines.push("")
+				lines.push("    end");
+				lines.push(`    ${catId}Sub --> Report`);
+				lines.push("");
 			}
 		} else {
-			lines.push("    TestPhase --> Report")
+			lines.push("    TestPhase --> Report");
 		}
 
 		// End nodes
-		lines.push("    Report[📊 Generate Report] --> Verdict")
-		lines.push("    Verdict{Verdict}")
-		lines.push("    Verdict -->|Pass| Success([✅ MERGEABLE])")
-		lines.push("    Verdict -->|Fail| Failure([❌ NOT MERGEABLE])")
-		lines.push("    Verdict -->|Risks| Warning([⚠️ MERGEABLE WITH RISKS])")
+		lines.push("    Report[📊 Generate Report] --> Verdict");
+		lines.push("    Verdict{Verdict}");
+		lines.push("    Verdict -->|Pass| Success([✅ MERGEABLE])");
+		lines.push("    Verdict -->|Fail| Failure([❌ NOT MERGEABLE])");
+		lines.push("    Verdict -->|Risks| Warning([⚠️ MERGEABLE WITH RISKS])");
 
-		return lines.join("\n")
+		return lines.join("\n");
 	}
 
-	private buildConfirmationMessage(plan: AxolotlTestPlan, planFilePath: string): string {
+	private buildConfirmationMessage(
+		plan: AxolotlTestPlan,
+		planFilePath: string,
+	): string {
 		const testSummary = plan.testCases
 			.slice(0, 5)
 			.map((tc) => `  • [${tc.id}] ${tc.name} (${tc.priority})`)
-			.join("\n")
+			.join("\n");
 
-		const moreTests = plan.testCases.length > 5 ? `\n  ... and ${plan.testCases.length - 5} more tests` : ""
+		const moreTests =
+			plan.testCases.length > 5
+				? `\n  ... and ${plan.testCases.length - 5} more tests`
+				: "";
 
 		return `📋 **Axolotl QA: Test Plan Generated**
 
@@ -509,6 +578,6 @@ You can:
 2. **Edit** - Open ${planFilePath} and modify the test cases
 3. **Cancel** - Abort the QA session
 
-What would you like to do?`
+What would you like to do?`;
 	}
 }
