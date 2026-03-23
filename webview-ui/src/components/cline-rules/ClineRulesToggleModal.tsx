@@ -860,7 +860,7 @@ const ClineRulesToggleModal: React.FC = () => {
 										key={workspace.workspaceName}
 									>
 										<div className="text-sm font-normal mb-2">
-											{workspace.workspaceName}/.clinerules/hooks/
+											{workspace.workspaceName}/.axolotl/rules/hooks/
 										</div>
 										<div className="flex flex-col gap-0">
 											{workspace.hooks

@@ -150,7 +150,7 @@ const ErrorRow = memo(
 						<div className="flex flex-col p-2 rounded text-xs opacity-80 bg-quote text-foreground">
 							<div>
 								Axolotl tried to access <code>{message.text}</code> which is
-								blocked by the <code>.clineignore</code>
+								blocked by the <code>.axolotlignore</code>
 								file.
 							</div>
 						</div>

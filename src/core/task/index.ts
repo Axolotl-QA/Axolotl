@@ -2975,11 +2975,11 @@ export class Task {
 				);
 		}
 
-		// error handling if the user uses the /newrule command & their .clinerules is a file, for file read operations didnt work properly
+		// error handling if the user uses the /newrule command & their .axolotl/rules is a file, for file read operations didnt work properly
 		if (clinerulesError === true) {
 			await this.say(
 				"error",
-				"Issue with processing the /newrule command. Double check that, if '.clinerules' already exists, it's a directory and not a file. Otherwise there was an issue referencing this file/directory.",
+				"Issue with processing the /newrule command. Double check that, if '.axolotl/rules' already exists, it's a directory and not a file. Otherwise there was an issue referencing this file/directory.",
 			);
 		}
 

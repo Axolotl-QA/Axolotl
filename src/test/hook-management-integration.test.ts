@@ -41,7 +41,7 @@ describe("Hook Management Integration", () => {
 		// Create temporary directories
 		tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "hook-integration-test-"))
 		globalHooksDir = path.join(tempDir, "global", "Documents", "Cline", "Hooks")
-		workspaceHooksDir = path.join(tempDir, "workspace", ".clinerules", "hooks")
+		workspaceHooksDir = path.join(tempDir, "workspace", ".axolotl/rules", "hooks")
 
 		await fs.mkdir(globalHooksDir, { recursive: true })
 		await fs.mkdir(workspaceHooksDir, { recursive: true })

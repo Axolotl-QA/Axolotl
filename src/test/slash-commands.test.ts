@@ -106,7 +106,7 @@ describe("getAvailableSlashCommands", () => {
 
 		it("should extract filename from full path", async () => {
 			mockStateManager.getWorkspaceStateKey.withArgs("workflowToggles").returns({
-				"/Users/test/project/.clinerules/workflows/deep-analysis.md": true,
+				"/Users/test/project/.axolotl/rules/workflows/deep-analysis.md": true,
 			})
 
 			const response = await getAvailableSlashCommands(mockController as Controller, EmptyRequest.create())
@@ -117,7 +117,7 @@ describe("getAvailableSlashCommands", () => {
 
 		it("should handle Windows-style paths", async () => {
 			mockStateManager.getWorkspaceStateKey.withArgs("workflowToggles").returns({
-				"C:\\Users\\test\\project\\.clinerules\\workflows\\windows-workflow.md": true,
+				"C:\\Users\\test\\project\\.axolotl/rules\\workflows\\windows-workflow.md": true,
 			})
 
 			const response = await getAvailableSlashCommands(mockController as Controller, EmptyRequest.create())

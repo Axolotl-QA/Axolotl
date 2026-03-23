@@ -51,12 +51,12 @@ export const GlobalFileNames = {
 	groqModels: "groq_models.json",
 	basetenModels: "baseten_models.json",
 	hicapModels: "hicap_models.json",
-	mcpSettings: "cline_mcp_settings.json",
-	clineRules: ".clinerules",
-	workflows: ".clinerules/workflows",
-	hooksDir: ".clinerules/hooks",
-	clineruleSkillsDir: ".clinerules/skills",
-	clineSkillsDir: ".cline/skills",
+	mcpSettings: "axolotl_mcp_settings.json",
+	clineRules: ".axolotl/rules",
+	workflows: ".axolotl/rules/workflows",
+	hooksDir: ".axolotl/rules/hooks",
+	clineruleSkillsDir: ".axolotl/rules/skills",
+	clineSkillsDir: ".axolotl/skills",
 	claudeSkillsDir: ".claude/skills",
 	cursorRulesDir: ".cursor/rules",
 	cursorRulesFile: ".cursorrules",
@@ -172,7 +172,7 @@ export async function ensureHooksDirectoryExists(): Promise<string> {
 }
 
 /**
- * Returns the global skills directory path (~/.cline/skills).
+ * Returns the global skills directory path (~/.axolotl/skills).
  * Creates the directory if it doesn't exist.
  */
 export async function ensureSkillsDirectoryExists(): Promise<string> {
@@ -562,7 +562,7 @@ export async function getGlobalHooksDir(): Promise<string | undefined> {
 /**
  * Gets the paths to all hooks directories to search for hooks, including:
  * 1. The global hooks directory (if it exists)
- * 2. Each workspace root's .clinerules/hooks directory (if they exist)
+ * 2. Each workspace root's .axolotl/rules/hooks directory (if they exist)
  *
  * Note: Hooks from different directories may be executed concurrently.
  * No execution order is guaranteed between hooks from different directories.
@@ -586,7 +586,7 @@ export async function getAllHooksDirs(): Promise<string[]> {
 }
 
 /**
- * Gets the paths to the workspace's .clinerules/hooks directories to search for
+ * Gets the paths to the workspace's .axolotl/rules/hooks directories to search for
  * hooks. A workspace may not use hooks, and the resulting array will be empty. A
  * multi-root workspace may have multiple hooks directories.
  */
@@ -599,7 +599,7 @@ export async function getWorkspaceHooksDirs(): Promise<string[]> {
 	return (
 		await Promise.all(
 			workspaceRootPaths.map(async (workspaceRootPath) => {
-				// Look for a .clinerules/hooks folder in this workspace root.
+				// Look for a .axolotl/rules/hooks folder in this workspace root.
 				const candidate = path.join(
 					workspaceRootPath,
 					GlobalFileNames.hooksDir,

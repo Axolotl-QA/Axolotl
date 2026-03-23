@@ -71,14 +71,14 @@ setTimeout(() => {
 
 		// Create temporary directory for test hooks
 		baseTempDir = await fs.mkdtemp(path.join(os.tmpdir(), "hook-test-"))
-		// Create .clinerules/hooks subdirectory structure
-		tempDir = path.join(baseTempDir, ".clinerules", "hooks")
+		// Create .axolotl/rules/hooks subdirectory structure
+		tempDir = path.join(baseTempDir, ".axolotl/rules", "hooks")
 		await fs.mkdir(tempDir, { recursive: true })
 		testHandler = createTestHandler()
 		mockMessages = []
 
 		// Mock StateManager to return baseTempDir as workspace root
-		// This allows HookFactory to find hooks in baseTempDir/.clinerules/hooks/
+		// This allows HookFactory to find hooks in baseTempDir/.axolotl/rules/hooks/
 		stateManagerStub = sinon.stub(StateManager, "get").returns({
 			getGlobalStateKey: (key: string) => {
 				if (key === "workspaceRoots") {

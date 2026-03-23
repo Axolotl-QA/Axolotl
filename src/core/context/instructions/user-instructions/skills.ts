@@ -102,7 +102,7 @@ async function loadSkillMetadata(
 }
 
 /**
- * Discover all skills from global (~/.cline/skills) and project directories.
+ * Discover all skills from global (~/.axolotl/skills) and project directories.
  * Returns skills in order: project skills first, then global skills.
  * Global skills take precedence over project skills with the same name.
  */
@@ -122,7 +122,7 @@ export async function discoverSkills(cwd: string): Promise<SkillMetadata[]> {
 		skills.push(...projectSkills)
 	}
 
-	// Load global skills last (~/.cline/skills) - higher priority
+	// Load global skills last (~/.axolotl/skills) - higher priority
 	const globalSkills = await scanSkillsDirectory(globalSkillsDir, "global")
 	skills.push(...globalSkills)
 

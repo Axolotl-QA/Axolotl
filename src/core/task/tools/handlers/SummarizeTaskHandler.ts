@@ -152,7 +152,7 @@ export class SummarizeTaskHandler implements IToolHandler, IPartialBlockHandler 
 						break
 					}
 
-					// Check .clineignore first and skip ignored files
+					// Check .axolotlignore first and skip ignored files
 					const accessValidation = this.validator.checkClineIgnorePath(relPath)
 					if (!accessValidation.ok) {
 						continue

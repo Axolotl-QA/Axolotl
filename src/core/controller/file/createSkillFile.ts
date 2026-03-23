@@ -75,7 +75,7 @@ export async function createSkillFile(
 		if (!primaryWorkspace) {
 			throw new Error("No workspace folder open");
 		}
-		// Create in .cline/skills by default
+		// Create in .axolotl/skills by default
 		const localSkillsDir = path.join(primaryWorkspace, ".cline", "skills");
 		await fs.mkdir(localSkillsDir, { recursive: true });
 		skillDir = path.join(localSkillsDir, sanitizedName);

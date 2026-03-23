@@ -117,7 +117,7 @@ export async function refreshSkills(
 	const localSkills: SkillInfo[] = [];
 	if (primaryWorkspace) {
 		const localDirs = [
-			path.join(primaryWorkspace, ".clinerules", "skills"),
+			path.join(primaryWorkspace, ".axolotl/rules", "skills"),
 			path.join(primaryWorkspace, ".cline", "skills"),
 			path.join(primaryWorkspace, ".claude", "skills"),
 		];

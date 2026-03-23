@@ -9,7 +9,7 @@ export const LOCK_TEXT_SYMBOL = "\u{1F512}"
 /**
  * Controls LLM access to files by enforcing ignore patterns.
  * Designed to be instantiated once in Cline.ts and passed to file manipulation services.
- * Uses the 'ignore' library to support standard .gitignore syntax in .clineignore files.
+ * Uses the 'ignore' library to support standard .gitignore syntax in .axolotlignore files.
  */
 export class ClineIgnoreController {
 	private cwd: string
@@ -28,16 +28,16 @@ export class ClineIgnoreController {
 	 * Must be called after construction and before using the controller
 	 */
 	async initialize(): Promise<void> {
-		// Set up file watcher for .clineignore
+		// Set up file watcher for .axolotlignore
 		this.setupFileWatcher()
 		await this.loadClineIgnore()
 	}
 
 	/**
-	 * Set up the file watcher for .clineignore changes
+	 * Set up the file watcher for .axolotlignore changes
 	 */
 	private setupFileWatcher(): void {
-		const ignorePath = path.join(this.cwd, ".clineignore")
+		const ignorePath = path.join(this.cwd, ".axolotlignore")
 
 		this.fileWatcher = chokidar.watch(ignorePath, {
 			persistent: true, // Keep the process running as long as files are being watched
@@ -64,30 +64,30 @@ export class ClineIgnoreController {
 		})
 
 		this.fileWatcher.on("error", (error) => {
-			console.error("Error watching .clineignore file:", error)
+			console.error("Error watching .axolotlignore file:", error)
 		})
 	}
 
 	/**
-	 * Load custom patterns from .clineignore if it exists.
+	 * Load custom patterns from .axolotlignore if it exists.
 	 * Supports "!include <filename>" to load additional ignore patterns from other files.
 	 */
 	private async loadClineIgnore(): Promise<void> {
 		try {
 			// Reset ignore instance to prevent duplicate patterns
 			this.ignoreInstance = ignore()
-			const ignorePath = path.join(this.cwd, ".clineignore")
+			const ignorePath = path.join(this.cwd, ".axolotlignore")
 			if (await fileExistsAtPath(ignorePath)) {
 				const content = await fs.readFile(ignorePath, "utf8")
 				this.clineIgnoreContent = content
 				await this.processIgnoreContent(content)
-				this.ignoreInstance.add(".clineignore")
+				this.ignoreInstance.add(".axolotlignore")
 			} else {
 				this.clineIgnoreContent = undefined
 			}
 		} catch (error) {
 			// Should never happen: reading file failed even though it exists
-			console.error("Unexpected error loading .clineignore:", error)
+			console.error("Unexpected error loading .axolotlignore:", error)
 		}
 	}
 
@@ -152,7 +152,7 @@ export class ClineIgnoreController {
 	 * @returns true if file is accessible, false if ignored
 	 */
 	validateAccess(filePath: string): boolean {
-		// Always allow access if .clineignore does not exist
+		// Always allow access if .axolotlignore does not exist
 		if (!this.clineIgnoreContent) {
 			return true
 		}
@@ -176,7 +176,7 @@ export class ClineIgnoreController {
 	 * @returns path of file that is being accessed if it is being accessed, undefined if command is allowed
 	 */
 	validateCommand(command: string): string | undefined {
-		// Always allow if no .clineignore exists
+		// Always allow if no .axolotlignore exists
 		if (!this.clineIgnoreContent) {
 			return undefined
 		}

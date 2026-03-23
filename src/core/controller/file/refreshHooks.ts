@@ -45,7 +45,7 @@ export async function refreshHooks(
 	const workspaceHooksList: WorkspaceHooks[] = [];
 
 	for (const workspacePath of workspacePaths.paths) {
-		const workspaceHooksDir = path.join(workspacePath, ".clinerules", "hooks");
+		const workspaceHooksDir = path.join(workspacePath, ".axolotl/rules", "hooks");
 		const hooks: HookInfo[] = [];
 
 		for (const hookName of VALID_HOOK_TYPES) {

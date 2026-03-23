@@ -27,7 +27,7 @@ export const formatResponse = {
 		`The tool execution failed with the following error:\n<error>\n${error}\n</error>`,
 
 	clineIgnoreError: (path: string) =>
-		`Access to ${path} is blocked by the .clineignore file settings. You must try to continue in the task without using this file, or ask the user to update the .clineignore file.`,
+		`Access to ${path} is blocked by the .axolotlignore file settings. You must try to continue in the task without using this file, or ask the user to update the .axolotlignore file.`,
 
 	permissionDeniedError: (reason: string) =>
 		`Command execution blocked by CLINE_COMMAND_PERMISSIONS: ${reason}. You must try a different approach or ask the user to update the permission settings.`,
@@ -248,19 +248,19 @@ Otherwise, if you have not completed the task and do not need additional informa
 		`Tool [${toolName}] was not executed because a tool has already been used in this message. Only one tool may be used per message. You must assess the first tool's result before proceeding to use the next tool.`,
 
 	clineIgnoreInstructions: (content: string) =>
-		`# .clineignore\n\n(The following is provided by a root-level .clineignore file where the user has specified files and directories that should not be accessed. When using list_files, you'll notice a ${LOCK_TEXT_SYMBOL} next to files that are blocked. Attempting to access the file's contents e.g. through read_file will result in an error.)\n\n${content}\n.clineignore`,
+		`# .axolotlignore\n\n(The following is provided by a root-level .axolotlignore file where the user has specified files and directories that should not be accessed. When using list_files, you'll notice a ${LOCK_TEXT_SYMBOL} next to files that are blocked. Attempting to access the file's contents e.g. through read_file will result in an error.)\n\n${content}\n.axolotlignore`,
 
 	clineRulesGlobalDirectoryInstructions: (
 		globalClineRulesFilePath: string,
 		content: string,
 	) =>
-		`# .clinerules/\n\nThe following is provided by a global .clinerules/ directory, located at ${globalClineRulesFilePath.toPosix()}, where the user has specified instructions for all working directories:\n\n${content}`,
+		`# .axolotl/rules/\n\nThe following is provided by a global .axolotl/rules/ directory, located at ${globalClineRulesFilePath.toPosix()}, where the user has specified instructions for all working directories:\n\n${content}`,
 
 	clineRulesLocalDirectoryInstructions: (cwd: string, content: string) =>
-		`# .clinerules/\n\nThe following is provided by a root-level .clinerules/ directory where the user has specified instructions for this working directory (${cwd.toPosix()})\n\n${content}`,
+		`# .axolotl/rules/\n\nThe following is provided by a root-level .axolotl/rules/ directory where the user has specified instructions for this working directory (${cwd.toPosix()})\n\n${content}`,
 
 	clineRulesLocalFileInstructions: (cwd: string, content: string) =>
-		`# .clinerules\n\nThe following is provided by a root-level .clinerules file where the user has specified instructions for this working directory (${cwd.toPosix()})\n\n${content}`,
+		`# .axolotl/rules\n\nThe following is provided by a root-level .axolotl/rules file where the user has specified instructions for this working directory (${cwd.toPosix()})\n\n${content}`,
 
 	windsurfRulesLocalFileInstructions: (cwd: string, content: string) =>
 		`# .windsurfrules\n\nThe following is provided by a root-level .windsurfrules file where the user has specified instructions for this working directory (${cwd.toPosix()})\n\n${content}`,

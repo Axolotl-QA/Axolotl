@@ -112,7 +112,7 @@ export const BROWSER_ACTIONS = [
  */
 export const VALIDATION_ERROR_PATTERNS = [
 	"Missing required parameter",
-	"blocked by .clineignore",
+	"blocked by .axolotlignore",
 ] as const;
 
 /**

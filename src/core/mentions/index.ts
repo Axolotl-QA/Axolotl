@@ -112,7 +112,7 @@ export async function parseMentions(
 		// Safety guard: skip a bare "/" mention. This can surface from parsed strings or tool output and would resolve to the
 		// workspace root. Expanding it would scan the entire project, inflate context, and can trigger recursive loops.
 		// If root-level expansion is ever desired, gate it behind an explicit syntax (e.g. "@root" or "@folder:/")
-		// and enforce strict size/.clineignore limits instead.
+		// and enforce strict size/.axolotlignore limits instead.
 		if (mention === "/") {
 			continue
 		}

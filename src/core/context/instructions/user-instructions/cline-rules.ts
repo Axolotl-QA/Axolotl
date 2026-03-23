@@ -21,7 +21,7 @@ export const getGlobalClineRules = async (globalClineRulesFilePath: string, togg
 					combinedContent = rulesFilesTotalContent
 				}
 			} catch {
-				console.error(`Failed to read .clinerules directory at ${globalClineRulesFilePath}`)
+				console.error(`Failed to read .axolotl/rules directory at ${globalClineRulesFilePath}`)
 			}
 		} else {
 			console.error(`${globalClineRulesFilePath} is not a directory`)
@@ -63,9 +63,9 @@ export const getLocalClineRules = async (cwd: string, toggles: ClineRulesToggles
 		if (await isDirectory(clineRulesFilePath)) {
 			try {
 				const rulesFilePaths = await readDirectory(clineRulesFilePath, [
-					[".clinerules", "workflows"],
-					[".clinerules", "hooks"],
-					[".clinerules", "skills"],
+					[".axolotl/rules", "workflows"],
+					[".axolotl/rules", "hooks"],
+					[".axolotl/rules", "skills"],
 				])
 
 				const rulesFilesTotalContent = await getRuleFilesTotalContent(rulesFilePaths, cwd, toggles)
@@ -73,7 +73,7 @@ export const getLocalClineRules = async (cwd: string, toggles: ClineRulesToggles
 					clineRulesFileInstructions = formatResponse.clineRulesLocalDirectoryInstructions(cwd, rulesFilesTotalContent)
 				}
 			} catch {
-				console.error(`Failed to read .clinerules directory at ${clineRulesFilePath}`)
+				console.error(`Failed to read .axolotl/rules directory at ${clineRulesFilePath}`)
 			}
 		} else {
 			try {
@@ -84,7 +84,7 @@ export const getLocalClineRules = async (cwd: string, toggles: ClineRulesToggles
 					}
 				}
 			} catch {
-				console.error(`Failed to read .clinerules file at ${clineRulesFilePath}`)
+				console.error(`Failed to read .axolotl/rules file at ${clineRulesFilePath}`)
 			}
 		}
 	}
@@ -109,9 +109,9 @@ export async function refreshClineRulesToggles(
 	const localClineRulesToggles = controller.stateManager.getWorkspaceStateKey("localClineRulesToggles")
 	const localClineRulesFilePath = path.resolve(workingDirectory, GlobalFileNames.clineRules)
 	const updatedLocalToggles = await synchronizeRuleToggles(localClineRulesFilePath, localClineRulesToggles, "", [
-		[".clinerules", "workflows"],
-		[".clinerules", "hooks"],
-		[".clinerules", "skills"],
+		[".axolotl/rules", "workflows"],
+		[".axolotl/rules", "hooks"],
+		[".axolotl/rules", "skills"],
 	])
 	controller.stateManager.setWorkspaceState("localClineRulesToggles", updatedLocalToggles)
 

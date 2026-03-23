@@ -26,7 +26,7 @@ export class ToolValidator {
 	}
 
 	/**
-	 * Verifies access is allowed to a given path via .clineignore rules.
+	 * Verifies access is allowed to a given path via .axolotlignore rules.
 	 * Callers should pass a repo-relative (workspace-relative) path.
 	 */
 	checkClineIgnorePath(relPath: string): ValidationResult {
@@ -34,7 +34,7 @@ export class ToolValidator {
 		if (!accessAllowed) {
 			return {
 				ok: false,
-				error: `Access to path '${relPath}' is blocked by .clineignore settings.`,
+				error: `Access to path '${relPath}' is blocked by .axolotlignore settings.`,
 			}
 		}
 		return { ok: true }

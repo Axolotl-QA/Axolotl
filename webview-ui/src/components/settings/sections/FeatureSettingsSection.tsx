@@ -297,7 +297,7 @@ const FeatureSettingsSection = ({
 									Experimental:{" "}
 								</span>{" "}
 								<span className="text-description">
-									Allows execution of hooks from .clinerules/hooks/ directory.
+									Allows execution of hooks from .axolotl/rules/hooks/ directory.
 								</span>
 							</p>
 						)}
@@ -318,7 +318,7 @@ const FeatureSettingsSection = ({
 							</span>{" "}
 							<span className="text-description">
 								Enables Skills for reusable, on-demand agent instructions from
-								.cline/skills/ directories.
+								.axolotl/skills/ directories.
 							</span>
 						</p>
 					</div>

@@ -76,8 +76,8 @@ Instructions here`)
 			expect(skills[0].source).to.equal("global")
 		})
 
-		it("should discover skills from project .clinerules/skills directory", async () => {
-			const projectSkillsDir = path.join(TEST_CWD, ".clinerules", "skills")
+		it("should discover skills from project .axolotl/rules/skills directory", async () => {
+			const projectSkillsDir = path.join(TEST_CWD, ".axolotl/rules", "skills")
 			const skillDir = path.join(projectSkillsDir, "explaining-code")
 			const skillMdPath = path.join(skillDir, "SKILL.md")
 
@@ -99,7 +99,7 @@ Use analogies and ASCII diagrams when explaining code.`)
 			expect(skills[0].source).to.equal("project")
 		})
 
-		it("should discover skills from project .cline/skills directory", async () => {
+		it("should discover skills from project .axolotl/skills directory", async () => {
 			const clineSkillsDir = path.join(TEST_CWD, ".cline", "skills")
 			const skillDir = path.join(clineSkillsDir, "debugging")
 			const skillMdPath = path.join(skillDir, "SKILL.md")
@@ -212,7 +212,7 @@ description: Global coding skill
 Global instructions`)
 
 			// Setup project skill with same name (lower priority)
-			const projectSkillsDir = path.join(TEST_CWD, ".clinerules", "skills")
+			const projectSkillsDir = path.join(TEST_CWD, ".axolotl/rules", "skills")
 			const projectSkillDir = path.join(projectSkillsDir, "coding")
 			const projectSkillMdPath = path.join(projectSkillDir, "SKILL.md")
 
@@ -252,7 +252,7 @@ description: A global skill
 Content`)
 
 			// Setup project skill with different name
-			const projectSkillsDir = path.join(TEST_CWD, ".clinerules", "skills")
+			const projectSkillsDir = path.join(TEST_CWD, ".axolotl/rules", "skills")
 			const projectSkillDir = path.join(projectSkillsDir, "project-skill")
 			const projectSkillMdPath = path.join(projectSkillDir, "SKILL.md")
 
