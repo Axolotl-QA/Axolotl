@@ -13,12 +13,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Setup SSH
-        uses: webfactory/ssh-agent@v0.9.0
-        with:
-          ssh-private-key: ${{ secrets.PUBLIC_REPO_DEPLOY_KEY }}
-
       - name: Push to public repo
         run: |
-          git remote add public git@github.com:Axolotl-QA/Axolotl.git
+          git remote add public https://x-access-token:${{ secrets.PUBLIC_REPO_PUSH_TOKEN }}@github.com/Axolotl-QA/Axolotl.git
           git push public main --force
