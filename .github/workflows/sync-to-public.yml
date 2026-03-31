@@ -13,12 +13,11 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Push to public repo
         env:
           PAT: ${{ secrets.PUBLIC_REPO_PUSH_TOKEN }}
         run: |
-          git config --global credential.helper store
-          echo "https://x-access-token:${PAT}@github.com" > ~/.git-credentials
-          git remote add public https://github.com/Axolotl-QA/Axolotl.git
+          git remote add public "https://x-access-token:${PAT}@github.com/Axolotl-QA/Axolotl.git"
           git push public main --force
