@@ -1,0 +1,24 @@
+name: Sync to Public Repo
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.PUBLIC_REPO_DEPLOY_KEY }}
+
+      - name: Push to public repo
+        run: |
+          git remote add public git@github.com:Axolotl-QA/Axolotl.git
+          git push public main --force
