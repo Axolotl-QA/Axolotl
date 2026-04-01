@@ -22,7 +22,7 @@
 <br/>
 
 <p align="center">
-  <img src="assets/gifs/06-e2e.gif" width="720" alt="Axolotl running end-to-end browser tests" />
+  <img src="assets/gifs/07-e2e.gif" width="720" alt="Axolotl running end-to-end browser tests" />
 </p>
 <p align="center"><em>Axolotl testing a live app — clicking buttons, checking responses, capturing evidence.</em></p>
 
@@ -48,121 +48,141 @@ Two hours later, production breaks. The tests didn't cover the actual user flow 
 
 ## See Every Step
 
-<table>
-<tr>
-<td width="50%">
+<table><tr>
+<td width="35%" valign="top">
 
 ### 1. Sign In
+
 One-click Google sign in. Only used for future update notifications — **no usage data is collected**.
 
-</td>
-<td width="50%">
-
-### 2. Start a QA Session
-Pick your source: a PR number, uncommitted changes, or specific files. Or just type in the chat.
+[Watch full video &rarr;](https://youtu.be/OxcI_s_Q4OI)
 
 </td>
-</tr>
-<tr>
-<td>
+<td width="65%">
 
-<a href="https://youtu.be/OxcI_s_Q4OI"><img src="assets/gifs/01-signin.gif" alt="Sign In" /></a>
+<img src="assets/gifs/01-signin.gif" alt="Sign In" />
 
 </td>
-<td>
+</tr></table>
 
-<a href="https://youtu.be/Gf--pxAJEIk"><img src="assets/gifs/02-start.gif" alt="Start QA Session" /></a>
+<table><tr>
+<td width="65%">
+
+<img src="assets/gifs/02-settings.gif" alt="Configure Settings" />
 
 </td>
-</tr>
-</table>
+<td width="35%" valign="top">
 
-<table>
-<tr>
-<td width="50%">
+### 2. Configure
 
-### 3. Code Analysis
+Set your **Anthropic API key** and [You.com API key](https://api.you.com/) for web search. We recommend **Claude Sonnet 4.6 (1M)** — all browser testing is optimized for Sonnet.
+
+[Watch full video &rarr;](https://youtu.be/_QrNSwnoKzw)
+
+</td>
+</tr></table>
+
+<table><tr>
+<td width="35%" valign="top">
+
+### 3. Start a QA Session
+
+Pick your source: a PR number, uncommitted changes, or specific files. Or just type in the chat box.
+
+[Watch full video &rarr;](https://youtu.be/Gf--pxAJEIk)
+
+</td>
+<td width="65%">
+
+<img src="assets/gifs/03-start.gif" alt="Start QA Session" />
+
+</td>
+</tr></table>
+
+<table><tr>
+<td width="65%">
+
+<img src="assets/gifs/04-code-analysis.gif" alt="Code Analysis" />
+
+</td>
+<td width="35%" valign="top">
+
+### 4. Code Analysis
+
 Tree-sitter AST parsing + ripgrep pattern search. Axolotl understands your code structure before writing any tests.
 
-</td>
-<td width="50%">
+[Watch full video &rarr;](https://youtu.be/dbvSSG2ABDw)
 
-### 4. Web Search & Test Cases
+</td>
+</tr></table>
+
+<table><tr>
+<td width="35%" valign="top">
+
+### 5. Web Search & Test Cases
+
 Searches for testing best practices specific to your tech stack, then generates targeted test cases.
 
-</td>
-</tr>
-<tr>
-<td>
-
-<a href="https://youtu.be/dbvSSG2ABDw"><img src="assets/gifs/03-code-analysis.gif" alt="Code Analysis" /></a>
+[Watch full video &rarr;](https://youtu.be/VbObxj5kdeY)
 
 </td>
-<td>
+<td width="65%">
 
-<a href="https://youtu.be/VbObxj5kdeY"><img src="assets/gifs/04-web-search.gif" alt="Web Search & Test Cases" /></a>
+<img src="assets/gifs/05-web-search.gif" alt="Web Search & Test Cases" />
 
 </td>
-</tr>
-</table>
+</tr></table>
 
-<table>
-<tr>
-<td width="50%">
+<table><tr>
+<td width="65%">
 
-### 5. Plan & Log Injection
+<img src="assets/gifs/06-plan.gif" alt="Plan & Log Injection" />
+
+</td>
+<td width="35%" valign="top">
+
+### 6. Plan & Log Injection
+
 Review the test plan. On approval, Axolotl injects temporary log markers to capture behavioral evidence.
 
-</td>
-<td width="50%">
+[Watch full video &rarr;](https://youtu.be/zK9ZrAGQGks)
 
-### 6. End-to-End Testing
+</td>
+</tr></table>
+
+<table><tr>
+<td width="35%" valign="top">
+
+### 7. End-to-End Testing
+
 Real browser. Real clicks. Real screenshots. Monitors frontend UI and backend output simultaneously.
 
-</td>
-</tr>
-<tr>
-<td>
-
-<a href="https://youtu.be/zK9ZrAGQGks"><img src="assets/gifs/05-plan.gif" alt="Plan & Log Injection" /></a>
+[Watch full video &rarr;](https://youtu.be/osxX891zBEM)
 
 </td>
-<td>
+<td width="65%">
 
-<a href="https://youtu.be/osxX891zBEM"><img src="assets/gifs/06-e2e.gif" alt="End-to-End Testing" /></a>
+<img src="assets/gifs/07-e2e.gif" alt="End-to-End Testing" />
 
 </td>
-</tr>
-</table>
+</tr></table>
 
-<table>
-<tr>
-<td width="50%">
+<table><tr>
+<td width="65%">
 
-### 7. Report & Memory
+<img src="assets/gifs/08-report.gif" alt="Report & Memory" />
+
+</td>
+<td width="35%" valign="top">
+
+### 8. Report & Memory
+
 Evidence-backed verdict with pass/fail per test case. Axolotl remembers your project setup for next time.
 
-</td>
-<td width="50%">
-
-### 8. Configure Settings
-Set your Anthropic API key and You.com API key. We recommend **Claude Sonnet 4.6 (1M)** for all workflows.
+[Watch full video &rarr;](https://youtu.be/rq-h5USFsMA)
 
 </td>
-</tr>
-<tr>
-<td>
-
-<a href="https://youtu.be/rq-h5USFsMA"><img src="assets/gifs/07-report.gif" alt="Report & Memory" /></a>
-
-</td>
-<td>
-
-<a href="https://youtu.be/_QrNSwnoKzw"><img src="https://img.youtube.com/vi/_QrNSwnoKzw/hqdefault.jpg" width="100%" alt="Settings" /></a>
-
-</td>
-</tr>
-</table>
+</tr></table>
 
 <br/>
 
