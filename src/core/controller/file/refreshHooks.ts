@@ -8,7 +8,7 @@ import os from "os";
 import path from "path";
 import { HostProvider } from "@/hosts/host-provider";
 import { VALID_HOOK_TYPES } from "../../hooks/utils";
-import { Controller } from "..";
+import type { Controller } from "..";
 
 export async function refreshHooks(
 	_controller: Controller,
@@ -45,7 +45,11 @@ export async function refreshHooks(
 	const workspaceHooksList: WorkspaceHooks[] = [];
 
 	for (const workspacePath of workspacePaths.paths) {
-		const workspaceHooksDir = path.join(workspacePath, ".axolotl/rules", "hooks");
+		const workspaceHooksDir = path.join(
+			workspacePath,
+			".axolotl/rules",
+			"hooks",
+		);
 		const hooks: HookInfo[] = [];
 
 		for (const hookName of VALID_HOOK_TYPES) {
