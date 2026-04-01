@@ -22,9 +22,7 @@
 <br/>
 
 <p align="center">
-  <a href="https://youtu.be/osxX891zBEM">
-    <img src="https://img.youtube.com/vi/osxX891zBEM/maxresdefault.jpg" width="720" alt="Watch Axolotl run end-to-end tests" />
-  </a>
+  <img src="assets/gifs/06-e2e.gif" width="720" alt="Axolotl running end-to-end browser tests" />
 </p>
 <p align="center"><em>Axolotl testing a live app — clicking buttons, checking responses, capturing evidence.</em></p>
 
@@ -44,36 +42,6 @@ Two hours later, production breaks. The tests didn't cover the actual user flow 
 
 <br/>
 
-## How It Works
-
-```mermaid
-flowchart TD
-    A["PR / Uncommitted Changes / Files"] --> B["1. Detect Changes\ngit diff & PR analysis"]
-    B --> C["2. Analyze Code\ntree-sitter AST + ripgrep"]
-    C --> D["3. Web Search\ntesting best practices for your stack"]
-    D --> E["4. Generate Plan\nAI writes test cases — you review"]
-    E --> F["5. Execute Tests\nreal browser + your dev server"]
-    F --> G["6. Verdict"]
-    G --> H["MERGEABLE"]
-    G --> I["NOT MERGEABLE"]
-    G --> J["MERGEABLE WITH RISKS"]
-
-    style A fill:#1a1a2e,stroke:#e94560,color:#fff
-    style B fill:#16213e,stroke:#0f3460,color:#fff
-    style C fill:#16213e,stroke:#0f3460,color:#fff
-    style D fill:#16213e,stroke:#0f3460,color:#fff
-    style E fill:#16213e,stroke:#0f3460,color:#fff
-    style F fill:#16213e,stroke:#0f3460,color:#fff
-    style G fill:#1a1a2e,stroke:#e94560,color:#fff
-    style H fill:#0a3d0a,stroke:#2ecc71,color:#fff
-    style I fill:#5c0a0a,stroke:#e74c3c,color:#fff
-    style J fill:#5c4a0a,stroke:#f39c12,color:#fff
-```
-
-Every step requires **your approval**. Axolotl is a QA partner, not an unsupervised bot.
-
-<br/>
-
 ---
 
 <br/>
@@ -90,78 +58,49 @@ One-click Google sign in. Only used for future update notifications — **no usa
 </td>
 <td width="50%">
 
-### 2. Configure Settings
-Set your Anthropic API key and You.com API key for web search. We recommend **Claude Sonnet 4.6 (1M)**.
-
-</td>
-</tr>
-<tr>
-<td>
-
-[![Sign In](https://img.youtube.com/vi/OxcI_s_Q4OI/hqdefault.jpg)](https://youtu.be/OxcI_s_Q4OI)
-
-</td>
-<td>
-
-[![Settings](https://img.youtube.com/vi/_QrNSwnoKzw/hqdefault.jpg)](https://youtu.be/_QrNSwnoKzw)
-
-</td>
-</tr>
-</table>
-
-<table>
-<tr>
-<td width="50%">
-
-### 3. Start a QA Session
+### 2. Start a QA Session
 Pick your source: a PR number, uncommitted changes, or specific files. Or just type in the chat.
 
 </td>
+</tr>
+<tr>
+<td>
+
+<a href="https://youtu.be/OxcI_s_Q4OI"><img src="assets/gifs/01-signin.gif" alt="Sign In" /></a>
+
+</td>
+<td>
+
+<a href="https://youtu.be/Gf--pxAJEIk"><img src="assets/gifs/02-start.gif" alt="Start QA Session" /></a>
+
+</td>
+</tr>
+</table>
+
+<table>
+<tr>
 <td width="50%">
 
-### 4. Code Analysis
+### 3. Code Analysis
 Tree-sitter AST parsing + ripgrep pattern search. Axolotl understands your code structure before writing any tests.
 
 </td>
-</tr>
-<tr>
-<td>
-
-[![Start](https://img.youtube.com/vi/Gf--pxAJEIk/hqdefault.jpg)](https://youtu.be/Gf--pxAJEIk)
-
-</td>
-<td>
-
-[![Code Analysis](https://img.youtube.com/vi/dbvSSG2ABDw/hqdefault.jpg)](https://youtu.be/dbvSSG2ABDw)
-
-</td>
-</tr>
-</table>
-
-<table>
-<tr>
 <td width="50%">
 
-### 5. Web Search & Test Cases
+### 4. Web Search & Test Cases
 Searches for testing best practices specific to your tech stack, then generates targeted test cases.
 
 </td>
-<td width="50%">
-
-### 6. Plan & Log Injection
-Review the test plan. On approval, Axolotl injects temporary log markers to capture behavioral evidence.
-
-</td>
 </tr>
 <tr>
 <td>
 
-[![Web Search](https://img.youtube.com/vi/VbObxj5kdeY/hqdefault.jpg)](https://youtu.be/VbObxj5kdeY)
+<a href="https://youtu.be/dbvSSG2ABDw"><img src="assets/gifs/03-code-analysis.gif" alt="Code Analysis" /></a>
 
 </td>
 <td>
 
-[![Plan & Logs](https://img.youtube.com/vi/zK9ZrAGQGks/hqdefault.jpg)](https://youtu.be/zK9ZrAGQGks)
+<a href="https://youtu.be/VbObxj5kdeY"><img src="assets/gifs/04-web-search.gif" alt="Web Search & Test Cases" /></a>
 
 </td>
 </tr>
@@ -171,26 +110,55 @@ Review the test plan. On approval, Axolotl injects temporary log markers to capt
 <tr>
 <td width="50%">
 
-### 7. End-to-End Testing
-Real browser. Real clicks. Real screenshots. Monitors frontend UI and backend output simultaneously.
+### 5. Plan & Log Injection
+Review the test plan. On approval, Axolotl injects temporary log markers to capture behavioral evidence.
 
 </td>
 <td width="50%">
 
-### 8. Report & Memory
-Evidence-backed verdict with pass/fail per test case. Axolotl remembers your project setup for next time.
+### 6. End-to-End Testing
+Real browser. Real clicks. Real screenshots. Monitors frontend UI and backend output simultaneously.
 
 </td>
 </tr>
 <tr>
 <td>
 
-[![E2E Testing](https://img.youtube.com/vi/osxX891zBEM/hqdefault.jpg)](https://youtu.be/osxX891zBEM)
+<a href="https://youtu.be/zK9ZrAGQGks"><img src="assets/gifs/05-plan.gif" alt="Plan & Log Injection" /></a>
 
 </td>
 <td>
 
-[![Report](https://img.youtube.com/vi/rq-h5USFsMA/hqdefault.jpg)](https://youtu.be/rq-h5USFsMA)
+<a href="https://youtu.be/osxX891zBEM"><img src="assets/gifs/06-e2e.gif" alt="End-to-End Testing" /></a>
+
+</td>
+</tr>
+</table>
+
+<table>
+<tr>
+<td width="50%">
+
+### 7. Report & Memory
+Evidence-backed verdict with pass/fail per test case. Axolotl remembers your project setup for next time.
+
+</td>
+<td width="50%">
+
+### 8. Configure Settings
+Set your Anthropic API key and You.com API key. We recommend **Claude Sonnet 4.6 (1M)** for all workflows.
+
+</td>
+</tr>
+<tr>
+<td>
+
+<a href="https://youtu.be/rq-h5USFsMA"><img src="assets/gifs/07-report.gif" alt="Report & Memory" /></a>
+
+</td>
+<td>
+
+<a href="https://youtu.be/_QrNSwnoKzw"><img src="https://img.youtube.com/vi/_QrNSwnoKzw/hqdefault.jpg" width="100%" alt="Settings" /></a>
 
 </td>
 </tr>
