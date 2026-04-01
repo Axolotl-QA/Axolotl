@@ -1,395 +1,303 @@
-# Axolotl
-
 <p align="center">
-  <img src="./assets/docs/axolotl-banner.png" width="100%" alt="Axolotl - AI QA Agent for VS Code" />
+  <img src="assets/icons/icon.png" width="140" alt="Axolotl" />
 </p>
 
-**Axolotl is an AI-powered QA Agent that lives in your VS Code workspace.**
+<h1 align="center">Axolotl</h1>
 
-Unlike traditional testing frameworks, Axolotl acts as your automated QA engineer during the PR review phase. It doesn't aim for 100% test coverage—instead, it focuses on **evidence-driven validation** of main flows to help you decide: **"Is this PR functional?"**
+<p align="center">
+  <strong>AI that tests your code before you merge it.</strong>
+</p>
 
-## 🎯 Product Positioning
+<p align="center">
+  Point it at a PR. It reads the diff, analyzes the code, generates tests,<br/>
+  opens a real browser, clicks through your app, and tells you if it's safe to ship.
+</p>
 
-- **PR-centric workflow**: Each QA session is tied to a specific Pull Request
-- **Evidence-based decisions**: Uses real system execution + UI behavior + logs to make judgments
-- **Main flow focused**: Validates critical paths, not exhaustive edge cases
-- **Merge confidence**: Final output is a clear recommendation on merge safety
+<p align="center">
+  <a href="https://qaxolotl.com"><img src="https://img.shields.io/badge/Website-qaxolotl.com-8A2BE2?style=for-the-badge" alt="Website"></a>&nbsp;
+  <a href="https://github.com/Axolotl-QA/Axolotl/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-Apache_2.0-blue?style=for-the-badge" alt="License"></a>&nbsp;
+  <a href="https://github.com/Axolotl-QA/Axolotl/stargazers"><img src="https://img.shields.io/github/stars/Axolotl-QA/Axolotl?style=for-the-badge&color=yellow" alt="Stars"></a>
+</p>
 
-> **Axolotl ≠ Test Framework**
-> **Axolotl ≠ CI/CD Pipeline**
-> **Axolotl = Your QA teammate during PR review**
+<br/>
 
----
+<p align="center">
+  <a href="https://youtu.be/osxX891zBEM">
+    <img src="https://img.youtube.com/vi/osxX891zBEM/maxresdefault.jpg" width="720" alt="Watch Axolotl run end-to-end tests" />
+  </a>
+</p>
+<p align="center"><em>Axolotl testing a live app — clicking buttons, checking responses, capturing evidence.</em></p>
 
-## 🏗️ Architecture Overview
-
-```
-┌─────────────────────────┐
-│ VS Code Extension (UI)  │
-│  - Side Panel           │
-│  - Commands             │
-└──────────┬──────────────┘
-           │
-           ▼
-┌─────────────────────────┐
-│ Axolotl Orchestrator   │  ← Core Intelligence
-│  - State Machine / DAG  │
-│  - QA Rules Engine      │
-│  - Evidence Aggregation │
-└──────────┬──────────────┘
-           │
-           ▼
-┌─────────────────────────┐
-│ Execution Engine        │
-│  - Write/modify code    │
-│  - Execute commands     │
-│  - Interact with UI     │
-│  - Capture evidence     │
-└─────────────────────────┘
-```
+<br/>
 
 ---
 
-## 🚀 Getting Started
+<br/>
 
-### Prerequisites
+## The Problem
 
-- VS Code 1.93 or higher
-- Node.js 18.x or higher
-- Git repository with a PR or changes to test
+You open a PR. You eyeball the diff. You run the existing test suite — it passes. You merge.
 
-### Installation
+Two hours later, production breaks. The tests didn't cover the actual user flow that changed.
 
-#### Option 1: Install from Source (Development)
+**Axolotl fixes this.** It reads your code changes, figures out what *should* be tested, and actually tests it — in a real browser, against your real app.
+
+<br/>
+
+## How It Works
+
+```mermaid
+flowchart TD
+    A["PR / Uncommitted Changes / Files"] --> B["1. Detect Changes\ngit diff & PR analysis"]
+    B --> C["2. Analyze Code\ntree-sitter AST + ripgrep"]
+    C --> D["3. Web Search\ntesting best practices for your stack"]
+    D --> E["4. Generate Plan\nAI writes test cases — you review"]
+    E --> F["5. Execute Tests\nreal browser + your dev server"]
+    F --> G["6. Verdict"]
+    G --> H["MERGEABLE"]
+    G --> I["NOT MERGEABLE"]
+    G --> J["MERGEABLE WITH RISKS"]
+
+    style A fill:#1a1a2e,stroke:#e94560,color:#fff
+    style B fill:#16213e,stroke:#0f3460,color:#fff
+    style C fill:#16213e,stroke:#0f3460,color:#fff
+    style D fill:#16213e,stroke:#0f3460,color:#fff
+    style E fill:#16213e,stroke:#0f3460,color:#fff
+    style F fill:#16213e,stroke:#0f3460,color:#fff
+    style G fill:#1a1a2e,stroke:#e94560,color:#fff
+    style H fill:#0a3d0a,stroke:#2ecc71,color:#fff
+    style I fill:#5c0a0a,stroke:#e74c3c,color:#fff
+    style J fill:#5c4a0a,stroke:#f39c12,color:#fff
+```
+
+Every step requires **your approval**. Axolotl is a QA partner, not an unsupervised bot.
+
+<br/>
+
+---
+
+<br/>
+
+## See Every Step
+
+<table>
+<tr>
+<td width="50%">
+
+### 1. Sign In
+One-click Google sign in. Only used for future update notifications — **no usage data is collected**.
+
+</td>
+<td width="50%">
+
+### 2. Configure Settings
+Set your Anthropic API key and You.com API key for web search. We recommend **Claude Sonnet 4.6 (1M)**.
+
+</td>
+</tr>
+<tr>
+<td>
+
+[![Sign In](https://img.youtube.com/vi/OxcI_s_Q4OI/hqdefault.jpg)](https://youtu.be/OxcI_s_Q4OI)
+
+</td>
+<td>
+
+[![Settings](https://img.youtube.com/vi/_QrNSwnoKzw/hqdefault.jpg)](https://youtu.be/_QrNSwnoKzw)
+
+</td>
+</tr>
+</table>
+
+<table>
+<tr>
+<td width="50%">
+
+### 3. Start a QA Session
+Pick your source: a PR number, uncommitted changes, or specific files. Or just type in the chat.
+
+</td>
+<td width="50%">
+
+### 4. Code Analysis
+Tree-sitter AST parsing + ripgrep pattern search. Axolotl understands your code structure before writing any tests.
+
+</td>
+</tr>
+<tr>
+<td>
+
+[![Start](https://img.youtube.com/vi/Gf--pxAJEIk/hqdefault.jpg)](https://youtu.be/Gf--pxAJEIk)
+
+</td>
+<td>
+
+[![Code Analysis](https://img.youtube.com/vi/dbvSSG2ABDw/hqdefault.jpg)](https://youtu.be/dbvSSG2ABDw)
+
+</td>
+</tr>
+</table>
+
+<table>
+<tr>
+<td width="50%">
+
+### 5. Web Search & Test Cases
+Searches for testing best practices specific to your tech stack, then generates targeted test cases.
+
+</td>
+<td width="50%">
+
+### 6. Plan & Log Injection
+Review the test plan. On approval, Axolotl injects temporary log markers to capture behavioral evidence.
+
+</td>
+</tr>
+<tr>
+<td>
+
+[![Web Search](https://img.youtube.com/vi/VbObxj5kdeY/hqdefault.jpg)](https://youtu.be/VbObxj5kdeY)
+
+</td>
+<td>
+
+[![Plan & Logs](https://img.youtube.com/vi/zK9ZrAGQGks/hqdefault.jpg)](https://youtu.be/zK9ZrAGQGks)
+
+</td>
+</tr>
+</table>
+
+<table>
+<tr>
+<td width="50%">
+
+### 7. End-to-End Testing
+Real browser. Real clicks. Real screenshots. Monitors frontend UI and backend output simultaneously.
+
+</td>
+<td width="50%">
+
+### 8. Report & Memory
+Evidence-backed verdict with pass/fail per test case. Axolotl remembers your project setup for next time.
+
+</td>
+</tr>
+<tr>
+<td>
+
+[![E2E Testing](https://img.youtube.com/vi/osxX891zBEM/hqdefault.jpg)](https://youtu.be/osxX891zBEM)
+
+</td>
+<td>
+
+[![Report](https://img.youtube.com/vi/rq-h5USFsMA/hqdefault.jpg)](https://youtu.be/rq-h5USFsMA)
+
+</td>
+</tr>
+</table>
+
+<br/>
+
+---
+
+<br/>
+
+## Quick Start
+
+### 1. Clone & Install
 
 ```bash
-# Clone the repository
-git clone https://github.com/yourusername/axolotl.git
-cd axolotl
-
-# Install dependencies
-npm run install:all
-
-# Build the extension
-npm run compile
-
-# Run in development mode
+git clone https://github.com/Axolotl-QA/Axolotl.git
+cd Axolotl
+npm install
+npm run build:webview
 npm run dev
 ```
 
-Then press `F5` in VS Code to launch the Extension Development Host.
+Press **F5** to launch the Extension Development Host.
 
-#### Option 2: Package and Install
+### 2. Configure
+
+| Setting | Value | Why |
+|---------|-------|-----|
+| **Model** | Claude Sonnet 4.6 (1M) or Opus 4.6 | All browser testing is optimized for Sonnet. Other models produce inconsistent results. |
+| **Provider** | [Anthropic](https://console.anthropic.com/) | Direct API access, best performance. |
+| **Web Search** | [You.com API key](https://api.you.com/) | Enables research on testing best practices. Significantly improves test plan quality. |
+
+### 3. Run
+
+```
+--source=pr --pr=123              ← test a pull request
+--source=uncommitted              ← test your working changes
+--source=files @src/auth.ts       ← test specific files
+```
+
+Or just describe what you want tested in the chat box.
+
+<br/>
+
+---
+
+<br/>
+
+## Why Axolotl
+
+| | Traditional Testing | Axolotl |
+|---|---|---|
+| **Test creation** | You write and maintain test scripts | AI generates tests from code analysis |
+| **Coverage gaps** | Tests cover what you thought to test | Tests cover what actually changed |
+| **Browser testing** | Selenium/Playwright setup required | Built-in browser with screenshot evidence |
+| **Maintenance** | Tests break when UI changes | Fresh tests every run, zero maintenance |
+| **Evidence** | Pass/fail boolean | Screenshots, logs, behavioral markers |
+| **Time to first test** | Hours to days | Minutes |
+
+<br/>
+
+---
+
+<br/>
+
+## Key Features
+
+**Zero test maintenance** — tests are generated on-the-fly from your actual code changes. No test suite to maintain.
+
+**Evidence-driven verdicts** — every result is backed by screenshots, console logs, and injected behavioral markers. Not just pass/fail.
+
+**Human-in-the-loop** — you review the test plan, approve each phase, and decide what to do with the results.
+
+**Persistent memory** — Axolotl remembers how to install deps, start your dev server, and run your app across sessions via `axolotl.md`.
+
+**Web-informed** — searches the internet for testing best practices relevant to your specific tech stack before generating test cases.
+
+**Multi-language analysis** — tree-sitter powered AST parsing for JavaScript, TypeScript, Python, Rust, Go, C/C++, C#, Ruby, Java, PHP, Swift, and Kotlin.
+
+<br/>
+
+---
+
+<br/>
+
+## Contributing
+
+We'd love your help. See the [Contributing Guide](CONTRIBUTING.md) for details.
 
 ```bash
-# Package the extension
-npm run package
-
-# This creates a .vsix file that you can install:
-# VS Code → Extensions → ... menu → Install from VSIX
+git clone https://github.com/Axolotl-QA/Axolotl.git
+cd Axolotl
+npm install
+npm run dev            # watch mode
+npm run build:webview  # build UI
+# F5 to launch
 ```
 
-### First Run
-
-1. Open VS Code Command Palette (`Cmd+Shift+P` or `Ctrl+Shift+P`)
-2. Run: `Axolotl: Run QA for this PR`
-3. Configure your AI model provider (OpenAI, Anthropic, etc.) when prompted
-4. Let Axolotl analyze your changes and generate a test plan
+<br/>
 
 ---
 
-## 💡 Core Features
+<br/>
 
-### 1. **Test Context Selection**
+## License
 
-Axolotl supports two ways to understand what to test:
+Apache 2.0 — see [LICENSE](LICENSE).
 
-**Option A: Current PR (Recommended)**
-- Automatically reads `git diff`
-- Identifies affected modules (frontend/backend/fullstack)
-- Classifies PR type (new feature, bug fix, refactor, etc.)
-- Can link to PRD or ticket URLs for additional context
-
-**Option B: Manual Description**
-- Paste or type a description of your changes
-- Useful for quick ad-hoc testing outside of PR workflow
-
-### 2. **Intelligent Log Injection**
-
-One of Axolotl's key differentiators:
-
-- Automatically identifies critical functions in your main flow
-- Injects test-specific logging statements when needed
-- Uses logs as **behavioral evidence** during test execution
-- Marks injected logs with `// AXOLOTL_TEST_LOG` for easy cleanup
-
-Example:
-```typescript
-console.log("[AXOLOTL] submitForm called", payload)
-```
-
-**Philosophy**: Success isn't just about UI feedback—it's about proving the right code path executed.
-
-### 3. **Build & Environment Validation**
-
-Before running tests, Axolotl:
-- Installs dependencies (`npm install`)
-- Starts your dev server (`npm run dev`)
-- Validates process health (port listening, HTTP 200 responses)
-
-❌ If build fails → Test session terminates immediately
-✅ If build succeeds → Proceeds to test execution
-
-### 4. **Test Plan Generation**
-
-Axolotl creates an executable test plan based on your changes:
-
-```json
-[
-  {
-    "id": "build",
-    "type": "system",
-    "blocking": true
-  },
-  {
-    "id": "main_flow_submit",
-    "type": "e2e",
-    "steps": [
-      "open /register",
-      "fill email field",
-      "click submit button"
-    ],
-    "expected_logs": [
-      "[AXOLOTL] submitForm called"
-    ]
-  }
-]
-```
-
-Each test includes:
-- Step-by-step UI actions
-- Expected log outputs
-- Pass/fail criteria
-
-### 5. **Execution with Evidence Collection**
-
-For each test, Axolotl:
-- Launches browser and performs UI interactions
-- Monitors terminal output and application logs
-- Compares actual logs against expected behavior
-- Captures screenshots for visual verification
-- Records pass/fail/warning states
-
-**Evidence Types:**
-- ✅ UI succeeded + expected logs present = **Pass**
-- ⚠️ UI succeeded but unexpected error logs = **Warning**
-- ❌ No logs or wrong sequence = **Fail**
-- ❌ UI error or crash = **Fail**
-
-### 6. **Merge Decision Report**
-
-Final output: `report.json`
-
-```json
-{
-  "summary": {
-    "build": "pass",
-    "main_flow": "pass",
-    "edge_cases": "partial",
-    "conclusion": "mergeable_with_risk"
-  },
-  "tests": [
-    {
-      "id": "main_flow_submit",
-      "result": "pass",
-      "evidence": {
-        "logs": ["[AXOLOTL] submitForm called"],
-        "ui_actions": ["click submit"],
-        "screenshots": ["screenshot-001.png"]
-      }
-    }
-  ],
-  "risks": [
-    "Empty input validation not tested"
-  ]
-}
-```
-
-This report is:
-- Displayed in the Axolotl Side Panel
-- Can be posted as PR comment
-- Machine-readable for future trend analysis
-
----
-
-## 🎮 Using Axolotl
-
-### Command Palette Commands
-
-```
-Axolotl: Run QA for this PR
-Axolotl: Run QA (manual context)
-Axolotl: Re-run last QA
-Axolotl: Open QA Report
-```
-
-### Side Panel Interface
-
-The Axolotl Side Panel is your QA control center:
-
-```
-┌──────────────────────────────┐
-│ Axolotl QA                  │
-├──────────────────────────────┤
-│ [1] Test Context             │
-│  ○ Current PR: #123          │
-│  ○ Manual description        │
-│                              │
-│ [2] Test Plan (Generated)    │
-│  ✔ Build & Start             │
-│  ⏳ Main Flow: Create User    │
-│  ⏳ Main Flow: Submit Form    │
-│  ⏳ Edge: Empty input         │
-│                              │
-│ [3] Execution Logs           │
-│  - Terminal output           │
-│  - UI actions                │
-│  - Evidence collected        │
-│                              │
-│ [4] Final Result             │
-│  ⚠ Mergeable with risk       │
-│  See report.json for details │
-└──────────────────────────────┘
-```
-
-### Typical Workflow
-
-1. **Create a PR** with your changes
-2. **Run Axolotl** via Command Palette
-3. **Review generated test plan** in Side Panel
-4. **Watch execution** as Axolotl:
-   - Injects logs if needed
-   - Builds and starts your app
-   - Runs UI tests
-   - Collects evidence
-5. **Review results** and decide whether to merge
-
-You can:
-- ⏸️ Pause/resume execution
-- 🔄 Retry failed tests
-- ⏭️ Skip non-blocking tests
-- 📝 Add manual notes to report
-
----
-
-## 🎯 MVP Scope
-
-### ✅ What's Included
-
-- VS Code Extension with Side Panel UI
-- PR context parsing (git diff)
-- Manual context input fallback
-- Automatic log injection
-- Build & environment validation
-- Main flow E2E testing
-- Evidence-based pass/fail logic
-- `report.json` output
-- Browser interaction (via Computer Use)
-- Terminal command execution
-
-### ❌ What's NOT Included (Yet)
-
-- Automatic bug fixing
-- Full edge case coverage
-- Cloud-based execution
-- Historical learning/ML
-- Integration with external CI/CD
-- Multi-repository testing
-- Performance benchmarking
-
-
-### Available Scripts
-
-```bash
-npm run install:all          # Install all dependencies
-npm run dev                  # Development mode with watch
-npm run compile              # Type-check + lint + build
-npm run test                 # Run all tests
-npm run test:unit            # Unit tests only
-npm run test:integration     # Integration tests
-npm run lint                 # Lint check
-npm run package              # Package for production
-```
-
-### Debugging
-
-Press `F5` in VS Code to launch the Extension Development Host with debugger attached.
-
----
-
-## 🤝 Contributing
-
-We welcome contributions! Please:
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
-
----
-
-## 📝 License
-
-[Apache 2.0](./LICENSE)
-
-**Axolotl** is a derivative work based on [Cline](https://github.com/cline/cline), originally developed by Cline Bot Inc.
-
-- Original work: Copyright 2025 Cline Bot Inc.
-- Modifications for Axolotl: Copyright 2025 Axolotl Contributors
-
-This project is licensed under the Apache License, Version 2.0. See [LICENSE](./LICENSE) for the full license text.
-
----
-
-## 🙋 FAQ
-
-**Q: Does Axolotl replace my existing test suite?**
-A: No. Axolotl is a **PR-stage QA assistant**, not a replacement for unit/integration tests. Use it to validate main flows before merging.
-
-**Q: Can Axolotl fix bugs automatically?**
-A: Not in the MVP. Axolotl focuses on **detection and reporting**. Auto-fixing may come in future versions.
-
-**Q: Which AI models does Axolotl support?**
-A: Any model compatible with OpenAI API format, including:
-- OpenAI (GPT-4, GPT-4 Turbo)
-- Anthropic (Claude Sonnet, Opus)
-- OpenRouter (access to multiple providers)
-- Local models via LM Studio/Ollama
-
-**Q: Can I use Axolotl on private repositories?**
-A: Yes. Axolotl runs entirely in your local VS Code environment. Your code never leaves your machine (except API calls to your chosen LLM provider).
-
-**Q: How is this different from Playwright or Cypress?**
-A: Traditional frameworks require you to **write** tests. Axolotl **generates and executes** tests based on PR changes, then gives you a merge recommendation.
-
----
-
-## 🌟 Why Axolotl?
-
-Traditional QA approaches:
-- ❌ Manual testing is slow and error-prone
-- ❌ Writing tests for every PR takes time
-- ❌ CI only catches issues after merge
-- ❌ No holistic "should I merge?" answer
-
-**Axolotl approach:**
-- ✅ Automatically understands what changed
-- ✅ Generates relevant tests on-the-fly
-- ✅ Validates before merge, not after
-- ✅ Evidence-driven merge decisions
-
-**Axolotl brings QA into your development flow, not as an afterthought.**
-
+Built on [Cline](https://github.com/cline/cline). Extended for automated QA.
