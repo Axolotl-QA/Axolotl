@@ -569,7 +569,7 @@ export class Controller {
 				refreshToken,
 			);
 
-			const clineProvider: ApiProvider = "cline";
+			const defaultProvider: ApiProvider = "anthropic";
 
 			// Get current settings to determine how to update providers
 			const planActSeparateModelsSetting =
@@ -585,14 +585,14 @@ export class Controller {
 			if (planActSeparateModelsSetting) {
 				// Only update the current mode's provider
 				if (currentMode === "plan") {
-					updatedConfig.planModeApiProvider = clineProvider;
+					updatedConfig.planModeApiProvider = defaultProvider;
 				} else {
-					updatedConfig.actModeApiProvider = clineProvider;
+					updatedConfig.actModeApiProvider = defaultProvider;
 				}
 			} else {
 				// Update both modes to keep them in sync
-				updatedConfig.planModeApiProvider = clineProvider;
-				updatedConfig.actModeApiProvider = clineProvider;
+				updatedConfig.planModeApiProvider = defaultProvider;
+				updatedConfig.actModeApiProvider = defaultProvider;
 			}
 
 			// Update the API configuration through cache service

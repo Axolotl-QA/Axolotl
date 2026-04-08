@@ -45,7 +45,7 @@ const SETTINGS_ONLY_PROVIDERS: ApiProvider[] = [
 	"together",
 ]
 
-const OPENROUTER_MODEL_PROVIDERS: ApiProvider[] = ["cline", "openrouter", "vercel-ai-gateway"]
+const OPENROUTER_MODEL_PROVIDERS: ApiProvider[] = ["openrouter", "vercel-ai-gateway"]
 
 interface ModelPickerModalProps {
 	isOpen: boolean
@@ -209,34 +209,20 @@ const ModelPickerModal: React.FC<ModelPickerModalProps> = ({ isOpen, onOpenChang
 		return queryWords.every((word) => searchText.includes(word))
 	}, [])
 
-	// Filtered models - for OpenRouter/Vercel show all by default, for Cline only when searching
+	// Filtered models - show all by default for OpenRouter/Vercel
 	const filteredModels = useMemo(() => {
-		const isCline = selectedProvider === "cline"
-
-		// For Cline: only show non-featured models when searching
-		if (isCline && !searchQuery) {
-			return []
-		}
-
 		let models: ModelItem[]
 		if (searchQuery) {
 			models = allModels.filter((m) => matchesSearch(m, searchQuery))
 		} else {
-			// For non-Cline OpenRouter providers: show all models by default
 			models = [...allModels]
 		}
 
 		// Filter out current model
 		models = models.filter((m) => m.id !== selectedModelId)
 
-		// For Cline when searching, also filter out featured models (they're shown separately)
-		if (isCline) {
-			const featuredIds = new Set([...recommendedModels, ...freeModels].map((m) => m.id))
-			models = models.filter((m) => !featuredIds.has(m.id))
-		}
-
-		// For openrouter/vercel-ai-gateway (not cline): put favorites first
-		if (!isCline && (selectedProvider === "openrouter" || selectedProvider === "vercel-ai-gateway")) {
+		// For openrouter/vercel-ai-gateway: put favorites first
+		if (selectedProvider === "openrouter" || selectedProvider === "vercel-ai-gateway") {
 			const favoriteSet = new Set(favoritedModelIds || [])
 			const favoritedModels = models.filter((m) => favoriteSet.has(m.id))
 			const nonFavoritedModels = models.filter((m) => !favoriteSet.has(m.id))
@@ -250,28 +236,8 @@ const ModelPickerModal: React.FC<ModelPickerModalProps> = ({ isOpen, onOpenChang
 		return models
 	}, [searchQuery, matchesSearch, selectedModelId, selectedProvider, allModels, favoritedModelIds])
 
-	// Featured models for Cline provider (recommended + free)
-	const featuredModels = useMemo(() => {
-		if (selectedProvider !== "cline") {
-			return []
-		}
-
-		const allFeatured = [...recommendedModels, ...freeModels].map((m) => ({
-			...m,
-			name: m.id.split("/").pop() || m.id,
-			provider: m.id.split("/")[0],
-		}))
-
-		// Filter out current model
-		const filtered = allFeatured.filter((m) => m.id !== selectedModelId)
-
-		// Apply search filter if searching (uses same multi-word logic)
-		if (searchQuery) {
-			return filtered.filter((m) => matchesSearch(m, searchQuery))
-		}
-
-		return filtered
-	}, [selectedProvider, searchQuery, selectedModelId, matchesSearch])
+	// Featured models (empty since cline provider is removed)
+	const featuredModels: ModelItem[] = []
 
 	// Handle model selection - in split mode uses activeEditMode, otherwise closes modal
 	const handleSelectModel = useCallback(
@@ -545,7 +511,6 @@ const ModelPickerModal: React.FC<ModelPickerModalProps> = ({ isOpen, onOpenChang
 		onOpenChange(!isOpen)
 	}, [isOpen, onOpenChange])
 
-	const isClineProvider = selectedProvider === "cline"
 	const isSearching = !!searchQuery
 
 	return (
@@ -709,42 +674,33 @@ const ModelPickerModal: React.FC<ModelPickerModalProps> = ({ isOpen, onOpenChang
 									</Tooltip>
 								</SplitModeRow>
 							) : selectedModelId && modelBelongsToProvider ? (
-								(() => {
-									// Check if current model has a featured label (only for Cline provider)
-									const currentFeaturedModel = isClineProvider
-										? [...recommendedModels, ...freeModels].find((m) => m.id === selectedModelId)
-										: undefined
-									return (
-										<CurrentModelRow onClick={() => onOpenChange(false)}>
-											<ModelInfoRow>
-												<div className="text-[11px] text-foreground whitespace-nowrap overflow-hidden text-ellipsis">
-													{selectedModelId.split("/").pop() || selectedModelId}
-												</div>
-												<ModelProvider>
-													{OPENROUTER_MODEL_PROVIDERS.includes(selectedProvider)
-														? selectedModelId.split("/")[0]
-														: selectedProvider}
-												</ModelProvider>
-											</ModelInfoRow>
-											{currentFeaturedModel?.label && <ModelLabel>{currentFeaturedModel.label}</ModelLabel>}
-											<Check
-												size={14}
-												style={{
-													color: "var(--vscode-foreground)",
-													flexShrink: 0,
-												}}
-											/>
-										</CurrentModelRow>
-									)
-								})()
-							) : !selectedModelId && selectedProvider === "vercel-ai-gateway" ? (
+									<CurrentModelRow onClick={() => onOpenChange(false)}>
+										<ModelInfoRow>
+											<div className="text-[11px] text-foreground whitespace-nowrap overflow-hidden text-ellipsis">
+												{selectedModelId.split("/").pop() || selectedModelId}
+											</div>
+											<ModelProvider>
+												{OPENROUTER_MODEL_PROVIDERS.includes(selectedProvider)
+													? selectedModelId.split("/")[0]
+													: selectedProvider}
+											</ModelProvider>
+										</ModelInfoRow>
+										<Check
+											size={14}
+											style={{
+												color: "var(--vscode-foreground)",
+												flexShrink: 0,
+											}}
+										/>
+									</CurrentModelRow>
+								) : !selectedModelId && selectedProvider === "vercel-ai-gateway" ? (
 								<EmptyModelRow>
 									<span className="text-[11px] text-description">Select a model below</span>
 								</EmptyModelRow>
 							) : null}
 
-							{/* For Cline: Show recommended models */}
-							{isClineProvider &&
+							{/* Featured models */}
+							{featuredModels.length > 0 &&
 								featuredModels.map((model, index) => (
 									<ModelItemContainer
 										$isSelected={index === selectedIndex}

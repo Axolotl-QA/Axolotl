@@ -20,7 +20,6 @@ export type ApiProvider =
 	| "doubao"
 	| "mistral"
 	| "vscode-lm"
-	| "cline"
 	| "litellm"
 	| "moonshot"
 	| "nebius"
@@ -43,7 +42,7 @@ export type ApiProvider =
 	| "hicap"
 	| "nousResearch";
 
-export const DEFAULT_API_PROVIDER = "openrouter" as ApiProvider;
+export const DEFAULT_API_PROVIDER = "anthropic" as ApiProvider;
 
 export interface ApiHandlerOptions extends Partial<ApiHandlerSettings> {
 	ulid?: string; // Used to identify the task in API requests

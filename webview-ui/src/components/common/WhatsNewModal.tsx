@@ -40,8 +40,8 @@ export const WhatsNewModal: React.FC<WhatsNewModalProps> = ({
 				actModeOpenRouterModelId: modelId,
 				planModeOpenRouterModelInfo: openRouterModels[modelId],
 				actModeOpenRouterModelInfo: openRouterModels[modelId],
-				planModeApiProvider: "cline",
-				actModeApiProvider: "cline",
+				planModeApiProvider: "anthropic",
+				actModeApiProvider: "anthropic",
 			});
 
 			clickedModelsRef.current.add(modelId);

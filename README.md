@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/icons/icon.png" width="140" alt="Axolotl" />
+  <img src="https://raw.githubusercontent.com/Axolotl-QA/Axolotl/main/assets/icons/icon.png" width="140" alt="Axolotl" />
 </p>
 
 <h1 align="center">Axolotl</h1>
@@ -22,7 +22,7 @@
 <br/>
 
 <p align="center">
-  <img src="assets/gifs/07-e2e.gif" width="720" alt="Axolotl running end-to-end browser tests" />
+  <img src="https://raw.githubusercontent.com/Axolotl-QA/Axolotl/main/assets/gifs/07-e2e.gif" width="720" alt="Axolotl running end-to-end browser tests" />
 </p>
 <p align="center"><em>Axolotl testing a live app — clicking buttons, checking responses, capturing evidence.</em></p>
 
@@ -60,7 +60,7 @@ One-click Google sign in. Only used for future update notifications — **no usa
 </td>
 <td width="65%">
 
-<img src="assets/gifs/01-signin.gif" alt="Sign In" />
+<img src="https://raw.githubusercontent.com/Axolotl-QA/Axolotl/main/assets/gifs/01-signin.gif" alt="Sign In" />
 
 </td>
 </tr></table>
@@ -68,7 +68,7 @@ One-click Google sign in. Only used for future update notifications — **no usa
 <table><tr>
 <td width="65%">
 
-<img src="assets/gifs/02-settings.gif" alt="Configure Settings" />
+<img src="https://raw.githubusercontent.com/Axolotl-QA/Axolotl/main/assets/gifs/02-settings.gif" alt="Configure Settings" />
 
 </td>
 <td width="35%" valign="top">
@@ -94,7 +94,7 @@ Pick your source: a PR number, uncommitted changes, or specific files. Or just t
 </td>
 <td width="65%">
 
-<img src="assets/gifs/03-start.gif" alt="Start QA Session" />
+<img src="https://raw.githubusercontent.com/Axolotl-QA/Axolotl/main/assets/gifs/03-start.gif" alt="Start QA Session" />
 
 </td>
 </tr></table>
@@ -102,7 +102,7 @@ Pick your source: a PR number, uncommitted changes, or specific files. Or just t
 <table><tr>
 <td width="65%">
 
-<img src="assets/gifs/04-code-analysis.gif" alt="Code Analysis" />
+<img src="https://raw.githubusercontent.com/Axolotl-QA/Axolotl/main/assets/gifs/04-code-analysis.gif" alt="Code Analysis" />
 
 </td>
 <td width="35%" valign="top">
@@ -128,7 +128,7 @@ Searches for testing best practices specific to your tech stack, then generates 
 </td>
 <td width="65%">
 
-<img src="assets/gifs/05-web-search.gif" alt="Web Search & Test Cases" />
+<img src="https://raw.githubusercontent.com/Axolotl-QA/Axolotl/main/assets/gifs/05-web-search.gif" alt="Web Search & Test Cases" />
 
 </td>
 </tr></table>
@@ -136,7 +136,7 @@ Searches for testing best practices specific to your tech stack, then generates 
 <table><tr>
 <td width="65%">
 
-<img src="assets/gifs/06-plan.gif" alt="Plan & Log Injection" />
+<img src="https://raw.githubusercontent.com/Axolotl-QA/Axolotl/main/assets/gifs/06-plan.gif" alt="Plan & Log Injection" />
 
 </td>
 <td width="35%" valign="top">
@@ -162,7 +162,7 @@ Real browser. Real clicks. Real screenshots. Monitors frontend UI and backend ou
 </td>
 <td width="65%">
 
-<img src="assets/gifs/07-e2e.gif" alt="End-to-End Testing" />
+<img src="https://raw.githubusercontent.com/Axolotl-QA/Axolotl/main/assets/gifs/07-e2e.gif" alt="End-to-End Testing" />
 
 </td>
 </tr></table>
@@ -170,7 +170,7 @@ Real browser. Real clicks. Real screenshots. Monitors frontend UI and backend ou
 <table><tr>
 <td width="65%">
 
-<img src="assets/gifs/08-report.gif" alt="Report & Memory" />
+<img src="https://raw.githubusercontent.com/Axolotl-QA/Axolotl/main/assets/gifs/08-report.gif" alt="Report & Memory" />
 
 </td>
 <td width="35%" valign="top">

@@ -46,7 +46,7 @@ const ErrorRow = memo(
 						const requestId = clineError?._error?.request_id;
 						const providerId =
 							clineError?.providerId || clineError?._error?.providerId;
-						const isClineProvider = providerId === "cline";
+						const isClineProvider = false;
 						const errorCode = clineError?._error?.code;
 
 						if (clineError?.isErrorType(ClineErrorType.Balance)) {

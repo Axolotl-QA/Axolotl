@@ -385,7 +385,7 @@ export function convertProtoToApiProvider(
 		case ProtoApiProvider.VSCODE_LM:
 			return "vscode-lm";
 		case ProtoApiProvider.CLINE:
-			return "cline";
+			return "openrouter";
 		case ProtoApiProvider.LITELLM:
 			return "litellm";
 		case ProtoApiProvider.MOONSHOT:

@@ -442,8 +442,8 @@ const OnboardingView = ({
 					actModeOpenRouterModelId: selectedModelId,
 					planModeOpenRouterModelInfo: openRouterModels[selectedModelId],
 					actModeOpenRouterModelInfo: openRouterModels[selectedModelId],
-					planModeApiProvider: "cline",
-					actModeApiProvider: "cline",
+					planModeApiProvider: "anthropic",
+					actModeApiProvider: "anthropic",
 				});
 			}
 			hideAccount();

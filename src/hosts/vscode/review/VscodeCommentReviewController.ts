@@ -129,7 +129,7 @@ export class VscodeCommentReviewController
 			body: new vscode.MarkdownString(comment.comment),
 			mode: vscode.CommentMode.Preview,
 			author: {
-				name: "Cline",
+				name: "Axolotl",
 				iconPath: vscode.Uri.parse(CLINE_AVATAR_URL),
 			},
 		};
@@ -185,7 +185,7 @@ export class VscodeCommentReviewController
 			body: new vscode.MarkdownString("_Thinking..._"),
 			mode: vscode.CommentMode.Preview,
 			author: {
-				name: "Cline",
+				name: "Axolotl",
 				iconPath: vscode.Uri.parse(CLINE_AVATAR_URL),
 			},
 		};
@@ -261,7 +261,7 @@ export class VscodeCommentReviewController
 			body: new vscode.MarkdownString(this.streamingContent || "_Thinking..._"),
 			mode: vscode.CommentMode.Preview,
 			author: {
-				name: "Cline",
+				name: "Axolotl",
 				iconPath: vscode.Uri.parse(CLINE_AVATAR_URL),
 			},
 		};
@@ -284,7 +284,7 @@ export class VscodeCommentReviewController
 			body: new vscode.MarkdownString(finalContent),
 			mode: vscode.CommentMode.Preview,
 			author: {
-				name: "Cline",
+				name: "Axolotl",
 				iconPath: vscode.Uri.parse(CLINE_AVATAR_URL),
 			},
 		};
@@ -375,7 +375,7 @@ export class VscodeCommentReviewController
 					body: new vscode.MarkdownString(content || "_Thinking..._"),
 					mode: vscode.CommentMode.Preview,
 					author: {
-						name: "Cline",
+						name: "Axolotl",
 						iconPath: vscode.Uri.parse(CLINE_AVATAR_URL),
 					},
 				};
@@ -387,7 +387,7 @@ export class VscodeCommentReviewController
 				body: new vscode.MarkdownString("_Thinking..._"),
 				mode: vscode.CommentMode.Preview,
 				author: {
-					name: "Cline",
+					name: "Axolotl",
 					iconPath: vscode.Uri.parse(CLINE_AVATAR_URL),
 				},
 			};
@@ -420,7 +420,7 @@ export class VscodeCommentReviewController
 						),
 						mode: vscode.CommentMode.Preview,
 						author: {
-							name: "Cline",
+							name: "Axolotl",
 							iconPath: vscode.Uri.parse(CLINE_AVATAR_URL),
 						},
 					};

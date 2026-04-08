@@ -109,8 +109,8 @@ export const WelcomeSection: React.FC<WelcomeSectionProps> = ({
 						actModeOpenRouterModelId: modelId,
 						planModeOpenRouterModelInfo: openRouterModels[modelId],
 						actModeOpenRouterModelInfo: openRouterModels[modelId],
-						planModeApiProvider: "cline",
-						actModeApiProvider: "cline",
+						planModeApiProvider: "anthropic",
+						actModeApiProvider: "anthropic",
 					})
 					setTimeout(() => setShowChatModelSelector(true), 10)
 					break

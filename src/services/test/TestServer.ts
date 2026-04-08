@@ -220,12 +220,12 @@ export async function createTestServer(controller: Controller): Promise<http.Ser
 
 						visibleWebview.controller.stateManager.setApiConfiguration(updatedConfig)
 
-						// Update cache service to use cline provider
+						// Update cache service to use openrouter provider
 						const currentConfig = visibleWebview.controller.stateManager.getApiConfiguration()
 						visibleWebview.controller.stateManager.setApiConfiguration({
 							...currentConfig,
-							planModeApiProvider: "cline",
-							actModeApiProvider: "cline",
+							planModeApiProvider: "openrouter",
+							actModeApiProvider: "openrouter",
 						})
 
 						// Post state to webview to reflect changes

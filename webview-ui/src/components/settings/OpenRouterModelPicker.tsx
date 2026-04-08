@@ -180,9 +180,8 @@ const OpenRouterModelPicker: React.FC<OpenRouterModelPickerProps> = ({
 
 	const { selectedModelId, selectedModelInfo } = useMemo(() => {
 		const selected = normalizeApiConfiguration(apiConfiguration, currentMode);
-		const isCline = selected.selectedProvider === "cline";
-		// Makes sure "Free" featured models have $0 pricing for Cline provider
-		if (isCline && FREE_CLINE_MODELS.includes(selected.selectedModelId)) {
+		// Makes sure "Free" featured models have $0 pricing
+		if (FREE_CLINE_MODELS.includes(selected.selectedModelId)) {
 			return {
 				...selected,
 				selectedModelInfo: {
@@ -381,58 +380,6 @@ const OpenRouterModelPicker: React.FC<OpenRouterModelPickerProps> = ({
 				<label htmlFor="model-search">
 					<span style={{ fontWeight: 500 }}>Model</span>
 				</label>
-
-				{modeFields.apiProvider === "cline" && (
-					<>
-						{/* Tabs */}
-						<TabsContainer style={{ marginTop: 4 }}>
-							<Tab
-								active={activeTab === "recommended"}
-								onClick={() => setActiveTab("recommended")}
-							>
-								Recommended
-							</Tab>
-							<Tab
-								active={activeTab === "free"}
-								onClick={() => setActiveTab("free")}
-							>
-								Free
-							</Tab>
-						</TabsContainer>
-
-						{/* Model Cards */}
-						<div style={{ marginBottom: "6px" }}>
-							{activeTab === "recommended" &&
-								recommendedModels.map((model) => (
-									<FeaturedModelCard
-										description={model.description}
-										isSelected={selectedModelId === model.id}
-										key={model.id}
-										label={model.label}
-										modelId={model.id}
-										onClick={() => {
-											handleModelChange(model.id);
-											setIsDropdownVisible(false);
-										}}
-									/>
-								))}
-							{activeTab === "free" &&
-								freeModels.map((model) => (
-									<FeaturedModelCard
-										description={model.description}
-										isSelected={selectedModelId === model.id}
-										key={model.id}
-										label={model.label}
-										modelId={model.id}
-										onClick={() => {
-											handleModelChange(model.id);
-											setIsDropdownVisible(false);
-										}}
-									/>
-								))}
-						</div>
-					</>
-				)}
 
 				<DropdownWrapper ref={dropdownRef}>
 					<VSCodeTextField

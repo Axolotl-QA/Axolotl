@@ -135,7 +135,6 @@ export function getModelsForProvider(
 			return dynamicModels?.liteLlmModels
 		// Providers with dynamic models - return undefined
 		case "openrouter":
-		case "cline":
 		case "openai":
 		case "ollama":
 		case "lmstudio":
@@ -257,20 +256,6 @@ export function normalizeApiConfiguration(
 				selectedProvider: provider,
 				selectedModelId: requestyModelId || requestyDefaultModelId,
 				selectedModelInfo: requestyModelInfo || requestyDefaultModelInfo,
-			}
-		case "cline":
-			const clineOpenRouterModelId =
-				(currentMode === "plan"
-					? apiConfiguration?.planModeOpenRouterModelId
-					: apiConfiguration?.actModeOpenRouterModelId) || openRouterDefaultModelId
-			const clineOpenRouterModelInfo =
-				(currentMode === "plan"
-					? apiConfiguration?.planModeOpenRouterModelInfo
-					: apiConfiguration?.actModeOpenRouterModelInfo) || openRouterDefaultModelInfo
-			return {
-				selectedProvider: provider,
-				selectedModelId: clineOpenRouterModelId,
-				selectedModelInfo: clineOpenRouterModelInfo,
 			}
 		case "openai":
 			const openAiModelId =
@@ -650,7 +635,6 @@ export async function syncModeConfigurations(
 	// Handle provider-specific fields
 	switch (apiProvider) {
 		case "openrouter":
-		case "cline":
 			updates.planModeOpenRouterModelId = sourceFields.openRouterModelId
 			updates.actModeOpenRouterModelId = sourceFields.openRouterModelId
 			updates.planModeOpenRouterModelInfo = sourceFields.openRouterModelInfo
@@ -813,18 +797,6 @@ export async function syncModeConfigurations(
  * @returns Filtered array of model IDs
  */
 export function filterOpenRouterModelIds(modelIds: string[], provider: ApiProvider): string[] {
-	if (provider === "cline") {
-		// For Cline provider: exclude :free models, but keep Minimax models
-		return modelIds.filter((id) => {
-			// Keep all Minimax and devstral models regardless of :free suffix
-			if (id.toLowerCase().includes("minimax-m2") || id.toLowerCase().includes("devstral-2512")) {
-				return true
-			}
-			// Filter out other :free models
-			return !id.includes(":free")
-		})
-	}
-
 	// For OpenRouter and Vercel AI Gateway providers: exclude Cline-specific models
 	return modelIds.filter((id) => !id.startsWith("cline/"))
 }

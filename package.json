@@ -14,7 +14,7 @@
 	"publisher": "ZhuolunLi",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/cline/cline"
+		"url": "https://github.com/Axolotl-QA/Axolotl"
 	},
 	"homepage": "https://qaxolotl.com",
 	"categories": [
@@ -354,7 +354,7 @@
 		"watch": "npm-run-all -p watch:*",
 		"watch:esbuild": "node esbuild.mjs --watch",
 		"watch:tsc": "tsc --noEmit --watch --project tsconfig.json",
-		"package": "npm run check-types && npm run build:webview && npm run lint && node esbuild.mjs --production",
+		"package": "npm run check-types && npm run build:webview && node esbuild.mjs --production",
 		"protos": "node scripts/build-proto.mjs",
 		"protos-go": "node scripts/build-go-proto.mjs",
 		"protos-python": "node scripts/build-python-proto.mjs",

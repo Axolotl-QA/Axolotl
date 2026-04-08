@@ -14,11 +14,6 @@ import {
 import { useInterval } from "react-use";
 import styled from "styled-components";
 import { normalizeApiConfiguration } from "@/components/settings/utils/providerUtils";
-import {
-	Tooltip,
-	TooltipContent,
-	TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { PLATFORM_CONFIG, PlatformType } from "@/config/platform.config";
 import { useExtensionState } from "@/context/ExtensionStateContext";
 import { ModelsServiceClient } from "@/services/grpc-client";
@@ -158,15 +153,6 @@ const ApiOptions = ({
 			providers = providers.filter((option) => option.value !== "vscode-lm");
 		}
 
-		// Filter by remote config if remoteConfiguredProviders is set
-		const remoteProviders: string[] =
-			remoteConfigSettings?.remoteConfiguredProviders || [];
-		if (remoteProviders.length > 0) {
-			providers = providers.filter((option) =>
-				remoteProviders.includes(option.value),
-			);
-		}
-
 		// Filter by allowed providers if specified (used in onboarding)
 		if (allowedProviders && allowedProviders.length > 0) {
 			providers = providers.filter((option) =>
@@ -175,7 +161,7 @@ const ApiOptions = ({
 		}
 
 		return providers;
-	}, [remoteConfigSettings, allowedProviders]);
+	}, [allowedProviders]);
 
 	const currentProviderLabel = useMemo(() => {
 		return (
@@ -323,27 +309,9 @@ const ApiOptions = ({
 				`}
 			</style>
 			<DropdownContainer className="dropdown-container">
-				{remoteConfigSettings?.remoteConfiguredProviders &&
-				remoteConfigSettings.remoteConfiguredProviders.length > 0 ? (
-					<Tooltip>
-						<TooltipTrigger>
-							<div className="flex items-center gap-2 mb-1">
-								<label htmlFor="api-provider">
-									<span style={{ fontWeight: 500 }}>API Provider</span>
-								</label>
-								<i className="codicon codicon-lock text-description text-sm" />
-							</div>
-						</TooltipTrigger>
-						<TooltipContent>
-							Provider options are managed by your organization's remote
-							configuration
-						</TooltipContent>
-					</Tooltip>
-				) : (
-					<label htmlFor="api-provider">
-						<span style={{ fontWeight: 500 }}>API Provider</span>
-					</label>
-				)}
+				<label htmlFor="api-provider">
+					<span style={{ fontWeight: 500 }}>API Provider</span>
+				</label>
 				<ProviderDropdownWrapper ref={dropdownRef}>
 					<VSCodeTextField
 						data-testid="provider-selector-input"
