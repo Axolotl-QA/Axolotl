@@ -430,7 +430,189 @@ export async function activate(context: vscode.ExtensionContext) {
 		}),
 	)
 
+	// ─── Run on Cloud (Blaxel perpetual sandbox + video recording) ──────────
+	// Adds a status bar button and a command. Clicking either spawns
+	// `server/record-on-cloud.mjs` and streams its output to an OutputChannel.
+	// Credentials come from server/.env which is gitignored.
+	registerRunOnCloud(context)
+
 	return createClineAPI(webview.controller)
+}
+
+// Parse simple KEY=VALUE .env files (no multiline / interpolation support).
+function parseDotEnv(filePath: string): Record<string, string> {
+	try {
+		const fs = require("node:fs") as typeof import("node:fs")
+		const txt = fs.readFileSync(filePath, "utf8")
+		const out: Record<string, string> = {}
+		for (const line of txt.split("\n")) {
+			const trimmed = line.trim()
+			if (!trimmed || trimmed.startsWith("#")) {
+				continue
+			}
+			const m = trimmed.match(/^([A-Z0-9_]+)\s*=\s*(.*)$/i)
+			if (m) {
+				out[m[1]] = m[2].replace(/^["']|["']$/g, "")
+			}
+		}
+		return out
+	} catch {
+		return {}
+	}
+}
+
+function registerRunOnCloud(context: vscode.ExtensionContext) {
+	// Hardcode a known-good Node binary path for the hackathon demo machine.
+	// Brew node 24 is broken here due to a simdjson dylib issue; node 22 works.
+	const NODE_BIN = "/opt/homebrew/Cellar/node@22/22.22.1_1/bin/node"
+	const CLI_REL = "server/record-on-cloud.mjs"
+	const ENV_FILE_REL = "server/.env"
+
+	const output = vscode.window.createOutputChannel("Axolotl: Run on Cloud")
+	context.subscriptions.push(output)
+
+	const handler = async () => {
+		const workspaceFolder = vscode.workspace.workspaceFolders?.[0]
+		if (!workspaceFolder) {
+			vscode.window.showErrorMessage("Run on Cloud: no workspace folder open.")
+			return
+		}
+		const worktreeRoot = workspaceFolder.uri.fsPath
+		const cliPath = path.join(worktreeRoot, CLI_REL)
+		const envPath = path.join(worktreeRoot, ENV_FILE_REL)
+
+		const fs = require("node:fs") as typeof import("node:fs")
+		if (!fs.existsSync(cliPath)) {
+			vscode.window.showErrorMessage(`Run on Cloud: CLI not found at ${cliPath}`)
+			return
+		}
+
+		const repoUrl = await vscode.window.showInputBox({
+			title: "Run on Cloud — GitHub repo URL",
+			placeHolder: "https://github.com/Steven-wyf/axolotl-demo-app.git",
+			value: "https://github.com/Steven-wyf/axolotl-demo-app.git",
+			ignoreFocusOut: true,
+			validateInput: (v) => (/^https?:\/\/.+/.test(v) ? null : "Must be an http(s) URL"),
+		})
+		if (!repoUrl) {
+			return
+		}
+
+		const testingFocus =
+			(await vscode.window.showInputBox({
+				title: "Run on Cloud — testing focus (optional)",
+				placeHolder: "e.g. Test the login and signup flow",
+				value: "Test the login and signup flow",
+				ignoreFocusOut: true,
+			})) || ""
+
+		output.clear()
+		output.show(true)
+		output.appendLine("╔═══════════════════════════════════════════════════════════╗")
+		output.appendLine("║  AXOLOTL × BLAXEL — Run on Cloud                          ║")
+		output.appendLine("╚═══════════════════════════════════════════════════════════╝")
+		output.appendLine(`CLI:   ${cliPath}`)
+		output.appendLine(`Repo:  ${repoUrl}`)
+		output.appendLine(`Focus: ${testingFocus || "(none)"}`)
+		output.appendLine("")
+
+		const dotEnv = parseDotEnv(envPath)
+		const childEnv: NodeJS.ProcessEnv = {
+			...process.env,
+			...dotEnv,
+			DEMO_REPO: repoUrl,
+			DEMO_FOCUS: testingFocus,
+		}
+
+		for (const key of ["BL_WORKSPACE", "BL_API_KEY"]) {
+			if (!childEnv[key]) {
+				const msg = `Run on Cloud: missing ${key}. Set it in ${envPath} or your shell.`
+				output.appendLine(`[error] ${msg}`)
+				vscode.window.showErrorMessage(msg)
+				return
+			}
+		}
+
+		const { spawn } = require("node:child_process") as typeof import("node:child_process")
+		const nodeBinary = fs.existsSync(NODE_BIN) ? NODE_BIN : "node"
+		output.appendLine(`[extension] spawning: ${nodeBinary} ${cliPath}`)
+		output.appendLine("")
+
+		const stripAnsi = (s: string) => s.replace(/\x1b\[[0-9;]*[A-Za-z]/g, "")
+
+		await vscode.window
+			.withProgress(
+				{
+					location: vscode.ProgressLocation.Notification,
+					title: "Run on Cloud",
+					cancellable: false,
+				},
+				(progress) => {
+					progress.report({ message: "Provisioning Blaxel sandbox..." })
+					return new Promise<void>((resolve, reject) => {
+						const child = spawn(nodeBinary, [cliPath], {
+							cwd: path.dirname(cliPath),
+							env: childEnv,
+						})
+						child.stdout.on("data", (buf: Buffer) => {
+							const raw = buf.toString()
+							output.append(stripAnsi(raw))
+							if (raw.includes("ffmpeg installed")) {
+								progress.report({ message: "Installing Chromium + ffmpeg..." })
+							} else if (raw.includes("recorder.js uploaded")) {
+								progress.report({ message: "Driving test flow..." })
+							} else if (raw.includes("frames captured")) {
+								progress.report({ message: "Encoding video..." })
+							} else if (raw.includes("KB downloaded")) {
+								progress.report({ message: "Downloading video..." })
+							} else if (raw.includes("PIPELINE COMPLETE")) {
+								progress.report({ message: "Opening video..." })
+							}
+						})
+						child.stderr.on("data", (buf: Buffer) => output.append(stripAnsi(buf.toString())))
+						child.on("error", (err: Error) => {
+							output.appendLine(`[error] spawn failed: ${err.message}`)
+							reject(err)
+						})
+						child.on("close", (code: number | null) => {
+							if (code === 0) {
+								output.appendLine("")
+								output.appendLine("✓ Run on Cloud completed successfully.")
+								vscode.window
+									.showInformationMessage(
+										"Run on Cloud complete. Video saved to ~/Downloads.",
+										"Show log",
+									)
+									.then((choice) => {
+										if (choice === "Show log") {
+											output.show(true)
+										}
+									})
+								resolve()
+							} else {
+								const msg = `record-on-cloud.mjs exited with code ${code}`
+								output.appendLine(`[error] ${msg}`)
+								vscode.window.showErrorMessage(`Run on Cloud failed: ${msg}`)
+								reject(new Error(msg))
+							}
+						})
+					})
+				},
+			)
+			.then(
+				() => {},
+				() => {},
+			)
+	}
+
+	context.subscriptions.push(vscode.commands.registerCommand("cline.runOnCloud", handler))
+
+	const statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100)
+	statusBarItem.text = "$(cloud-upload) Run on Cloud"
+	statusBarItem.tooltip = "Provision Blaxel sandbox, run tests, record video"
+	statusBarItem.command = "cline.runOnCloud"
+	statusBarItem.show()
+	context.subscriptions.push(statusBarItem)
 }
 
 function setupHostProvider(context: ExtensionContext) {
