@@ -284,6 +284,22 @@ npm run build:webview  # build UI
 
 <br/>
 
+## Star History
+
+<a href="https://www.star-history.com/?repos=Axolotl-QA%2FAxolotl&type=date&legend=top-left">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=Axolotl-QA/Axolotl&type=date&theme=dark&legend=top-left" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=Axolotl-QA/Axolotl&type=date&legend=top-left" />
+   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=Axolotl-QA/Axolotl&type=date&legend=top-left" />
+ </picture>
+</a>
+
+<br/>
+
+---
+
+<br/>
+
 ## License
 
 Apache 2.0 — see [LICENSE](LICENSE).
