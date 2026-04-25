@@ -1,48 +1,53 @@
 import {
 	internationalZAiDefaultModelId,
-	internationalZAiModelId,
+	type internationalZAiModelId,
 	internationalZAiModels,
-	ModelInfo,
+	type ModelInfo,
 	mainlandZAiDefaultModelId,
-	mainlandZAiModelId,
+	type mainlandZAiModelId,
 	mainlandZAiModels,
-} from "@shared/api"
-import OpenAI from "openai"
-import type { ChatCompletionTool as OpenAITool } from "openai/resources/chat/completions"
-import { ClineStorageMessage } from "@/shared/messages/content"
-import { fetch } from "@/shared/net"
-import { version as extensionVersion } from "../../../../package.json"
-import { ApiHandler, CommonApiHandlerOptions } from ".."
-import { withRetry } from "../retry"
-import { convertToOpenAiMessages } from "../transform/openai-format"
-import { ApiStream } from "../transform/stream"
-import { getOpenAIToolParams, ToolCallProcessor } from "../transform/tool-call-processor"
+} from "@shared/api";
+import OpenAI from "openai";
+import type { ChatCompletionTool as OpenAITool } from "openai/resources/chat/completions";
+import type { ClineStorageMessage } from "@/shared/messages/content";
+import { fetch } from "@/shared/net";
+import { version as extensionVersion } from "../../../../package.json";
+import type { ApiHandler, CommonApiHandlerOptions } from "..";
+import { withRetry } from "../retry";
+import { convertToOpenAiMessages } from "../transform/openai-format";
+import type { ApiStream } from "../transform/stream";
+import {
+	getOpenAIToolParams,
+	ToolCallProcessor,
+} from "../transform/tool-call-processor";
 
 interface ZAiHandlerOptions extends CommonApiHandlerOptions {
-	zaiApiLine?: string
-	zaiApiKey?: string
-	apiModelId?: string
+	zaiApiLine?: string;
+	zaiApiKey?: string;
+	apiModelId?: string;
 }
 
 export class ZAiHandler implements ApiHandler {
-	private options: ZAiHandlerOptions
-	private client: OpenAI | undefined
+	private options: ZAiHandlerOptions;
+	private client: OpenAI | undefined;
 	constructor(options: ZAiHandlerOptions) {
-		this.options = options
+		this.options = options;
 	}
 
 	private useChinaApi(): boolean {
-		return this.options.zaiApiLine === "china"
+		return this.options.zaiApiLine === "china";
 	}
 
 	private ensureClient(): OpenAI {
 		if (!this.client) {
 			if (!this.options.zaiApiKey) {
-				throw new Error("Z AI API key is required")
+				throw new Error("Z AI API key is required");
 			}
 			try {
 				this.client = new OpenAI({
-					baseURL: this.useChinaApi() ? "https://open.bigmodel.cn/api/paas/v4" : "https://api.z.ai/api/paas/v4",
+					baseURL: this.useChinaApi()
+						? "https://open.bigmodel.cn/api/paas/v4"
+						: "https://api.z.ai/api/paas/v4",
 					apiKey: this.options.zaiApiKey,
 					defaultHeaders: {
 						"HTTP-Referer": "https://qaxolotl.com",
@@ -50,39 +55,46 @@ export class ZAiHandler implements ApiHandler {
 						"X-Cline-Version": extensionVersion,
 					},
 					fetch, // Use configured fetch with proxy support
-				})
+				});
 			} catch (error: any) {
-				throw new Error(`Error creating Z AI client: ${error.message}`)
+				throw new Error(`Error creating Z AI client: ${error.message}`);
 			}
 		}
-		return this.client
+		return this.client;
 	}
 
-	getModel(): { id: mainlandZAiModelId | internationalZAiModelId; info: ModelInfo } {
-		const modelId = this.options.apiModelId
+	getModel(): {
+		id: mainlandZAiModelId | internationalZAiModelId;
+		info: ModelInfo;
+	} {
+		const modelId = this.options.apiModelId;
 		if (this.useChinaApi()) {
-			return {
-				id: (modelId as mainlandZAiModelId) ?? mainlandZAiDefaultModelId,
-				info: mainlandZAiModels[modelId as mainlandZAiModelId] ?? mainlandZAiModels[mainlandZAiDefaultModelId],
-			}
+			const validId =
+				modelId && modelId in mainlandZAiModels
+					? (modelId as mainlandZAiModelId)
+					: mainlandZAiDefaultModelId;
+			return { id: validId, info: mainlandZAiModels[validId] };
 		} else {
-			return {
-				id: (modelId as internationalZAiModelId) ?? internationalZAiDefaultModelId,
-				info:
-					internationalZAiModels[modelId as internationalZAiModelId] ??
-					internationalZAiModels[internationalZAiDefaultModelId],
-			}
+			const validId =
+				modelId && modelId in internationalZAiModels
+					? (modelId as internationalZAiModelId)
+					: internationalZAiDefaultModelId;
+			return { id: validId, info: internationalZAiModels[validId] };
 		}
 	}
 
 	@withRetry()
-	async *createMessage(systemPrompt: string, messages: ClineStorageMessage[], tools?: OpenAITool[]): ApiStream {
-		const client = this.ensureClient()
-		const model = this.getModel()
+	async *createMessage(
+		systemPrompt: string,
+		messages: ClineStorageMessage[],
+		tools?: OpenAITool[],
+	): ApiStream {
+		const client = this.ensureClient();
+		const model = this.getModel();
 		const openAiMessages: OpenAI.Chat.ChatCompletionMessageParam[] = [
 			{ role: "system", content: systemPrompt },
 			...convertToOpenAiMessages(messages),
-		]
+		];
 		const stream = await client.chat.completions.create({
 			model: model.id,
 			max_completion_tokens: model.info.maxTokens,
@@ -90,21 +102,28 @@ export class ZAiHandler implements ApiHandler {
 			stream: true,
 			stream_options: { include_usage: true },
 			...getOpenAIToolParams(tools),
-		})
+		});
 
-		const toolCallProcessor = new ToolCallProcessor()
+		const toolCallProcessor = new ToolCallProcessor();
 
 		for await (const chunk of stream) {
-			const delta = chunk.choices?.[0]?.delta
+			const delta = chunk.choices?.[0]?.delta;
 			if (delta?.content) {
 				yield {
 					type: "text",
 					text: delta.content,
-				}
+				};
+			}
+
+			if (delta && "reasoning_content" in delta && delta.reasoning_content) {
+				yield {
+					type: "reasoning",
+					reasoning: (delta.reasoning_content as string | undefined) || "",
+				};
 			}
 
 			if (delta?.tool_calls) {
-				yield* toolCallProcessor.processToolCallDeltas(delta.tool_calls)
+				yield* toolCallProcessor.processToolCallDeltas(delta.tool_calls);
 			}
 
 			if (chunk.usage) {
@@ -112,9 +131,10 @@ export class ZAiHandler implements ApiHandler {
 					type: "usage",
 					inputTokens: chunk.usage.prompt_tokens || 0,
 					outputTokens: chunk.usage.completion_tokens || 0,
-					cacheReadTokens: chunk.usage.prompt_tokens_details?.cached_tokens || 0,
+					cacheReadTokens:
+						chunk.usage.prompt_tokens_details?.cached_tokens || 0,
 					cacheWriteTokens: 0,
-				}
+				};
 			}
 		}
 	}

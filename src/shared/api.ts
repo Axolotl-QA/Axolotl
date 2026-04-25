@@ -4084,8 +4084,19 @@ export const basetenDefaultModelId = "zai-org/GLM-4.6" satisfies BasetenModelId;
 // https://docs.z.ai/guides/overview/pricing
 export type internationalZAiModelId = keyof typeof internationalZAiModels;
 export const internationalZAiDefaultModelId: internationalZAiModelId =
-	"glm-4.7";
+	"glm-5.1";
 export const internationalZAiModels = {
+	"glm-5.1": {
+		maxTokens: 128_000,
+		contextWindow: 200_000,
+		supportsImages: false,
+		supportsPromptCache: true,
+		cacheReadsPrice: 0.11,
+		inputPrice: 0.6,
+		outputPrice: 2.2,
+		description:
+			"GLM-5.1 is Z.AI's latest flagship model, designed for long-horizon tasks. Aligned with Claude Opus 4.6 in general/coding capability; tops SWE-Bench Pro at 58.4. Capable of 8-hour sustained autonomous execution.",
+	},
 	"glm-4.7": {
 		maxTokens: 131_000,
 		contextWindow: 200_000,
@@ -4131,8 +4142,19 @@ export const internationalZAiModels = {
 } as const satisfies Record<string, ModelInfo>;
 
 export type mainlandZAiModelId = keyof typeof mainlandZAiModels;
-export const mainlandZAiDefaultModelId: mainlandZAiModelId = "glm-4.7";
+export const mainlandZAiDefaultModelId: mainlandZAiModelId = "glm-5.1";
 export const mainlandZAiModels = {
+	"glm-5.1": {
+		maxTokens: 128_000,
+		contextWindow: 200_000,
+		supportsImages: false,
+		supportsPromptCache: true,
+		cacheReadsPrice: 0.11,
+		inputPrice: 0.6,
+		outputPrice: 2.2,
+		description:
+			"GLM-5.1 is Z.AI's latest flagship model, designed for long-horizon tasks. Aligned with Claude Opus 4.6 in general/coding capability; tops SWE-Bench Pro at 58.4. Capable of 8-hour sustained autonomous execution.",
+	},
 	"glm-4.7": {
 		maxTokens: 131_000,
 		contextWindow: 200_000,

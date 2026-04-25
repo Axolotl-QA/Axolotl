@@ -355,7 +355,7 @@ const OnboardingStepContent = ({
 				coding experience.
 			</p>
 			<ApiConfigurationSection
-				allowedProviders={["anthropic", "openai-native", "minimax"]}
+				allowedProviders={["anthropic", "openai-native", "minimax", "zai"]}
 			/>
 		</div>
 	);
