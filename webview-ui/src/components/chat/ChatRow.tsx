@@ -71,6 +71,7 @@ import HookMessage from "./HookMessage";
 import { MarkdownRow } from "./MarkdownRow";
 import NewTaskPreview from "./NewTaskPreview";
 import PlanCompletionOutputRow from "./PlanCompletionOutputRow";
+import { QAReportFixActions } from "./QAReportFixActions";
 import QuoteButton from "./QuoteButton";
 import ReportBugPreview from "./ReportBugPreview";
 import SearchResultsDisplay from "./SearchResultsDisplay";
@@ -1653,6 +1654,13 @@ export const ChatRowContent = memo(
 													</ul>
 												</div>
 											)}
+										{/* Fix actions (only shown when there are failures) */}
+										{sendMessageFromChatRow && (
+											<QAReportFixActions
+												report={report}
+												sendMessage={sendMessageFromChatRow}
+											/>
+										)}
 									</div>
 								)}
 							</div>
