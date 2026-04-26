@@ -195,8 +195,8 @@ Phase 3: Generate Plan → axolotl_generate_plan (AI generates test cases, user 
 Phase 4: Inject Logs → Add AXOLOTL_TEST_LOG markers (MUST TRACK for cleanup)
 Phase 5: Execute Tests → execute_command + browser_action
 Phase 6: Cleanup Logs → REMOVE all injected logs (MANDATORY before report)
-Phase 7: Report → axolotl_qa_report (user decides on fixes)
-Phase 8: Fix Issues → (if tests failed, offer to fix)
+Phase 7: Report → axolotl_qa_report (STOP — user clicks "Fix in Axolotl" or "Copy fix prompt")
+Phase 8: Fix Issues → ONLY when user explicitly requests fixes via the report card buttons
 Phase 9: Update Memory → Save learned project info to axolotl.md
 ```
 
@@ -377,12 +377,22 @@ axolotl_qa_report
   }
 ```
 
-## Phase 8: Fix Issues (if tests failed)
+## Phase 8: Fix Issues (ONLY when user explicitly requests it)
 
-If any tests failed:
-- Ask if user wants automatic fixes
-- Implement fixes one at a time
-- Re-verify after fixing
+**🛑 HARD STOP after Phase 7. Do NOT proactively start fixing failures, do NOT ask "shall I fix?", and do NOT continue the conversation past the report card.**
+
+The QA report card in the UI already shows the user two action buttons whenever there are failures:
+- **"Fix in Axolotl"** — when clicked, the user sends back a structured fix request that explicitly invokes Phase 8 (you'll receive a message starting with "Please proceed to Phase 8 and fix the following failed test cases...")
+- **"Copy fix prompt"** — copies a self-contained prompt to the clipboard for an external coding agent. This does NOT send anything to you. The user is taking the failures elsewhere.
+
+You enter Phase 8 ONLY when you receive that explicit "Please proceed to Phase 8..." message. Do not infer it, do not assume it, do not pre-empt it. After your Phase 7 report message, your turn is over — let the user decide.
+
+When Phase 8 IS triggered:
+- Implement fixes one at a time, addressing the root cause (do not modify the test cases themselves)
+- After fixing all of them, re-run the project's lint/typecheck/test scripts (or call `axolotl_run_local_ci` again if available) to verify
+- Summarize what changed and which tests should now pass
+
+If a failure is environmental rather than a real code bug, say so and stop — do not patch code.
 
 ## Phase 9: Update Memory (if needed)
 
@@ -416,4 +426,5 @@ After completing the QA session, evaluate whether you learned new information ab
 - ❌ Do NOT call `axolotl_generate_plan` without first calling `axolotl_analyze_code`
 - ❌ Do NOT skip log cleanup phase
 - ❌ Do NOT use curl/wget to test UI components
+- ❌ **NEVER auto-proceed to Phase 8 after Phase 7.** Stop after the report. The UI shows the user "Fix in Axolotl" / "Copy fix prompt" buttons — wait for an explicit user message before fixing.
 - ❌ Do NOT leave AXOLOTL_TEST_LOG in the code after testing
