@@ -1,3 +1,5 @@
+import fs from "node:fs/promises";
+import * as path from "node:path";
 import type { Anthropic } from "@anthropic-ai/sdk";
 import { buildApiHandler } from "@core/api";
 import { tryAcquireTaskLockWithRetry } from "@core/task/TaskLockUtils";
@@ -18,10 +20,8 @@ import type { TelemetrySetting } from "@shared/TelemetrySetting";
 import type { UserInfo } from "@shared/UserInfo";
 import { fileExistsAtPath } from "@utils/fs";
 import axios from "axios";
-import fs from "fs/promises";
 import open from "open";
 import pWaitFor from "p-wait-for";
-import * as path from "path";
 import type { FolderLockWithRetryResult } from "src/core/locks/types";
 import type * as vscode from "vscode";
 import { AxolotlEnv } from "@/config";
@@ -771,7 +771,7 @@ export class Controller {
 				{ code },
 				getAxiosSettings(),
 			);
-			if (response.data && response.data.key) {
+			if (response.data?.key) {
 				apiKey = response.data.key;
 			} else {
 				throw new Error("Invalid response from OpenRouter API");
@@ -1163,6 +1163,10 @@ export class Controller {
 				"backgroundEditEnabled",
 			),
 			skillsEnabled,
+			axolotlQaEnabled:
+				this.stateManager.getGlobalSettingsKey("axolotlQaEnabled"),
+			runLocalCiEnabled:
+				this.stateManager.getGlobalSettingsKey("runLocalCiEnabled"),
 			optOutOfRemoteConfig: this.stateManager.getGlobalSettingsKey(
 				"optOutOfRemoteConfig",
 			),

@@ -83,6 +83,7 @@ export const config = createVariant(ModelFamily.NATIVE_GPT_5)
 		ClineDefaultTool.AXOLOTL_GENERATE_PLAN,
 		ClineDefaultTool.AXOLOTL_ANALYZE_CODE,
 		ClineDefaultTool.AXOLOTL_WEB_SEARCH,
+		ClineDefaultTool.AXOLOTL_RUN_LOCAL_CI,
 	)
 	.placeholders({
 		MODEL_FAMILY: ModelFamily.NATIVE_GPT_5,

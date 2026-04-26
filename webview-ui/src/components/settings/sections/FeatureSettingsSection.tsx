@@ -40,6 +40,8 @@ const FeatureSettingsSection = ({
 		nativeToolCallSetting,
 		enableParallelToolCalling,
 		backgroundEditEnabled,
+		axolotlQaEnabled,
+		runLocalCiEnabled,
 	} = useExtensionState();
 
 	const handleReasoningEffortChange = (newValue: OpenaiReasoningEffort) => {
@@ -251,6 +253,41 @@ const FeatureSettingsSection = ({
 							</span>
 						</p>
 					</div>
+					<div className="mt-2.5">
+						<VSCodeCheckbox
+							checked={axolotlQaEnabled !== false}
+							onChange={(e: any) => {
+								const checked = e.target.checked === true;
+								updateSetting("axolotlQaEnabled", checked);
+							}}
+						>
+							Enable Axolotl QA Workflow
+						</VSCodeCheckbox>
+						<p className="text-xs text-(--vscode-descriptionForeground)">
+							Loads the QA-specific tools (detect changes, analyze code,
+							generate test plan, run local CI, QA report) and the axolotl.md
+							memory instructions. Turn off to use Axolotl as a plain coding
+							assistant.
+						</p>
+					</div>
+					<div className="mt-2.5 ml-4">
+						<VSCodeCheckbox
+							checked={runLocalCiEnabled !== false}
+							disabled={axolotlQaEnabled === false}
+							onChange={(e: any) => {
+								const checked = e.target.checked === true;
+								updateSetting("runLocalCiEnabled", checked);
+							}}
+						>
+							Run Local CI before Test Plan
+						</VSCodeCheckbox>
+						<p className="text-xs text-(--vscode-descriptionForeground)">
+							When enabled, Axolotl runs the project's lint / typecheck / test
+							scripts on the changed files before generating a test plan. CI
+							output is fed to the LLM as additional context. Auto-skipped if no
+							CI scripts are detected in package.json.
+						</p>
+					</div>
 					{multiRootSetting.featureFlag && (
 						<div className="mt-2.5">
 							<VSCodeCheckbox
@@ -297,7 +334,8 @@ const FeatureSettingsSection = ({
 									Experimental:{" "}
 								</span>{" "}
 								<span className="text-description">
-									Allows execution of hooks from .axolotl/rules/hooks/ directory.
+									Allows execution of hooks from .axolotl/rules/hooks/
+									directory.
 								</span>
 							</p>
 						)}

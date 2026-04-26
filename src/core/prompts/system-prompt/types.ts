@@ -112,6 +112,7 @@ export interface SystemPromptContext {
 	readonly clineIgnoreInstructions?: string;
 	readonly axolotlMdInstructions?: string;
 	readonly axolotlQaEnabled?: boolean;
+	readonly runLocalCiEnabled?: boolean;
 	readonly preferredLanguageInstructions?: string;
 	readonly browserSettings?: BrowserSettings;
 	readonly isTesting?: boolean;

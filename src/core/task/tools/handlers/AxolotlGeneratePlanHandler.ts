@@ -1,6 +1,6 @@
+import path from "node:path";
 import type { ToolUse } from "@core/assistant-message";
 import { formatResponse } from "@core/prompts/responses";
-import path from "path";
 import type {
 	AxolotlTestCase,
 	AxolotlTestPlan,
@@ -14,6 +14,79 @@ import type {
 } from "../ToolExecutorCoordinator";
 import type { TaskConfig } from "../types/TaskConfig";
 import type { StronglyTypedUIHelpers } from "../types/UIHelpers";
+
+/**
+ * Renders the optional "## CI Verification Results" section. Returns an empty
+ * string when there are no CI results to surface, so the surrounding template
+ * doesn't grow a blank section.
+ */
+function formatCISection(ci?: CIVerificationResultShape): string {
+	if (!ci) {
+		return "";
+	}
+	if (ci.ci_detected === false) {
+		return `\n## 🧪 CI Verification Results\n\n_No CI scripts detected in the project; skipped._\n\n---\n`;
+	}
+	const statusIcon: Record<string, string> = {
+		pass: "✅ PASS",
+		fail: "❌ FAIL",
+		timeout: "⏱️ TIMEOUT",
+		skipped: "⏭️ SKIPPED",
+	};
+	const overall = ci.overall_status ?? "skipped";
+	const lines: string[] = [];
+	lines.push("");
+	lines.push("## 🧪 CI Verification Results");
+	lines.push("");
+	lines.push(`**Overall:** ${statusIcon[overall] ?? overall}`);
+	if (ci.commands_run && ci.commands_run.length > 0) {
+		lines.push(
+			`**Commands run:** ${ci.commands_run.map((c) => `\`${c}\``).join(", ")}`,
+		);
+	}
+	lines.push("");
+	const allErrors = (ci.results ?? []).flatMap((r) => r.relevant_errors ?? []);
+	if (allErrors.length > 0) {
+		lines.push("**Errors relevant to changed files:**");
+		lines.push("");
+		for (const e of allErrors) {
+			const where = e.line ? `${e.file}:${e.line}` : e.file;
+			lines.push(`- \`${where}\` — ${e.message}`);
+		}
+	} else if (overall === "fail") {
+		lines.push(
+			"_CI failed but no errors were tagged to the changed files. See conversation history for full output._",
+		);
+	} else if (overall === "pass") {
+		lines.push("_All checks passed against the changed files._");
+	}
+	lines.push("");
+	lines.push(
+		"> Test cases below should verify these CI failures are addressed.",
+	);
+	lines.push("");
+	lines.push("---");
+	return lines.join("\n");
+}
+
+/**
+ * Mirror of the CI verification result shape produced by AxolotlRunLocalCIHandler.
+ * Defined locally to avoid a cross-handler import. Only the fields used in
+ * markdown rendering are typed here — extra fields are ignored.
+ */
+interface CIVerificationResultShape {
+	ci_detected?: boolean;
+	commands_run?: string[];
+	results?: Array<{
+		command?: string;
+		check_type?: string;
+		exit_code?: number | null;
+		duration_ms?: number;
+		timed_out?: boolean;
+		relevant_errors?: Array<{ file?: string; line?: number; message?: string }>;
+	}>;
+	overall_status?: "pass" | "fail" | "skipped" | "timeout";
+}
 
 /**
  * Helper to create a stringified ClineSayAxolotlGeneratePlan message
@@ -67,6 +140,16 @@ export class AxolotlGeneratePlanHandler
 		const codeAnalysis: string | undefined = block.params.code_analysis;
 		const diffContent: string | undefined = block.params.diff_content;
 		const testCasesJson: string | undefined = block.params.test_cases;
+		const ciResultsRaw: string | undefined = block.params.ci_results;
+		let ciResults: CIVerificationResultShape | undefined;
+		if (ciResultsRaw) {
+			try {
+				ciResults = JSON.parse(ciResultsRaw);
+			} catch {
+				// Silently ignore malformed CI results — they're optional context.
+				ciResults = undefined;
+			}
+		}
 		const existingPlanPath: string | undefined =
 			block.params.existing_plan_path;
 
@@ -206,7 +289,7 @@ Generate at least 5-10 meaningful test cases based on actual code analysis.`,
 			};
 
 			// Generate markdown content for the test plan with mermaid diagram
-			const markdownContent = this.generateMarkdown(testPlan);
+			const markdownContent = this.generateMarkdown(testPlan, ciResults);
 
 			// Save to disk — reuse existing plan file when modifying, otherwise create new
 			let planFilePath: string;
@@ -392,7 +475,10 @@ Remember to:
 		}
 	}
 
-	private generateMarkdown(plan: AxolotlTestPlan): string {
+	private generateMarkdown(
+		plan: AxolotlTestPlan,
+		ciResults?: CIVerificationResultShape,
+	): string {
 		const now = new Date().toISOString();
 
 		const testsByCategory = {
@@ -448,7 +534,7 @@ ${mermaidDiagram}
 | UI/UX Tests | ${testsByCategory.ui_ux.length} |
 
 ---
-
+${formatCISection(ciResults)}
 ## 🟢 Functional Tests
 
 ${testsByCategory.functional.length > 0 ? testsByCategory.functional.map(formatTestCase).join("\n") : "_No functional tests_"}
@@ -527,7 +613,7 @@ ${testsByCategory.ui_ux.length > 0 ? testsByCategory.ui_ux.map(formatTestCase).j
 					const tc = tests[j];
 					const nodeId = `${catId}${j}`;
 					const shortName =
-						tc.name.length > 25 ? tc.name.substring(0, 25) + "..." : tc.name;
+						tc.name.length > 25 ? `${tc.name.substring(0, 25)}...` : tc.name;
 					lines.push(`        ${nodeId}["${tc.id}: ${shortName}"]`);
 				}
 

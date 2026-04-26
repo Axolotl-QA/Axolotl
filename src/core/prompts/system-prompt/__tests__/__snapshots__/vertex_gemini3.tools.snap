@@ -145,30 +145,6 @@
     }
   },
   {
-    "name": "browser_action",
-    "description": "Request to interact with a Puppeteer-controlled browser. Every action, except `close`, will be responded to with a screenshot of the browser's current state, along with any new console logs. You may only perform one browser action per message, and wait for the user's response including a screenshot and logs to determine the next action.\n- The sequence of actions **must always start with** launching the browser at a URL, and **must always end with** closing the browser. If you need to visit a new URL that is not possible to navigate to from the current webpage, you must first close the browser, then launch again at the new URL.\n- While the browser is active, only the `browser_action` tool can be used. No other tools should be called during this time. You may proceed to use other tools only after closing the browser. For example if you run into an error and need to fix a file, you must close the browser, then use other tools to make the necessary changes, then re-launch the browser to verify the result.\n- The browser window has a resolution of **1280x720** pixels. When performing any click actions, ensure the coordinates are within this resolution range.\n- Before clicking on any elements such as icons, links, or buttons, you must consult the provided screenshot of the page to determine the coordinates of the element. The click should be targeted at the **center of the element**, not on its edges.",
-    "parameters": {
-      "type": "OBJECT",
-      "properties": {
-        "action": {
-          "type": "STRING"
-        },
-        "url": {
-          "type": "STRING"
-        },
-        "coordinate": {
-          "type": "STRING"
-        },
-        "text": {
-          "type": "STRING"
-        }
-      },
-      "required": [
-        "action"
-      ]
-    }
-  },
-  {
     "name": "use_mcp_tool",
     "description": "Request to use a tool provided by a connected MCP server. Each MCP server can provide multiple tools with different capabilities. Tools have defined input schemas that specify required and optional parameters.",
     "parameters": {
@@ -414,6 +390,12 @@
         },
         "diff_content": {
           "type": "STRING"
+        },
+        "existing_plan_path": {
+          "type": "STRING"
+        },
+        "ci_results": {
+          "type": "STRING"
         }
       },
       "required": [
@@ -458,6 +440,27 @@
       },
       "required": [
         "search_query"
+      ]
+    }
+  },
+  {
+    "name": "axolotl_run_local_ci",
+    "description": "Run the project's local CI commands (lint, typecheck, test) on the changed files for Axolotl QA testing. This tool executes scripts detected from package.json (and optionally .github/workflows) and returns structured pass/fail results.\n\nUse this tool AFTER axolotl_analyze_code (and optional axolotl_web_search) and BEFORE axolotl_generate_plan. The CI results are fed into the test plan so that test cases can target real failures rather than hypothetical ones.\n\nThe tool:\n1. **Detects CI commands**: Reads package.json scripts (lint, typecheck/type-check, test); falls back to .github/workflows or noop if none exist\n2. **Executes commands**: Runs each command in the project's cwd with a per-command timeout\n3. **Filters errors**: Returns only errors that touch the file_paths from Phase 2 (changed files)\n4. **Returns structured result**: Suitable for feeding into axolotl_generate_plan as ci_results\n\nIf no CI commands are detected, the tool returns a \"skipped\" status without failing the workflow.",
+    "parameters": {
+      "type": "OBJECT",
+      "properties": {
+        "file_paths": {
+          "type": "STRING"
+        },
+        "check_type": {
+          "type": "STRING"
+        },
+        "custom_commands": {
+          "type": "STRING"
+        }
+      },
+      "required": [
+        "file_paths"
       ]
     }
   },

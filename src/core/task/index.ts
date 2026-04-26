@@ -2224,6 +2224,8 @@ export class Task {
 
 		const axolotlQaEnabled =
 			this.stateManager.getGlobalSettingsKey("axolotlQaEnabled") ?? true;
+		const runLocalCiEnabled =
+			this.stateManager.getGlobalSettingsKey("runLocalCiEnabled") ?? true;
 		const axolotlMdInstructions = axolotlQaEnabled
 			? await getAxolotlMdInstructions(this.cwd)
 			: undefined;
@@ -2293,6 +2295,7 @@ export class Task {
 			clineIgnoreInstructions,
 			axolotlMdInstructions,
 			axolotlQaEnabled,
+			runLocalCiEnabled,
 			preferredLanguageInstructions,
 			browserSettings:
 				this.stateManager.getGlobalSettingsKey("browserSettings"),

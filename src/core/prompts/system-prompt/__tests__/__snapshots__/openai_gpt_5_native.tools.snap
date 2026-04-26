@@ -489,6 +489,14 @@
           "diff_content": {
             "type": "string",
             "description": "Optional diff content showing the actual changes. This helps understand what specifically changed and needs testing."
+          },
+          "existing_plan_path": {
+            "type": "string",
+            "description": "When modifying an existing test plan based on user feedback, provide the file path of the previous plan. The updated plan will overwrite this file instead of creating a new one. This keeps the plan history clean and avoids file clutter."
+          },
+          "ci_results": {
+            "type": "string",
+            "description": "Optional structured CI verification results from axolotl_run_local_ci. Pass the JSON object that the tool returned (the CI_RESULTS_JSON line). When provided, the test plan markdown will include a \"## CI Verification Results\" section listing relevant errors so reviewers can see what real failures triggered the test cases.\n\nThe expected shape is:\n{ \"ci_detected\": boolean, \"commands_run\": string[], \"results\": [...], \"overall_status\": \"pass\" | \"fail\" | \"skipped\" | \"timeout\" }\n\nIf ci_results is omitted, the CI section is simply skipped."
           }
         },
         "required": [
@@ -548,6 +556,35 @@
         },
         "required": [
           "search_query"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "axolotl_run_local_ci",
+      "description": "Run the project's local CI commands (lint, typecheck, test) on the changed files for Axolotl QA testing. This tool executes scripts detected from package.json (and optionally .github/workflows) and returns structured pass/fail results.\n\nUse this tool AFTER axolotl_analyze_code (and optional axolotl_web_search) and BEFORE axolotl_generate_plan. The CI results are fed into the test plan so that test cases can target real failures rather than hypothetical ones.\n\nThe tool:\n1. **Detects CI commands**: Reads package.json scripts (lint, typecheck/type-check, test); falls back to .github/workflows or noop if none exist\n2. **Executes commands**: Runs each command in the project's cwd with a per-command timeout\n3. **Filters errors**: Returns only errors that touch the file_paths from Phase 2 (changed files)\n4. **Returns structured result**: Suitable for feeding into axolotl_generate_plan as ci_results\n\nIf no CI commands are detected, the tool returns a \"skipped\" status without failing the workflow.",
+      "strict": false,
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "file_paths": {
+            "type": "string",
+            "description": "A JSON array of file paths from axolotl_analyze_code. CI errors are filtered to only those touching these files.\nExample: [\"src/auth/login.ts\", \"src/components/LoginForm.tsx\"]"
+          },
+          "check_type": {
+            "type": "string",
+            "description": "The type of checks to run. Must be one of:\n- \"lint\": Run only the lint script\n- \"typecheck\": Run only the typecheck script\n- \"test\": Run only the test script\n- \"all\": Run all detected scripts (default)"
+          },
+          "custom_commands": {
+            "type": "string",
+            "description": "Optional JSON array of explicit shell commands to run instead of auto-detection. Use this when the project has unusual CI setup that the detector misses. Each command must be self-contained (no chaining).\nExample: [\"npx eslint src/\", \"npx tsc --noEmit\"]"
+          }
+        },
+        "required": [
+          "file_paths"
         ],
         "additionalProperties": false
       }

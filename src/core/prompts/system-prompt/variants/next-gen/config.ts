@@ -85,6 +85,7 @@ export const config = createVariant(ModelFamily.NEXT_GEN)
 		ClineDefaultTool.AXOLOTL_GENERATE_PLAN,
 		ClineDefaultTool.AXOLOTL_ANALYZE_CODE,
 		ClineDefaultTool.AXOLOTL_WEB_SEARCH,
+		ClineDefaultTool.AXOLOTL_RUN_LOCAL_CI,
 	)
 	.placeholders({
 		MODEL_FAMILY: ModelFamily.NEXT_GEN,

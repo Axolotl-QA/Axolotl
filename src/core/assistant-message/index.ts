@@ -69,6 +69,10 @@ export const toolParamNames = [
 	"existing_plan_path",
 	// Axolotl web search parameters
 	"search_query",
+	// Axolotl run local CI parameters
+	"check_type",
+	"custom_commands",
+	"ci_results",
 	// Computer Use parameters
 	"cu_action",
 ] as const;

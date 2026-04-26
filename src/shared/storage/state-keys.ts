@@ -332,6 +332,7 @@ const USER_SETTINGS_FIELDS = {
 	backgroundEditEnabled: { default: false as boolean },
 	skillsEnabled: { default: false as boolean },
 	axolotlQaEnabled: { default: true as boolean },
+	runLocalCiEnabled: { default: true as boolean },
 	optOutOfRemoteConfig: { default: false as boolean },
 
 	// OpenTelemetry configuration

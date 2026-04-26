@@ -14,6 +14,7 @@ You have a **persistent memory system** via the \`axolotl.md\` file in the proje
 Phase 1: Detect Changes → axolotl_detect_changes (user confirms scope)
 Phase 2: Analyze Code → axolotl_analyze_code (understand code structure)
 Phase 2.5: Web Search → axolotl_web_search (search best practices based on code analysis)
+Phase 2.7: Run Local CI → axolotl_run_local_ci (MANDATORY when this tool is available)
 Phase 3: Generate Plan → axolotl_generate_plan (AI generates test cases, user reviews)
 Phase 4: Inject Logs → Add AXOLOTL_TEST_LOG markers (MUST TRACK for cleanup)
 Phase 5: Execute Tests → execute_command + browser_action
@@ -78,9 +79,38 @@ axolotl_web_search
 
 Results will be printed in the terminal and returned for your use in Phase 3.
 
+## Phase 2.7: Run Local CI Verification (MANDATORY when this tool is available)
+
+**⚠️ IMPORTANT: If \`axolotl_run_local_ci\` appears in your list of available tools, you MUST call it before Phase 3. Do NOT skip it. Do NOT proceed to \`axolotl_generate_plan\` until you have called \`axolotl_run_local_ci\` first.**
+
+The user has explicitly enabled this phase via the "Run Local CI before Test Plan" setting. If the tool is NOT in your tool list, the user has disabled it and you should skip directly to Phase 3.
+
+When the tool IS available, use it AFTER code analysis and AFTER web search, but BEFORE generating the test plan. It runs the project's actual CI commands (lint, typecheck, test) on the changed files and returns structured pass/fail results.
+
+\`\`\`
+axolotl_run_local_ci
+- file_paths: ["src/auth/login.ts", "src/components/LoginForm.tsx"]
+- check_type: "all"
+\`\`\`
+
+**Why this matters:** When CI catches real failures (e.g., a lint rule violation on a changed line, or a type error), the test plan can target those exact failures rather than hypothetical ones. The CI result is automatically forwarded to \`axolotl_generate_plan\` as the \`ci_results\` parameter.
+
+If no CI is detected (no \`lint\`/\`test\`/\`typecheck\` script in package.json and no GitHub workflow), the tool returns \`{ ci_detected: false, overall_status: "skipped" }\` — proceed directly to Phase 3.
+
+This phase NEVER blocks the workflow. CI failures inform the test plan but do not stop it.
+
+**⚠️ Before continuing to Phase 3 you MUST do TWO things:**
+1. **Briefly relay the CI outcome to the user in your own words** — name the commands that ran, the overall status (pass/fail/timeout/skipped), and 1-3 representative failures with file:line. Do NOT just say "failures detected" — the user needs concrete information to decide whether to investigate now or let the test plan cover it.
+2. **Pass the full \`CI_RESULTS_JSON\` object as the \`ci_results\` parameter to \`axolotl_generate_plan\`** so the plan markdown includes the structured CI section.
+
 ## Phase 3: Generate Test Plan
 
-Based on the code analysis from Phase 2 AND the web search results from Phase 2.5, call \`axolotl_generate_plan\` WITH the \`test_cases\` parameter:
+**⚠️ Pre-flight check before calling \`axolotl_generate_plan\`:**
+- If \`axolotl_run_local_ci\` is in your tool list and you have NOT called it yet for this task → call it first. Phase 3 is blocked until 2.7 completes.
+- If you have already called \`axolotl_run_local_ci\` → pass its full \`CI_RESULTS_JSON\` as the \`ci_results\` parameter below.
+- If \`axolotl_run_local_ci\` is NOT in your tool list → proceed (it has been disabled by the user).
+
+Based on the code analysis from Phase 2, web search results from Phase 2.5, AND local CI results from Phase 2.7 (if available), call \`axolotl_generate_plan\` WITH the \`test_cases\` parameter:
 
 \`\`\`
 axolotl_generate_plan
@@ -199,6 +229,7 @@ After completing the QA session, evaluate whether you learned new information ab
 
 - ✅ **MANDATORY**: Call \`axolotl_analyze_code\` BEFORE \`axolotl_generate_plan\` - this is NOT optional!
 - ✅ **STRONGLY SUGGESTED**: Call \`axolotl_web_search\` AFTER \`axolotl_analyze_code\` to search for testing best practices based on code analysis
+- ✅ **MANDATORY (when tool is available)**: Call \`axolotl_run_local_ci\` AFTER web search and BEFORE \`axolotl_generate_plan\`. If the tool is in your tool list, the user has enabled it — do NOT skip. Pass its result as \`ci_results\` to \`axolotl_generate_plan\`.
 - ✅ Generate meaningful test cases based on the code analysis output
 - ✅ ALWAYS track injected logs with file paths and line numbers
 - ✅ ALWAYS cleanup injected logs before generating report

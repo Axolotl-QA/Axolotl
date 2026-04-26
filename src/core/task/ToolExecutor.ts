@@ -31,6 +31,7 @@ import { AxolotlAnalyzeCodeHandler } from "./tools/handlers/AxolotlAnalyzeCodeHa
 import { AxolotlDetectChangesHandler } from "./tools/handlers/AxolotlDetectChangesHandler";
 import { AxolotlGeneratePlanHandler } from "./tools/handlers/AxolotlGeneratePlanHandler";
 import { AxolotlQAReportHandler } from "./tools/handlers/AxolotlQAReportHandler";
+import { AxolotlRunLocalCIHandler } from "./tools/handlers/AxolotlRunLocalCIHandler";
 import { AxolotlWebSearchHandler } from "./tools/handlers/AxolotlWebSearchHandler";
 import { BrowserToolHandler } from "./tools/handlers/BrowserToolHandler";
 import { ComputerUseToolHandler } from "./tools/handlers/ComputerUseToolHandler";
@@ -309,6 +310,7 @@ export class ToolExecutor {
 		this.coordinator.register(new AxolotlGeneratePlanHandler());
 		this.coordinator.register(new AxolotlAnalyzeCodeHandler());
 		this.coordinator.register(new AxolotlWebSearchHandler());
+		this.coordinator.register(new AxolotlRunLocalCIHandler());
 	}
 
 	/**

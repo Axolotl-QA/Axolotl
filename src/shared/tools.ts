@@ -37,6 +37,7 @@ export enum ClineDefaultTool {
 	AXOLOTL_GENERATE_PLAN = "axolotl_generate_plan",
 	AXOLOTL_ANALYZE_CODE = "axolotl_analyze_code",
 	AXOLOTL_WEB_SEARCH = "axolotl_web_search",
+	AXOLOTL_RUN_LOCAL_CI = "axolotl_run_local_ci",
 	COMPUTER_USE = "computer_use_action",
 }
 

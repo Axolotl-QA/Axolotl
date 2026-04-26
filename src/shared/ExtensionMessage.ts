@@ -1,137 +1,147 @@
 // type that represents json data that is sent from extension to webview, called ExtensionMessage and has 'type' enum which can be 'plusButtonClicked' or 'settingsButtonClicked' or 'hello'
 
-import { WorkspaceRoot } from "@shared/multi-root/types"
-import { RemoteConfigFields } from "@shared/storage/state-keys"
-import type { Environment } from "../config"
-import { AutoApprovalSettings } from "./AutoApprovalSettings"
-import { ApiConfiguration } from "./api"
-import { BrowserSettings } from "./BrowserSettings"
-import { ClineFeatureSetting } from "./ClineFeatureSetting"
-import { BannerCardData } from "./cline/banner"
-import { ClineRulesToggles } from "./cline-rules"
-import { DictationSettings } from "./DictationSettings"
-import { FocusChainSettings } from "./FocusChainSettings"
-import { HistoryItem } from "./HistoryItem"
-import { McpDisplayMode } from "./McpDisplayMode"
-import { ClineMessageModelInfo } from "./messages"
-import { OnboardingModelGroup } from "./proto/cline/state"
-import { Mode, OpenaiReasoningEffort } from "./storage/types"
-import { TelemetrySetting } from "./TelemetrySetting"
-import { UserInfo } from "./UserInfo"
+import type { WorkspaceRoot } from "@shared/multi-root/types";
+import type { RemoteConfigFields } from "@shared/storage/state-keys";
+import type { Environment } from "../config";
+import type { AutoApprovalSettings } from "./AutoApprovalSettings";
+import type { ApiConfiguration } from "./api";
+import type { BrowserSettings } from "./BrowserSettings";
+import type { ClineFeatureSetting } from "./ClineFeatureSetting";
+import type { BannerCardData } from "./cline/banner";
+import type { ClineRulesToggles } from "./cline-rules";
+import type { DictationSettings } from "./DictationSettings";
+import type { FocusChainSettings } from "./FocusChainSettings";
+import type { HistoryItem } from "./HistoryItem";
+import type { McpDisplayMode } from "./McpDisplayMode";
+import type { ClineMessageModelInfo } from "./messages";
+import type { OnboardingModelGroup } from "./proto/cline/state";
+import type { Mode, OpenaiReasoningEffort } from "./storage/types";
+import type { TelemetrySetting } from "./TelemetrySetting";
+import type { UserInfo } from "./UserInfo";
 // webview will hold state
 export interface ExtensionMessage {
-	type: "grpc_response" // New type for gRPC responses
-	grpc_response?: GrpcResponse
+	type: "grpc_response"; // New type for gRPC responses
+	grpc_response?: GrpcResponse;
 }
 
 export type GrpcResponse = {
-	message?: any // JSON serialized protobuf message
-	request_id: string // Same ID as the request
-	error?: string // Optional error message
-	is_streaming?: boolean // Whether this is part of a streaming response
-	sequence_number?: number // For ordering chunks in streaming responses
-}
+	message?: any; // JSON serialized protobuf message
+	request_id: string; // Same ID as the request
+	error?: string; // Optional error message
+	is_streaming?: boolean; // Whether this is part of a streaming response
+	sequence_number?: number; // For ordering chunks in streaming responses
+};
 
-export type Platform = "aix" | "darwin" | "freebsd" | "linux" | "openbsd" | "sunos" | "win32" | "unknown"
+export type Platform =
+	| "aix"
+	| "darwin"
+	| "freebsd"
+	| "linux"
+	| "openbsd"
+	| "sunos"
+	| "win32"
+	| "unknown";
 
-export const DEFAULT_PLATFORM = "unknown"
+export const DEFAULT_PLATFORM = "unknown";
 
-export const COMMAND_CANCEL_TOKEN = "__cline_command_cancel__"
+export const COMMAND_CANCEL_TOKEN = "__cline_command_cancel__";
 
 export interface ExtensionState {
-	isNewUser: boolean
-	welcomeViewCompleted: boolean
-	onboardingModels: OnboardingModelGroup | undefined
-	apiConfiguration?: ApiConfiguration
-	autoApprovalSettings: AutoApprovalSettings
-	browserSettings: BrowserSettings
-	remoteBrowserHost?: string
-	preferredLanguage?: string
-	openaiReasoningEffort?: OpenaiReasoningEffort
-	mode: Mode
-	checkpointManagerErrorMessage?: string
-	clineMessages: ClineMessage[]
-	currentTaskItem?: HistoryItem
-	currentFocusChainChecklist?: string | null
-	mcpMarketplaceEnabled?: boolean
-	mcpDisplayMode: McpDisplayMode
-	planActSeparateModelsSetting: boolean
-	enableCheckpointsSetting?: boolean
-	platform: Platform
-	environment?: Environment
-	shouldShowAnnouncement: boolean
-	taskHistory: HistoryItem[]
-	telemetrySetting: TelemetrySetting
-	shellIntegrationTimeout: number
-	terminalReuseEnabled?: boolean
-	terminalOutputLineLimit: number
-	maxConsecutiveMistakes: number
-	subagentTerminalOutputLineLimit: number
-	defaultTerminalProfile?: string
-	vscodeTerminalExecutionMode: string
-	backgroundCommandRunning?: boolean
-	backgroundCommandTaskId?: string
-	lastCompletedCommandTs?: number
-	userInfo?: UserInfo
-	version: string
-	distinctId: string
-	globalClineRulesToggles: ClineRulesToggles
-	localClineRulesToggles: ClineRulesToggles
-	localWorkflowToggles: ClineRulesToggles
-	globalWorkflowToggles: ClineRulesToggles
-	localCursorRulesToggles: ClineRulesToggles
-	localWindsurfRulesToggles: ClineRulesToggles
-	remoteRulesToggles?: ClineRulesToggles
-	remoteWorkflowToggles?: ClineRulesToggles
-	localAgentsRulesToggles: ClineRulesToggles
-	mcpResponsesCollapsed?: boolean
-	strictPlanModeEnabled?: boolean
-	yoloModeToggled?: boolean
-	useAutoCondense?: boolean
-	clineWebToolsEnabled?: ClineFeatureSetting
-	focusChainSettings: FocusChainSettings
-	dictationSettings: DictationSettings
-	customPrompt?: string
-	autoCondenseThreshold?: number
-	favoritedModelIds: string[]
+	isNewUser: boolean;
+	welcomeViewCompleted: boolean;
+	onboardingModels: OnboardingModelGroup | undefined;
+	apiConfiguration?: ApiConfiguration;
+	autoApprovalSettings: AutoApprovalSettings;
+	browserSettings: BrowserSettings;
+	remoteBrowserHost?: string;
+	preferredLanguage?: string;
+	openaiReasoningEffort?: OpenaiReasoningEffort;
+	mode: Mode;
+	checkpointManagerErrorMessage?: string;
+	clineMessages: ClineMessage[];
+	currentTaskItem?: HistoryItem;
+	currentFocusChainChecklist?: string | null;
+	mcpMarketplaceEnabled?: boolean;
+	mcpDisplayMode: McpDisplayMode;
+	planActSeparateModelsSetting: boolean;
+	enableCheckpointsSetting?: boolean;
+	platform: Platform;
+	environment?: Environment;
+	shouldShowAnnouncement: boolean;
+	taskHistory: HistoryItem[];
+	telemetrySetting: TelemetrySetting;
+	shellIntegrationTimeout: number;
+	terminalReuseEnabled?: boolean;
+	terminalOutputLineLimit: number;
+	maxConsecutiveMistakes: number;
+	subagentTerminalOutputLineLimit: number;
+	defaultTerminalProfile?: string;
+	vscodeTerminalExecutionMode: string;
+	backgroundCommandRunning?: boolean;
+	backgroundCommandTaskId?: string;
+	lastCompletedCommandTs?: number;
+	userInfo?: UserInfo;
+	version: string;
+	distinctId: string;
+	globalClineRulesToggles: ClineRulesToggles;
+	localClineRulesToggles: ClineRulesToggles;
+	localWorkflowToggles: ClineRulesToggles;
+	globalWorkflowToggles: ClineRulesToggles;
+	localCursorRulesToggles: ClineRulesToggles;
+	localWindsurfRulesToggles: ClineRulesToggles;
+	remoteRulesToggles?: ClineRulesToggles;
+	remoteWorkflowToggles?: ClineRulesToggles;
+	localAgentsRulesToggles: ClineRulesToggles;
+	mcpResponsesCollapsed?: boolean;
+	strictPlanModeEnabled?: boolean;
+	yoloModeToggled?: boolean;
+	useAutoCondense?: boolean;
+	clineWebToolsEnabled?: ClineFeatureSetting;
+	focusChainSettings: FocusChainSettings;
+	dictationSettings: DictationSettings;
+	customPrompt?: string;
+	autoCondenseThreshold?: number;
+	favoritedModelIds: string[];
 	// NEW: Add workspace information
-	workspaceRoots: WorkspaceRoot[]
-	primaryRootIndex: number
-	isMultiRootWorkspace: boolean
-	multiRootSetting: ClineFeatureSetting
-	lastDismissedInfoBannerVersion: number
-	lastDismissedModelBannerVersion: number
-	lastDismissedCliBannerVersion: number
-	hooksEnabled?: boolean
-	remoteConfigSettings?: Partial<RemoteConfigFields>
-	subagentsEnabled?: boolean
-	skillsEnabled?: boolean
-	globalSkillsToggles?: Record<string, boolean>
-	localSkillsToggles?: Record<string, boolean>
-	nativeToolCallSetting?: boolean
-	enableParallelToolCalling?: boolean
-	backgroundEditEnabled?: boolean
-	optOutOfRemoteConfig?: boolean
-	banners?: BannerCardData[]
+	workspaceRoots: WorkspaceRoot[];
+	primaryRootIndex: number;
+	isMultiRootWorkspace: boolean;
+	multiRootSetting: ClineFeatureSetting;
+	lastDismissedInfoBannerVersion: number;
+	lastDismissedModelBannerVersion: number;
+	lastDismissedCliBannerVersion: number;
+	hooksEnabled?: boolean;
+	remoteConfigSettings?: Partial<RemoteConfigFields>;
+	subagentsEnabled?: boolean;
+	skillsEnabled?: boolean;
+	globalSkillsToggles?: Record<string, boolean>;
+	localSkillsToggles?: Record<string, boolean>;
+	nativeToolCallSetting?: boolean;
+	enableParallelToolCalling?: boolean;
+	backgroundEditEnabled?: boolean;
+	axolotlQaEnabled?: boolean;
+	runLocalCiEnabled?: boolean;
+	optOutOfRemoteConfig?: boolean;
+	banners?: BannerCardData[];
 }
 
 export interface ClineMessage {
-	ts: number
-	type: "ask" | "say"
-	ask?: ClineAsk
-	say?: ClineSay
-	text?: string
-	reasoning?: string
-	images?: string[]
-	files?: string[]
-	partial?: boolean
-	commandCompleted?: boolean
-	lastCheckpointHash?: string
-	isCheckpointCheckedOut?: boolean
-	isOperationOutsideWorkspace?: boolean
-	conversationHistoryIndex?: number
-	conversationHistoryDeletedRange?: [number, number] // for when conversation history is truncated for API requests
-	modelInfo?: ClineMessageModelInfo
+	ts: number;
+	type: "ask" | "say";
+	ask?: ClineAsk;
+	say?: ClineSay;
+	text?: string;
+	reasoning?: string;
+	images?: string[];
+	files?: string[];
+	partial?: boolean;
+	commandCompleted?: boolean;
+	lastCheckpointHash?: string;
+	isCheckpointCheckedOut?: boolean;
+	isOperationOutsideWorkspace?: boolean;
+	conversationHistoryIndex?: number;
+	conversationHistoryDeletedRange?: [number, number]; // for when conversation history is truncated for API requests
+	modelInfo?: ClineMessageModelInfo;
 }
 
 export type ClineAsk =
@@ -153,7 +163,7 @@ export type ClineAsk =
 	| "summarize_task"
 	| "report_bug"
 	| "axolotl_confirm_changes"
-	| "axolotl_confirm_plan"
+	| "axolotl_confirm_plan";
 
 export type ClineSay =
 	| "task"
@@ -192,7 +202,7 @@ export type ClineSay =
 	| "info" // Added for general informational messages like retry status
 	| "task_progress"
 	| "hook_status"
-	| "hook_output_stream"
+	| "hook_output_stream";
 
 export interface ClineSayTool {
 	tool:
@@ -206,199 +216,209 @@ export interface ClineSayTool {
 		| "searchFiles"
 		| "webFetch"
 		| "webSearch"
-		| "summarizeTask"
-	path?: string
-	diff?: string
-	content?: string
-	regex?: string
-	filePattern?: string
-	operationIsLocatedInWorkspace?: boolean
+		| "summarizeTask";
+	path?: string;
+	diff?: string;
+	content?: string;
+	regex?: string;
+	filePattern?: string;
+	operationIsLocatedInWorkspace?: boolean;
 }
 
 export interface ClineSayHook {
-	hookName: string // Name of the hook (e.g., "PreToolUse", "PostToolUse")
-	toolName?: string // Tool name if applicable (for PreToolUse/PostToolUse)
-	status: "running" | "completed" | "failed" | "cancelled" // Execution status
-	exitCode?: number // Exit code when completed
-	hasJsonResponse?: boolean // Whether a JSON response was parsed
+	hookName: string; // Name of the hook (e.g., "PreToolUse", "PostToolUse")
+	toolName?: string; // Tool name if applicable (for PreToolUse/PostToolUse)
+	status: "running" | "completed" | "failed" | "cancelled"; // Execution status
+	exitCode?: number; // Exit code when completed
+	hasJsonResponse?: boolean; // Whether a JSON response was parsed
 	// Pending tool information (only present during PreToolUse "running" status)
 	pendingToolInfo?: {
-		tool: string // Tool name (e.g., "write_to_file", "execute_command")
-		path?: string // File path for file operations
-		command?: string // Command for execute_command
-		content?: string // Content preview (first 200 chars)
-		diff?: string // Diff preview (first 200 chars)
-		regex?: string // Regex pattern for search_files
-		url?: string // URL for web_fetch or browser_action
-		mcpTool?: string // MCP tool name
-		mcpServer?: string // MCP server name
-		resourceUri?: string // MCP resource URI
-	}
+		tool: string; // Tool name (e.g., "write_to_file", "execute_command")
+		path?: string; // File path for file operations
+		command?: string; // Command for execute_command
+		content?: string; // Content preview (first 200 chars)
+		diff?: string; // Diff preview (first 200 chars)
+		regex?: string; // Regex pattern for search_files
+		url?: string; // URL for web_fetch or browser_action
+		mcpTool?: string; // MCP tool name
+		mcpServer?: string; // MCP server name
+		resourceUri?: string; // MCP resource URI
+	};
 	// Structured error information (only present when status is "failed")
 	error?: {
-		type: "timeout" | "validation" | "execution" | "cancellation" // Type of error
-		message: string // User-friendly error message
-		details?: string // Technical details for expansion
-		scriptPath?: string // Path to the hook script
-	}
+		type: "timeout" | "validation" | "execution" | "cancellation"; // Type of error
+		message: string; // User-friendly error message
+		details?: string; // Technical details for expansion
+		scriptPath?: string; // Path to the hook script
+	};
 }
 
 export type HookOutputStreamMeta = {
 	/** Which hook configuration the script originated from (global vs workspace). */
-	source: "global" | "workspace"
+	source: "global" | "workspace";
 	/** Full path to the hook script that emitted the output. */
-	scriptPath: string
-}
+	scriptPath: string;
+};
 
 // must keep in sync with system prompt
-export const browserActions = ["launch", "click", "type", "scroll_down", "scroll_up", "close"] as const
-export type BrowserAction = (typeof browserActions)[number]
+export const browserActions = [
+	"launch",
+	"click",
+	"type",
+	"scroll_down",
+	"scroll_up",
+	"close",
+] as const;
+export type BrowserAction = (typeof browserActions)[number];
 
 export interface ClineSayBrowserAction {
-	action: BrowserAction
-	coordinate?: string
-	text?: string
+	action: BrowserAction;
+	coordinate?: string;
+	text?: string;
 }
 
 export interface ClineSayGenerateExplanation {
-	title: string
-	fromRef: string
-	toRef: string
-	status: "generating" | "complete" | "error"
-	error?: string
+	title: string;
+	fromRef: string;
+	toRef: string;
+	status: "generating" | "complete" | "error";
+	error?: string;
 }
 
 export interface AxolotlQAReportTest {
-	id: string
-	name: string
-	category: "functional" | "edge_case" | "integration" | "ui_ux"
-	status: "passed" | "failed" | "skipped"
+	id: string;
+	name: string;
+	category: "functional" | "edge_case" | "integration" | "ui_ux";
+	status: "passed" | "failed" | "skipped";
 	evidence?: {
-		logs?: string[]
-		screenshots?: string[]
-		notes?: string
-	}
-	failure_reason?: string
+		logs?: string[];
+		screenshots?: string[];
+		notes?: string;
+	};
+	failure_reason?: string;
 }
 
 export interface AxolotlQAReport {
 	summary: {
-		total_tests: number
-		passed: number
-		failed: number
-		skipped: number
-		verdict: "MERGEABLE" | "NOT_MERGEABLE" | "MERGEABLE_WITH_RISKS"
-	}
-	tests: AxolotlQAReportTest[]
-	risks: string[]
-	recommendations: string[]
+		total_tests: number;
+		passed: number;
+		failed: number;
+		skipped: number;
+		verdict: "MERGEABLE" | "NOT_MERGEABLE" | "MERGEABLE_WITH_RISKS";
+	};
+	tests: AxolotlQAReportTest[];
+	risks: string[];
+	recommendations: string[];
 }
 
 export interface ClineSayAxolotlQAReport {
-	status: "generating" | "complete" | "error"
-	report?: AxolotlQAReport
-	error?: string
+	status: "generating" | "complete" | "error";
+	report?: AxolotlQAReport;
+	error?: string;
 }
 
 export interface AxolotlDetectedChange {
-	file: string
-	status: "modified" | "added" | "deleted" | "renamed"
-	additions?: number
-	deletions?: number
+	file: string;
+	status: "modified" | "added" | "deleted" | "renamed";
+	additions?: number;
+	deletions?: number;
 }
 
 export interface AxolotlDetectionResult {
-	source: string
-	changes: AxolotlDetectedChange[]
-	totalFiles: number
-	summary: string
-	diff?: string
+	source: string;
+	changes: AxolotlDetectedChange[];
+	totalFiles: number;
+	summary: string;
+	diff?: string;
 	prInfo?: {
-		title: string
-		number: number
-		branch: string
-	}
+		title: string;
+		number: number;
+		branch: string;
+	};
 }
 
 export interface ClineSayAxolotlDetectChanges {
-	status: "detecting" | "confirmed" | "cancelled" | "no_changes" | "error"
-	result?: AxolotlDetectionResult
-	error?: string
+	status: "detecting" | "confirmed" | "cancelled" | "no_changes" | "error";
+	result?: AxolotlDetectionResult;
+	error?: string;
 }
 
 export interface AxolotlTestCase {
-	id: string
-	name: string
-	category: "functional" | "edge_case" | "error_handling" | "ui_ux"
-	description: string
-	steps: string[]
-	expectedResult: string
-	priority: "high" | "medium" | "low"
+	id: string;
+	name: string;
+	category: "functional" | "edge_case" | "error_handling" | "ui_ux";
+	description: string;
+	steps: string[];
+	expectedResult: string;
+	priority: "high" | "medium" | "low";
 }
 
 export interface AxolotlTestPlan {
-	targetFiles: string[]
-	prdDescription?: string
-	testCases: AxolotlTestCase[]
-	totalTests: number
-	summary: string
+	targetFiles: string[];
+	prdDescription?: string;
+	testCases: AxolotlTestCase[];
+	totalTests: number;
+	summary: string;
 }
 
 export interface ClineSayAxolotlGeneratePlan {
-	status: "generating" | "confirmed" | "cancelled" | "error"
-	plan?: AxolotlTestPlan
-	planFilePath?: string
-	error?: string
+	status: "generating" | "confirmed" | "cancelled" | "error";
+	plan?: AxolotlTestPlan;
+	planFilePath?: string;
+	error?: string;
 }
 
 export type BrowserActionResult = {
-	screenshot?: string
-	logs?: string
-	currentUrl?: string
-	currentMousePosition?: string
-}
+	screenshot?: string;
+	logs?: string;
+	currentUrl?: string;
+	currentMousePosition?: string;
+};
 
 export interface ClineAskUseMcpServer {
-	serverName: string
-	type: "use_mcp_tool" | "access_mcp_resource"
-	toolName?: string
-	arguments?: string
-	uri?: string
+	serverName: string;
+	type: "use_mcp_tool" | "access_mcp_resource";
+	toolName?: string;
+	arguments?: string;
+	uri?: string;
 }
 
 export interface ClinePlanModeResponse {
-	response: string
-	options?: string[]
-	selected?: string
+	response: string;
+	options?: string[];
+	selected?: string;
 }
 
 export interface ClineAskQuestion {
-	question: string
-	options?: string[]
-	selected?: string
+	question: string;
+	options?: string[];
+	selected?: string;
 }
 
 export interface ClineAskNewTask {
-	context: string
+	context: string;
 }
 
 export interface ClineApiReqInfo {
-	request?: string
-	tokensIn?: number
-	tokensOut?: number
-	cacheWrites?: number
-	cacheReads?: number
-	cost?: number
-	cancelReason?: ClineApiReqCancelReason
-	streamingFailedMessage?: string
+	request?: string;
+	tokensIn?: number;
+	tokensOut?: number;
+	cacheWrites?: number;
+	cacheReads?: number;
+	cost?: number;
+	cancelReason?: ClineApiReqCancelReason;
+	streamingFailedMessage?: string;
 	retryStatus?: {
-		attempt: number
-		maxAttempts: number
-		delaySec: number
-		errorSnippet?: string
-	}
+		attempt: number;
+		maxAttempts: number;
+		delaySec: number;
+		errorSnippet?: string;
+	};
 }
 
-export type ClineApiReqCancelReason = "streaming_failed" | "user_cancelled" | "retries_exhausted"
+export type ClineApiReqCancelReason =
+	| "streaming_failed"
+	| "user_cancelled"
+	| "retries_exhausted";
 
-export const COMPLETION_RESULT_CHANGES_FLAG = "HAS_CHANGES"
+export const COMPLETION_RESULT_CHANGES_FLAG = "HAS_CHANGES";

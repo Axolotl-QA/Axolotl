@@ -1,32 +1,33 @@
 // Import all tool variants
-import { ClineToolSet } from "../registry/ClineToolSet"
-import { access_mcp_resource_variants } from "./access_mcp_resource"
-import { act_mode_respond_variants } from "./act_mode_respond"
-import { apply_patch_variants } from "./apply_patch"
-import { ask_followup_question_variants } from "./ask_followup_question"
-import { attempt_completion_variants } from "./attempt_completion"
-import { browser_action_variants } from "./browser_action"
-import { execute_command_variants } from "./execute_command"
-import { focus_chain_variants } from "./focus_chain"
-import { generate_explanation_variants } from "./generate_explanation"
-import { list_code_definition_names_variants } from "./list_code_definition_names"
-import { list_files_variants } from "./list_files"
-import { load_mcp_documentation_variants } from "./load_mcp_documentation"
-import { new_task_variants } from "./new_task"
-import { plan_mode_respond_variants } from "./plan_mode_respond"
-import { read_file_variants } from "./read_file"
-import { replace_in_file_variants } from "./replace_in_file"
-import { search_files_variants } from "./search_files"
-import { axolotl_analyze_code_variants } from "./axolotl_analyze_code"
-import { axolotl_detect_changes_variants } from "./axolotl_detect_changes"
-import { axolotl_generate_plan_variants } from "./axolotl_generate_plan"
-import { axolotl_qa_report_variants } from "./axolotl_qa_report"
-import { axolotl_web_search_variants } from "./axolotl_web_search"
-import { use_mcp_tool_variants } from "./use_mcp_tool"
-import { use_skill_variants } from "./use_skill"
-import { web_fetch_variants } from "./web_fetch"
-import { web_search_variants } from "./web_search"
-import { write_to_file_variants } from "./write_to_file"
+import { ClineToolSet } from "../registry/ClineToolSet";
+import { access_mcp_resource_variants } from "./access_mcp_resource";
+import { act_mode_respond_variants } from "./act_mode_respond";
+import { apply_patch_variants } from "./apply_patch";
+import { ask_followup_question_variants } from "./ask_followup_question";
+import { attempt_completion_variants } from "./attempt_completion";
+import { axolotl_analyze_code_variants } from "./axolotl_analyze_code";
+import { axolotl_detect_changes_variants } from "./axolotl_detect_changes";
+import { axolotl_generate_plan_variants } from "./axolotl_generate_plan";
+import { axolotl_qa_report_variants } from "./axolotl_qa_report";
+import { axolotl_run_local_ci_variants } from "./axolotl_run_local_ci";
+import { axolotl_web_search_variants } from "./axolotl_web_search";
+import { browser_action_variants } from "./browser_action";
+import { execute_command_variants } from "./execute_command";
+import { focus_chain_variants } from "./focus_chain";
+import { generate_explanation_variants } from "./generate_explanation";
+import { list_code_definition_names_variants } from "./list_code_definition_names";
+import { list_files_variants } from "./list_files";
+import { load_mcp_documentation_variants } from "./load_mcp_documentation";
+import { new_task_variants } from "./new_task";
+import { plan_mode_respond_variants } from "./plan_mode_respond";
+import { read_file_variants } from "./read_file";
+import { replace_in_file_variants } from "./replace_in_file";
+import { search_files_variants } from "./search_files";
+import { use_mcp_tool_variants } from "./use_mcp_tool";
+import { use_skill_variants } from "./use_skill";
+import { web_fetch_variants } from "./web_fetch";
+import { web_search_variants } from "./web_search";
+import { write_to_file_variants } from "./write_to_file";
 
 /**
  * Registers all tool variants with the ClineToolSet provider.
@@ -59,14 +60,15 @@ export function registerClineToolSets(): void {
 		...axolotl_generate_plan_variants,
 		...axolotl_analyze_code_variants,
 		...axolotl_web_search_variants,
+		...axolotl_run_local_ci_variants,
 		...web_fetch_variants,
 		...web_search_variants,
 		...write_to_file_variants,
 		...apply_patch_variants,
-	]
+	];
 
 	// Register each variant
 	allToolVariants.forEach((v) => {
-		ClineToolSet.register(v)
-	})
+		ClineToolSet.register(v);
+	});
 }

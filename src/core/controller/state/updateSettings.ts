@@ -517,6 +517,20 @@ export async function updateSettings(
 			);
 		}
 
+		if (request.axolotlQaEnabled !== undefined) {
+			controller.stateManager.setGlobalState(
+				"axolotlQaEnabled",
+				!!request.axolotlQaEnabled,
+			);
+		}
+
+		if (request.runLocalCiEnabled !== undefined) {
+			controller.stateManager.setGlobalState(
+				"runLocalCiEnabled",
+				!!request.runLocalCiEnabled,
+			);
+		}
+
 		if (request.optOutOfRemoteConfig !== undefined) {
 			const hadOptedOut = controller.stateManager.getGlobalSettingsKey(
 				"optOutOfRemoteConfig",

@@ -59,6 +59,7 @@ export const config = createVariant(ModelFamily.DEVSTRAL)
 		ClineDefaultTool.AXOLOTL_GENERATE_PLAN,
 		ClineDefaultTool.AXOLOTL_ANALYZE_CODE,
 		ClineDefaultTool.AXOLOTL_WEB_SEARCH,
+		ClineDefaultTool.AXOLOTL_RUN_LOCAL_CI,
 	)
 	.placeholders({
 		MODEL_FAMILY: "devstral",

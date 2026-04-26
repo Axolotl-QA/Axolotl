@@ -85,6 +85,18 @@ Example:
 			instruction: `When modifying an existing test plan based on user feedback, provide the file path of the previous plan. The updated plan will overwrite this file instead of creating a new one. This keeps the plan history clean and avoids file clutter.`,
 			usage: "axolotl_test_plan_2025-01-15T10-30-00.md",
 		},
+		{
+			name: "ci_results",
+			required: false,
+			instruction: `Optional structured CI verification results from axolotl_run_local_ci. Pass the JSON object that the tool returned (the CI_RESULTS_JSON line). When provided, the test plan markdown will include a "## CI Verification Results" section listing relevant errors so reviewers can see what real failures triggered the test cases.
+
+The expected shape is:
+{ "ci_detected": boolean, "commands_run": string[], "results": [...], "overall_status": "pass" | "fail" | "skipped" | "timeout" }
+
+If ci_results is omitted, the CI section is simply skipped.`,
+			usage:
+				'{"ci_detected":true,"commands_run":["npm run lint"],"results":[{"command":"npm run lint","check_type":"lint","exit_code":1,"duration_ms":1234,"relevant_errors":[{"file":"server.js","line":1,"message":"server.js:1:22 useNodejsImportProtocol"}]}],"overall_status":"fail"}',
+		},
 	],
 };
 
