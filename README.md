@@ -133,6 +133,12 @@ Searches for testing best practices specific to your tech stack, then generates 
 </td>
 </tr></table>
 
+### 6. Local CI Verification &nbsp;<sup>NEW</sup>
+
+Before generating any test case, Axolotl runs your project's real `lint` / `typecheck` / `test` scripts on the changed files, parses structured `file:line:rule` failures, and forwards them as first-class context into the test planner. The generated plan markdown persists a `## CI Verification Results` section so reviewers see exactly which real CI failures triggered which test cases — no more hallucinated bugs for problems you don't have. Auto-skipped when the project has no CI configured. Toggle in **Settings → Features → Run Local CI before Test Plan** (on by default).
+
+<br/>
+
 <table><tr>
 <td width="65%">
 
@@ -141,7 +147,7 @@ Searches for testing best practices specific to your tech stack, then generates 
 </td>
 <td width="35%" valign="top">
 
-### 6. Plan & Log Injection
+### 7. Plan & Log Injection
 
 Review the test plan. On approval, Axolotl injects temporary log markers to capture behavioral evidence.
 
@@ -153,7 +159,7 @@ Review the test plan. On approval, Axolotl injects temporary log markers to capt
 <table><tr>
 <td width="35%" valign="top">
 
-### 7. End-to-End Testing
+### 8. End-to-End Testing
 
 Real browser. Real clicks. Real screenshots. Monitors frontend UI and backend output simultaneously.
 
@@ -175,7 +181,7 @@ Real browser. Real clicks. Real screenshots. Monitors frontend UI and backend ou
 </td>
 <td width="35%" valign="top">
 
-### 8. Report & Memory
+### 9. Report & Memory
 
 Evidence-backed verdict with pass/fail per test case. Axolotl remembers your project setup for next time.
 
@@ -183,6 +189,15 @@ Evidence-backed verdict with pass/fail per test case. Axolotl remembers your pro
 
 </td>
 </tr></table>
+
+### 10. Fix in Axolotl or Hand Off &nbsp;<sup>NEW</sup>
+
+When the QA report surfaces failures, two buttons appear at the bottom of the report card:
+
+- **🔧 Fix in Axolotl** — continues the same agent into Phase 8 to fix the underlying bugs in place, then re-runs CI to verify.
+- **📋 Copy fix prompt** — writes a self-contained Markdown to your clipboard: verdict, every failed test with logs and evidence, risks, recommendations, on-disk artifact paths, explicit fix instructions. Paste it into Claude Code, Cursor, Codex CLI, or any agent that reads Markdown.
+
+Most QA tools want to own the fix loop too. Axolotl doesn't — your existing coding agent gets the full context, every time.
 
 <br/>
 
@@ -234,9 +249,11 @@ Or just describe what you want tested in the chat box.
 |---|---|---|
 | **Test creation** | You write and maintain test scripts | AI generates tests from code analysis |
 | **Coverage gaps** | Tests cover what you thought to test | Tests cover what actually changed |
+| **Grounding** | Tests written from imagined bugs | Tests grounded in your project's actual lint/typecheck/test failures |
 | **Browser testing** | Selenium/Playwright setup required | Built-in browser with screenshot evidence |
 | **Maintenance** | Tests break when UI changes | Fresh tests every run, zero maintenance |
 | **Evidence** | Pass/fail boolean | Screenshots, logs, behavioral markers |
+| **Fix delegation** | Locked into one tool's chat to repair | One-click hand-off to your existing coding agent (Claude Code, Cursor, Codex) |
 | **Time to first test** | Hours to days | Minutes |
 
 <br/>
@@ -249,7 +266,11 @@ Or just describe what you want tested in the chat box.
 
 **Zero test maintenance** — tests are generated on-the-fly from your actual code changes. No test suite to maintain.
 
+**Real CI grounding** — runs your project's `lint` / `typecheck` / `test` scripts before planning, so generated tests target real failures instead of hallucinated ones. The plan markdown shows exactly which CI failure triggered which test case.
+
 **Evidence-driven verdicts** — every result is backed by screenshots, console logs, and injected behavioral markers. Not just pass/fail.
+
+**Multi-agent fix handoff** — one click writes a complete fix prompt to your clipboard for Claude Code, Cursor, Codex CLI, or any agent that reads Markdown. No vendor lock-in at the moment of repair. Or click "Fix in Axolotl" to repair in place.
 
 **Human-in-the-loop** — you review the test plan, approve each phase, and decide what to do with the results.
 
