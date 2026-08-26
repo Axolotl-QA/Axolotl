@@ -44,6 +44,9 @@ service AccountService {
 
   // Returns a link the webview can use to redirect back to the user's IDE.
   rpc getRedirectUrl(EmptyRequest) returns (String);
+
+  // Refreshes an expired session without sending the user through login again.
+  rpc refreshSession(RefreshSessionRequest) returns (RefreshSessionResponse);
 }
 
 message AuthStateChangedRequest {
@@ -53,6 +56,16 @@ message AuthStateChangedRequest {
 
 message AuthState {
   optional UserInfo user = 1;
+}
+
+message RefreshSessionRequest {
+  string refresh_token = 1;
+}
+
+message RefreshSessionResponse {
+  string access_token = 1;
+  optional string refresh_token = 2;
+  int64 expires_at = 3;
 }
 
 // User's information

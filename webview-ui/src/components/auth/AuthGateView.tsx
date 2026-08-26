@@ -24,6 +24,12 @@ export const AuthGateView = () => {
 					Please sign in to continue using Axolotl.
 				</p>
 
+				<button
+					type="button"
+					onClick={handleSignIn}
+					className="codicon codicon-refresh text-(--vscode-descriptionForeground) cursor-pointer border-0 bg-transparent"
+				/>
+
 				<VSCodeButton appearance="primary" className="w-full" disabled={isLoginLoading} onClick={handleSignIn}>
 					Sign In
 					{isLoginLoading && (
