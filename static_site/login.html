@@ -447,7 +447,8 @@
         setLoading(true)
         showStatus("Signing in...")
 
-        fetch(INSFORGE_BASE_URL + "/api/auth/sessions?client_type=desktop", {
+        // The session can be refreshed by the extension after this initial exchange.
+        fetch(INSFORGE_BASE_URL + "/api/auth/sessions", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email: email, password: password }),
